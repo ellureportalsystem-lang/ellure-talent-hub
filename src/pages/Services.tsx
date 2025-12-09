@@ -73,7 +73,7 @@ const Services = () => {
       <Navbar />
 
       {/* Hero Section */}
-      <section className="relative bg-gradient-primary text-primary-foreground py-16 md:py-20 overflow-hidden">
+      <section className="relative bg-gradient-primary text-primary-foreground py-14 md:py-20 overflow-hidden">
         <div className="absolute inset-0 bg-grid opacity-10" />
         <div className="absolute top-20 right-10 w-72 h-72 bg-white/5 rounded-full blur-3xl" />
         
@@ -84,9 +84,9 @@ const Services = () => {
             transition={{ duration: 0.5 }}
           >
             <span className="text-sm font-medium uppercase tracking-wider text-primary-foreground/80">What We Do</span>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mt-2 mb-6">Our Services</h1>
-            <p className="text-xl text-primary-foreground/90 max-w-3xl mx-auto">
-              Comprehensive recruitment solutions tailored to your organizational needs
+            <h1 className="hero-title text-3xl md:text-4xl lg:text-5xl mt-2 mb-5">Our <span className="gold-text">Services</span></h1>
+            <p className="hero-subtitle text-base md:text-lg text-primary-foreground/90 max-w-3xl mx-auto">
+              Comprehensive recruitment solutions tailored to your <span className="gold-text">organizational needs</span>
             </p>
           </motion.div>
         </div>
@@ -101,7 +101,7 @@ const Services = () => {
           viewport={{ once: true }}
         >
           <span className="text-sm font-medium text-primary uppercase tracking-wider">Explore</span>
-          <h2 className="text-3xl font-bold">What We Offer</h2>
+          <h2 className="font-poppins text-3xl font-semibold tracking-tight">What We Offer</h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
             Click on any service to learn more about how we can help your organization
           </p>
@@ -185,7 +185,7 @@ const Services = () => {
             viewport={{ once: true }}
           >
             <span className="text-sm font-medium text-primary uppercase tracking-wider">How It Works</span>
-            <h2 className="text-3xl font-bold">Our Process</h2>
+            <h2 className="font-poppins text-3xl font-semibold tracking-tight">Our Process</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
               A systematic approach to finding the perfect talent for your organization
             </p>
@@ -246,7 +246,7 @@ const Services = () => {
         <Card className="p-12 bg-gradient-primary text-primary-foreground text-center relative overflow-hidden">
           <div className="absolute inset-0 bg-grid opacity-10" />
           <div className="relative z-10 max-w-2xl mx-auto space-y-6">
-            <h2 className="text-3xl font-bold">Let's Build Your Team Together</h2>
+            <h2 className="font-poppins text-3xl font-semibold tracking-tight">Let's <span className="gold-text">Build Your Team Together</span></h2>
             <p className="text-primary-foreground/90">
               Get in touch to discuss your recruitment needs and discover how we can help.
             </p>

@@ -177,7 +177,10 @@ const ApplicantDashboard = () => {
       {/* Header */}
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur">
         <div className="container flex h-16 items-center justify-between">
-          <h1 className="text-xl font-bold">Ellure Applicant Portal</h1>
+          <div className="flex items-center gap-2">
+            <img src="/logo1.png" alt="Ellure NexHire" className="h-8 w-8 object-contain" />
+            <h1 className="text-xl font-bold">Ellure NexHire</h1>
+          </div>
           <Button variant="ghost" size="sm" onClick={handleLogout}>
             <LogOut className="mr-2 h-4 w-4" />
             Logout

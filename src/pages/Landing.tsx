@@ -84,7 +84,7 @@ const Landing = () => {
       <Navbar />
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-primary py-16 md:py-24">
+      <section className="relative overflow-hidden bg-gradient-primary py-14 md:py-20">
         {/* Decorative elements */}
         <div className="absolute inset-0 bg-grid opacity-10" />
         <div className="absolute top-20 left-10 w-72 h-72 bg-white/5 rounded-full blur-3xl" />
@@ -98,18 +98,30 @@ const Landing = () => {
               animate={{ opacity: 1, y: 0 }} 
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.5 }}
-              className="text-center text-primary-foreground space-y-6 pb-8"
+              className="text-center text-primary-foreground space-y-5 pb-6"
             >
               <motion.h1 
-                className="text-4xl md:text-5xl lg:text-6xl font-bold max-w-4xl mx-auto leading-tight"
+                className="hero-title text-3xl md:text-4xl lg:text-5xl max-w-4xl mx-auto leading-tight"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
               >
-                {heroSlides[currentSlide].title}
+                {currentSlide === 0 ? (
+                  <>
+                    Empowering Organizations With <span className="gold-text">Exceptional Talent</span>
+                  </>
+                ) : currentSlide === 1 ? (
+                  <>
+                    Your Trusted Partner in <span className="gold-text">End-to-End Recruitment Excellence</span>
+                  </>
+                ) : (
+                  <>
+                    Transforming Hiring for a <span className="gold-text">Better, Smarter Workforce</span>
+                  </>
+                )}
               </motion.h1>
               <motion.p 
-                className="text-lg md:text-xl max-w-3xl mx-auto text-primary-foreground/90"
+                className="hero-subtitle text-base md:text-lg max-w-3xl mx-auto text-primary-foreground/90"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
@@ -117,7 +129,7 @@ const Landing = () => {
                 {heroSlides[currentSlide].subtitle}
               </motion.p>
               <motion.div 
-                className="flex flex-col sm:flex-row gap-4 justify-center pt-4"
+                className="flex flex-col sm:flex-row gap-4 justify-center pt-3"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
@@ -139,7 +151,7 @@ const Landing = () => {
           </AnimatePresence>
           
           {/* Slider indicators */}
-          <div className="flex gap-2 justify-center pt-4">
+          <div className="flex gap-2 justify-center pt-3">
             {heroSlides.map((_, i) => (
               <button 
                 key={i} 
@@ -249,12 +261,12 @@ const Landing = () => {
           >
             <div className="text-center mb-8">
               <span className="text-sm font-medium text-primary uppercase tracking-wider">Who We Are</span>
-              <h2 className="text-3xl md:text-4xl font-bold mt-2">About Us</h2>
+              <h2 className="font-poppins text-3xl md:text-4xl font-semibold tracking-tight mt-2">About Us</h2>
               <div className="w-24 h-1 bg-primary mx-auto mt-4 rounded-full" />
             </div>
             <Card className="p-8 md:p-12 card-hover">
               <p className="text-lg text-muted-foreground leading-relaxed text-center">
-                Ellure Consulting Services connects organizations with exceptional, industry-ready talent through modern, data-driven recruitment solutions. With nearly a decade of experience across IT, Non-IT, Telecom, BFSI, Engineering, and more, we help businesses hire smarter, faster, and with confidence. Our mission is simple — deliver the right talent for the right role, every time.
+                Ellure NexHire connects organizations with exceptional, industry-ready talent through modern, data-driven recruitment solutions. With nearly a decade of experience across IT, Non-IT, Telecom, BFSI, Engineering, and more, we help businesses hire smarter, faster, and with confidence. Our mission is simple — deliver the right talent for the right role, every time.
               </p>
               <div className="flex justify-center mt-8">
                 <Button size="lg" className="btn-hover" asChild>
@@ -279,7 +291,7 @@ const Landing = () => {
             viewport={{ once: true }}
           >
             <span className="text-sm font-medium text-primary uppercase tracking-wider">What We Offer</span>
-            <h2 className="text-3xl md:text-4xl font-bold mt-2">Powerful Features</h2>
+            <h2 className="font-poppins text-3xl md:text-4xl font-semibold tracking-tight mt-2">Powerful Features</h2>
             <p className="text-muted-foreground mt-4 max-w-2xl mx-auto">
               Click on any feature card to explore its full capabilities
             </p>
@@ -363,8 +375,8 @@ const Landing = () => {
           <Card className="p-12 bg-gradient-primary text-primary-foreground text-center relative overflow-hidden">
             <div className="absolute inset-0 bg-grid opacity-10" />
             <div className="relative z-10 max-w-2xl mx-auto space-y-6">
-              <h2 className="text-3xl md:text-4xl font-bold">Ready to Transform Your Hiring?</h2>
-              <p className="text-primary-foreground/90 text-lg">
+              <h2 className="font-poppins text-3xl md:text-4xl font-semibold tracking-tight">Ready to <span className="gold-text">Transform Your Hiring</span>?</h2>
+              <p className="hero-subtitle text-primary-foreground/90 text-lg">
                 Join hundreds of organizations that trust Ellure for their recruitment needs.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center pt-2">

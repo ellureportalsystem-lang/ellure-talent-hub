@@ -91,7 +91,7 @@ const MessagesPage = () => {
               <p className="text-sm text-muted-foreground mb-4">2 hours ago</p>
               <div className="prose prose-sm max-w-none">
                 <p>Dear Client,</p>
-                <p>Welcome to the Ellure Consulting Services recruitment portal! We're excited to have you on board.</p>
+                <p>Welcome to the Ellure NexHire recruitment portal! We're excited to have you on board.</p>
                 <p>Here are some quick tips to get started:</p>
                 <ul>
                   <li>Search and filter candidates based on your requirements</li>

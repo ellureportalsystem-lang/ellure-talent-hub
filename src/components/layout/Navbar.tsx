@@ -23,11 +23,11 @@ const Navbar = () => {
         <Link to="/" className="flex items-center gap-2 group">
           <img 
             src="/logo1.png" 
-            alt="Ellure Consulting Services" 
+            alt="Ellure NexHire" 
             className="h-10 w-10 object-contain transition-transform duration-300 group-hover:scale-105" 
           />
           <span className="text-xl font-bold transition-colors duration-300 group-hover:text-primary">
-            Ellure Consulting Services
+            Ellure NexHire
           </span>
         </Link>
 

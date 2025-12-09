@@ -57,7 +57,7 @@ const AdminDashboard = () => {
                     <span className="text-primary-foreground font-bold text-lg">E</span>
                   </div>
                   <div>
-                    <h1 className="text-base font-bold text-foreground">Ellure Admin</h1>
+                    <h1 className="text-base font-bold text-foreground">Ellure NexHire</h1>
                     <p className="text-xs text-muted-foreground truncate max-w-[140px]">
                       {profile?.email || "Administrator"}
                     </p>

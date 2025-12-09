@@ -30,7 +30,7 @@ const Contact = () => {
       <Navbar />
 
       {/* Hero Section */}
-      <section className="relative bg-gradient-primary text-primary-foreground py-16 md:py-20 overflow-hidden">
+      <section className="relative bg-gradient-primary text-primary-foreground py-14 md:py-20 overflow-hidden">
         <div className="absolute inset-0 bg-grid opacity-10" />
         <div className="absolute top-20 left-10 w-72 h-72 bg-white/5 rounded-full blur-3xl" />
         
@@ -41,9 +41,9 @@ const Contact = () => {
             transition={{ duration: 0.5 }}
           >
             <span className="text-sm font-medium uppercase tracking-wider text-primary-foreground/80">Reach Out</span>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mt-2 mb-6">Get in Touch</h1>
-            <p className="text-xl text-primary-foreground/90 max-w-3xl mx-auto">
-              We'd love to hear from you. Let's discuss how we can help.
+            <h1 className="hero-title text-3xl md:text-4xl lg:text-5xl mt-2 mb-5"><span className="gold-text">Get in Touch</span></h1>
+            <p className="hero-subtitle text-base md:text-lg text-primary-foreground/90 max-w-3xl mx-auto">
+              We'd love to hear from you. Let's discuss how we can <span className="gold-text">help</span>.
             </p>
           </motion.div>
         </div>
@@ -72,7 +72,7 @@ const Contact = () => {
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
                 className="rounded-lg pointer-events-none"
-                title="Ellure Consulting Services Location"
+                title="Ellure NexHire Location"
               />
             </Card>
           </a>

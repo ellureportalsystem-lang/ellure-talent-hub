@@ -98,10 +98,9 @@ const AdminLogin = () => {
 
         <Card className="shadow-xl border-2 border-primary/20">
           <CardHeader className="space-y-1 text-center">
-            <div className="flex justify-center mb-4">
-              <div className="h-12 w-12 rounded-lg bg-gradient-primary flex items-center justify-center">
-                <Shield className="h-6 w-6 text-white" />
-              </div>
+            <div className="flex flex-col items-center justify-center mb-4 gap-2">
+              <img src="/logo1.png" alt="Ellure NexHire" className="h-12 w-12 object-contain" />
+              <span className="text-sm font-semibold text-muted-foreground">Ellure NexHire</span>
             </div>
             <div className="flex items-center justify-center gap-2">
               <CardTitle className="text-2xl">Admin Portal</CardTitle>

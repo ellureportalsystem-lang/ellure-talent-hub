@@ -11,11 +11,11 @@ const Footer = () => {
             <Link to="/" className="flex items-center gap-2 group">
               <img 
                 src="/logo1.png" 
-                alt="Ellure Consulting Services" 
+                alt="Ellure NexHire" 
                 className="h-8 w-8 object-contain transition-transform duration-300 group-hover:scale-110" 
               />
               <span className="text-lg font-bold transition-colors duration-300 group-hover:text-primary">
-                Ellure Consulting Services
+                Ellure NexHire
               </span>
             </Link>
             <p className="text-sm text-muted-foreground">
@@ -150,7 +150,7 @@ const Footer = () => {
         <div className="pt-8 border-t">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-sm text-muted-foreground text-center md:text-left">
-              © {new Date().getFullYear()} Ellure Consulting Services. All rights reserved.
+              © {new Date().getFullYear()} Ellure NexHire. All rights reserved.
             </p>
             <div className="flex gap-6 text-sm text-muted-foreground">
               <Link to="/privacy" className="hover:text-primary transition-colors duration-300">

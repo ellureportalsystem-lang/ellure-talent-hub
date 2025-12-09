@@ -19,7 +19,7 @@ const About = () => {
       <Navbar />
 
       {/* Hero Section */}
-      <section className="relative bg-gradient-primary text-primary-foreground py-16 md:py-20 overflow-hidden">
+      <section className="relative bg-gradient-primary text-primary-foreground py-14 md:py-20 overflow-hidden">
         <div className="absolute inset-0 bg-grid opacity-10" />
         <div className="absolute bottom-10 right-20 w-72 h-72 bg-white/5 rounded-full blur-3xl" />
         
@@ -30,9 +30,9 @@ const About = () => {
             transition={{ duration: 0.5 }}
           >
             <span className="text-sm font-medium uppercase tracking-wider text-primary-foreground/80">Our Story</span>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mt-2 mb-6">About Ellure Consulting Services</h1>
-            <p className="text-xl text-primary-foreground/90 max-w-3xl mx-auto">
-              A decade of excellence in connecting organizations with exceptional talent
+            <h1 className="hero-title text-3xl md:text-4xl lg:text-5xl mt-2 mb-5">About <span className="gold-text">Ellure Consulting Services</span></h1>
+            <p className="hero-subtitle text-base md:text-lg text-primary-foreground/90 max-w-3xl mx-auto">
+              A decade of excellence in connecting organizations with <span className="gold-text">exceptional talent</span>
             </p>
           </motion.div>
         </div>
@@ -77,7 +77,7 @@ const About = () => {
             viewport={{ once: true }}
           >
             <span className="text-sm font-medium text-primary uppercase tracking-wider">History</span>
-            <h2 className="text-3xl font-bold">Our Journey</h2>
+            <h2 className="font-poppins text-3xl font-semibold tracking-tight">Our Journey</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
               Key milestones in our growth story
             </p>
@@ -118,7 +118,7 @@ const About = () => {
           viewport={{ once: true }}
         >
           <span className="text-sm font-medium text-primary uppercase tracking-wider">Foundation</span>
-          <h2 className="text-3xl font-bold">Our Foundation</h2>
+          <h2 className="font-poppins text-3xl font-semibold tracking-tight">Our Foundation</h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
             The principles that guide everything we do
           </p>
@@ -179,7 +179,7 @@ const About = () => {
             viewport={{ once: true }}
           >
             <span className="text-sm font-medium text-primary uppercase tracking-wider">Why Us</span>
-            <h2 className="text-3xl font-bold">Why Choose Ellure?</h2>
+            <h2 className="font-poppins text-3xl font-semibold tracking-tight">Why Choose Ellure?</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
               What sets us apart in the recruitment industry
             </p>
@@ -237,7 +237,7 @@ const About = () => {
         <Card className="p-12 bg-gradient-primary text-primary-foreground text-center relative overflow-hidden">
           <div className="absolute inset-0 bg-grid opacity-10" />
           <div className="relative z-10 max-w-2xl mx-auto space-y-6">
-            <h2 className="text-3xl font-bold">Ready to Work With Us?</h2>
+            <h2 className="font-poppins text-3xl font-semibold tracking-tight">Ready to <span className="gold-text">Work With Us</span>?</h2>
             <p className="text-primary-foreground/90">
               Whether you're looking for talent or seeking opportunities, we're here to help.
             </p>

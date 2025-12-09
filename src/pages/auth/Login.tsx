@@ -196,8 +196,9 @@ const Login = () => {
 
         <Card className="shadow-xl">
           <CardHeader className="space-y-1 text-center">
-            <div className="flex justify-center mb-4">
-              <img src="/logo1.png" alt="Ellure Consulting Services" className="h-12 w-12 object-contain" />
+            <div className="flex flex-col items-center justify-center mb-4 gap-2">
+              <img src="/logo1.png" alt="Ellure NexHire" className="h-12 w-12 object-contain" />
+              <span className="text-sm font-semibold text-muted-foreground">Ellure NexHire</span>
             </div>
             <CardTitle className="text-2xl">Login</CardTitle>
             <CardDescription>

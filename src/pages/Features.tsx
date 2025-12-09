@@ -67,7 +67,7 @@ const Features = () => {
       <Navbar />
 
       {/* Hero Section */}
-      <section className="relative bg-gradient-primary text-primary-foreground py-16 md:py-20 overflow-hidden">
+      <section className="relative bg-gradient-primary text-primary-foreground py-14 md:py-20 overflow-hidden">
         <div className="absolute inset-0 bg-grid opacity-10" />
         <div className="absolute top-10 left-20 w-72 h-72 bg-white/5 rounded-full blur-3xl" />
         
@@ -78,9 +78,9 @@ const Features = () => {
             transition={{ duration: 0.5 }}
           >
             <span className="text-sm font-medium uppercase tracking-wider text-primary-foreground/80">Capabilities</span>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mt-2 mb-6">Platform Features</h1>
-            <p className="text-xl text-primary-foreground/90 max-w-3xl mx-auto">
-              Everything you need to manage recruitment at scale with efficiency and precision
+            <h1 className="hero-title text-3xl md:text-4xl lg:text-5xl mt-2 mb-5"><span className="gold-text">Platform Features</span></h1>
+            <p className="hero-subtitle text-base md:text-lg text-primary-foreground/90 max-w-3xl mx-auto">
+              Everything you need to manage recruitment at scale with <span className="gold-text">efficiency and precision</span>
             </p>
           </motion.div>
         </div>
@@ -95,7 +95,7 @@ const Features = () => {
           viewport={{ once: true }}
         >
           <span className="text-sm font-medium text-primary uppercase tracking-wider">Explore</span>
-          <h2 className="text-3xl font-bold">Powerful Features</h2>
+          <h2 className="font-poppins text-3xl font-semibold tracking-tight">Powerful Features</h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
             Click on any feature to explore its capabilities and key benefits
           </p>
@@ -187,7 +187,7 @@ const Features = () => {
             viewport={{ once: true }}
           >
             <span className="text-sm font-medium text-primary uppercase tracking-wider">Results</span>
-            <h2 className="text-3xl font-bold">Platform Impact</h2>
+            <h2 className="font-poppins text-3xl font-semibold tracking-tight">Platform Impact</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
               Real results from organizations using our platform
             </p>
@@ -224,7 +224,7 @@ const Features = () => {
           viewport={{ once: true }}
         >
           <span className="text-sm font-medium text-primary uppercase tracking-wider">Enterprise Ready</span>
-          <h2 className="text-3xl font-bold">Built for Scale & Security</h2>
+          <h2 className="font-poppins text-3xl font-semibold tracking-tight">Built for Scale & Security</h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
             Enterprise-grade features designed for scale and security
           </p>
@@ -260,7 +260,7 @@ const Features = () => {
         <Card className="p-12 bg-gradient-primary text-primary-foreground text-center relative overflow-hidden">
           <div className="absolute inset-0 bg-grid opacity-10" />
           <div className="relative z-10 max-w-2xl mx-auto space-y-6">
-            <h2 className="text-3xl font-bold">Ready to Experience These Features?</h2>
+            <h2 className="font-poppins text-3xl font-semibold tracking-tight">Ready to <span className="gold-text">Experience These Features</span>?</h2>
             <p className="text-primary-foreground/90">
               Get started today and transform your recruitment process.
             </p>

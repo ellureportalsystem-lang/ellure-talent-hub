@@ -25,7 +25,7 @@ const AdminSettings = () => {
             <Label htmlFor="company-name">Company Name</Label>
             <Input 
               id="company-name" 
-              defaultValue="Ellure Consulting Services"
+              defaultValue="Ellure NexHire"
             />
           </div>
           <div className="space-y-2">

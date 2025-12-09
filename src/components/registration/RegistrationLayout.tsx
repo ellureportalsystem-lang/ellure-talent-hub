@@ -41,10 +41,9 @@ const RegistrationLayout = ({
       <header className="border-b bg-background/95 backdrop-blur sticky top-0 z-50">
         <div className="container flex h-16 items-center justify-between">
           <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-            <img src="/logo1.png" alt="Ellure Consulting Services" className="h-8 w-8 object-contain" />
+            <img src="/logo1.png" alt="Ellure NexHire" className="h-8 w-8 object-contain" />
             <div>
-              <h1 className="text-lg font-bold">Ellure Consulting Services</h1>
-              <p className="text-xs text-muted-foreground">Talent Hub</p>
+              <h1 className="text-lg font-bold">Ellure NexHire</h1>
             </div>
           </Link>
           <Link to="/">
@@ -124,7 +123,7 @@ const RegistrationLayout = ({
       {/* Footer */}
       <footer className="border-t py-6 mt-12">
         <div className="container text-center text-sm text-muted-foreground">
-          <p>© 2024 Ellure Consulting Services. All rights reserved.</p>
+          <p>© 2024 Ellure NexHire. All rights reserved.</p>
         </div>
       </footer>
     </div>

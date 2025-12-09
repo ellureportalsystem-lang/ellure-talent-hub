@@ -81,7 +81,7 @@ const Industries = () => {
       <Navbar />
 
       {/* Hero Section */}
-      <section className="relative bg-gradient-primary text-primary-foreground py-16 md:py-20 overflow-hidden">
+      <section className="relative bg-gradient-primary text-primary-foreground py-14 md:py-20 overflow-hidden">
         <div className="absolute inset-0 bg-grid opacity-10" />
         <div className="absolute bottom-10 left-10 w-72 h-72 bg-white/5 rounded-full blur-3xl" />
         
@@ -92,9 +92,9 @@ const Industries = () => {
             transition={{ duration: 0.5 }}
           >
             <span className="text-sm font-medium uppercase tracking-wider text-primary-foreground/80">Sectors We Serve</span>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mt-2 mb-6">Industries We Serve</h1>
-            <p className="text-xl text-primary-foreground/90 max-w-3xl mx-auto">
-              Specialized recruitment expertise across diverse sectors
+            <h1 className="hero-title text-3xl md:text-4xl lg:text-5xl mt-2 mb-5"><span className="gold-text">Industries We Serve</span></h1>
+            <p className="hero-subtitle text-base md:text-lg text-primary-foreground/90 max-w-3xl mx-auto">
+              Specialized recruitment expertise across <span className="gold-text">diverse sectors</span>
             </p>
           </motion.div>
         </div>
@@ -109,7 +109,7 @@ const Industries = () => {
           viewport={{ once: true }}
         >
           <span className="text-sm font-medium text-primary uppercase tracking-wider">Expertise</span>
-          <h2 className="text-3xl font-bold">Our Sector Expertise</h2>
+          <h2 className="font-poppins text-3xl font-semibold tracking-tight">Our Sector Expertise</h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
             Click on any industry to explore our capabilities and sample roles
           </p>
@@ -157,7 +157,7 @@ const Industries = () => {
             viewport={{ once: true }}
           >
             <span className="text-sm font-medium text-primary uppercase tracking-wider">Why Us</span>
-            <h2 className="text-3xl font-bold">Why Work With Ellure?</h2>
+            <h2 className="font-poppins text-3xl font-semibold tracking-tight">Why Work With Ellure?</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
               Deep sector knowledge enables better candidate matching and faster placements
             </p>
@@ -220,7 +220,7 @@ const Industries = () => {
         <Card className="p-12 bg-gradient-primary text-primary-foreground text-center relative overflow-hidden">
           <div className="absolute inset-0 bg-grid opacity-10" />
           <div className="relative z-10 max-w-2xl mx-auto space-y-6">
-            <h2 className="text-3xl font-bold">Looking for Talent in Your Industry?</h2>
+            <h2 className="font-poppins text-3xl font-semibold tracking-tight">Looking for <span className="gold-text">Talent in Your Industry</span>?</h2>
             <p className="text-primary-foreground/90">
               Let's discuss your specific sector requirements and find the perfect candidates.
             </p>
