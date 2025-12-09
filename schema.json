@@ -1,0 +1,1854 @@
+{
+  "tables": [
+    {
+      "table_name": "applicants",
+      "columns": [
+        {
+          "column_name": "id",
+          "data_type": "uuid",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "NO",
+          "column_default": "gen_random_uuid()",
+          "ordinal_position": 1
+        },
+        {
+          "column_name": "user_id",
+          "data_type": "uuid",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 2
+        },
+        {
+          "column_name": "client_id",
+          "data_type": "uuid",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 3
+        },
+        {
+          "column_name": "name",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 4
+        },
+        {
+          "column_name": "phone",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 5
+        },
+        {
+          "column_name": "email",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 6
+        },
+        {
+          "column_name": "city",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 7
+        },
+        {
+          "column_name": "skill",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 8
+        },
+        {
+          "column_name": "communication",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 9
+        },
+        {
+          "column_name": "job_role",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 10
+        },
+        {
+          "column_name": "education_level",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 11
+        },
+        {
+          "column_name": "education_board",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 12
+        },
+        {
+          "column_name": "medium",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 13
+        },
+        {
+          "column_name": "course_degree",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 14
+        },
+        {
+          "column_name": "university",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 15
+        },
+        {
+          "column_name": "percentage",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 16
+        },
+        {
+          "column_name": "passing_year",
+          "data_type": "integer",
+          "character_maximum_length": null,
+          "numeric_precision": 32,
+          "numeric_scale": 0,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 17
+        },
+        {
+          "column_name": "experience_type",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 18
+        },
+        {
+          "column_name": "total_experience",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 19
+        },
+        {
+          "column_name": "current_company",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 20
+        },
+        {
+          "column_name": "current_designation",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 21
+        },
+        {
+          "column_name": "current_ctc",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 22
+        },
+        {
+          "column_name": "expected_ctc",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 23
+        },
+        {
+          "column_name": "key_skills",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 24
+        },
+        {
+          "column_name": "notice_period",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 25
+        },
+        {
+          "column_name": "availability",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 26
+        },
+        {
+          "column_name": "resume_file",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 27
+        },
+        {
+          "column_name": "profile_image",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 28
+        },
+        {
+          "column_name": "status",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": "'submitted'::text",
+          "ordinal_position": 29
+        },
+        {
+          "column_name": "verified",
+          "data_type": "boolean",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": "false",
+          "ordinal_position": 30
+        },
+        {
+          "column_name": "otp_verified",
+          "data_type": "boolean",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": "false",
+          "ordinal_position": 31
+        },
+        {
+          "column_name": "remarks",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 32
+        },
+        {
+          "column_name": "registration_date",
+          "data_type": "timestamp with time zone",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": "now()",
+          "ordinal_position": 33
+        },
+        {
+          "column_name": "profile_complete_percent",
+          "data_type": "integer",
+          "character_maximum_length": null,
+          "numeric_precision": 32,
+          "numeric_scale": 0,
+          "is_nullable": "YES",
+          "column_default": "0",
+          "ordinal_position": 34
+        },
+        {
+          "column_name": "is_deleted",
+          "data_type": "boolean",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": "false",
+          "ordinal_position": 35
+        },
+        {
+          "column_name": "deleted_at",
+          "data_type": "timestamp with time zone",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 36
+        },
+        {
+          "column_name": "created_at",
+          "data_type": "timestamp with time zone",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "NO",
+          "column_default": "now()",
+          "ordinal_position": 37
+        },
+        {
+          "column_name": "updated_at",
+          "data_type": "timestamp with time zone",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "NO",
+          "column_default": "now()",
+          "ordinal_position": 38
+        },
+        {
+          "column_name": "date",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 39
+        },
+        {
+          "column_name": "full_name",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 40
+        },
+        {
+          "column_name": "mobile_number",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 41
+        },
+        {
+          "column_name": "email_address",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 42
+        },
+        {
+          "column_name": "city_current_location",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 43
+        },
+        {
+          "column_name": "skill_job_role_applying_for",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 44
+        },
+        {
+          "column_name": "highest_qualification",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 45
+        },
+        {
+          "column_name": "medium_of_study",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 46
+        },
+        {
+          "column_name": "course_degree_name",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 47
+        },
+        {
+          "column_name": "university_institute_name",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 48
+        },
+        {
+          "column_name": "year_of_passing",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 49
+        },
+        {
+          "column_name": "work_experience",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 50
+        },
+        {
+          "column_name": "total_experience_numbers",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 51
+        },
+        {
+          "column_name": "exp_ctc",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 52
+        },
+        {
+          "column_name": "key_skill",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 53
+        },
+        {
+          "column_name": "upload_cv_any_format",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 54
+        },
+        {
+          "column_name": "education",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 55
+        }
+      ]
+    },
+    {
+      "table_name": "profiles",
+      "columns": [
+        {
+          "column_name": "id",
+          "data_type": "uuid",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 1
+        },
+        {
+          "column_name": "email",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 2
+        },
+        {
+          "column_name": "phone",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 3
+        },
+        {
+          "column_name": "full_name",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 4
+        },
+        {
+          "column_name": "role",
+          "data_type": "USER-DEFINED",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "NO",
+          "column_default": "'applicant'::user_role",
+          "ordinal_position": 5
+        },
+        {
+          "column_name": "client_id",
+          "data_type": "uuid",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 6
+        },
+        {
+          "column_name": "applicant_id",
+          "data_type": "uuid",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 7
+        },
+        {
+          "column_name": "password_changed",
+          "data_type": "boolean",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": "false",
+          "ordinal_position": 8
+        },
+        {
+          "column_name": "must_change_password",
+          "data_type": "boolean",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": "false",
+          "ordinal_position": 9
+        },
+        {
+          "column_name": "is_old_applicant",
+          "data_type": "boolean",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": "false",
+          "ordinal_position": 10
+        },
+        {
+          "column_name": "display_name",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 11
+        },
+        {
+          "column_name": "headline",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 12
+        },
+        {
+          "column_name": "summary",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 13
+        },
+        {
+          "column_name": "location",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 14
+        },
+        {
+          "column_name": "key_skills",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 15
+        },
+        {
+          "column_name": "resume_file",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 16
+        },
+        {
+          "column_name": "profile_image",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 17
+        },
+        {
+          "column_name": "profile_complete_percent",
+          "data_type": "integer",
+          "character_maximum_length": null,
+          "numeric_precision": 32,
+          "numeric_scale": 0,
+          "is_nullable": "YES",
+          "column_default": "0",
+          "ordinal_position": 18
+        },
+        {
+          "column_name": "created_at",
+          "data_type": "timestamp with time zone",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "NO",
+          "column_default": "now()",
+          "ordinal_position": 19
+        },
+        {
+          "column_name": "updated_at",
+          "data_type": "timestamp with time zone",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "NO",
+          "column_default": "now()",
+          "ordinal_position": 20
+        },
+        {
+          "column_name": "date",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 21
+        },
+        {
+          "column_name": "mobile_number",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 22
+        },
+        {
+          "column_name": "email_address",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 23
+        },
+        {
+          "column_name": "city_current_location",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 24
+        },
+        {
+          "column_name": "skill",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 25
+        },
+        {
+          "column_name": "skill_job_role_applying_for",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 26
+        },
+        {
+          "column_name": "communication",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 27
+        },
+        {
+          "column_name": "highest_qualification",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 28
+        },
+        {
+          "column_name": "education_board",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 29
+        },
+        {
+          "column_name": "medium_of_study",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 30
+        },
+        {
+          "column_name": "course_degree_name",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 31
+        },
+        {
+          "column_name": "university_institute_name",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 32
+        },
+        {
+          "column_name": "year_of_passing",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 33
+        },
+        {
+          "column_name": "work_experience",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 34
+        },
+        {
+          "column_name": "total_experience_numbers",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 35
+        },
+        {
+          "column_name": "current_company",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 36
+        },
+        {
+          "column_name": "current_designation",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 37
+        },
+        {
+          "column_name": "current_ctc",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 38
+        },
+        {
+          "column_name": "exp_ctc",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 39
+        },
+        {
+          "column_name": "notice_period",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 40
+        },
+        {
+          "column_name": "key_skill",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 41
+        },
+        {
+          "column_name": "upload_cv_any_format",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 42
+        },
+        {
+          "column_name": "education",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 43
+        },
+        {
+          "column_name": "contact",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 44
+        }
+      ]
+    },
+    {
+      "table_name": "clients",
+      "columns": [
+        {
+          "column_name": "id",
+          "data_type": "uuid",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "NO",
+          "column_default": "gen_random_uuid()",
+          "ordinal_position": 1
+        },
+        {
+          "column_name": "user_id",
+          "data_type": "uuid",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 2
+        },
+        {
+          "column_name": "company_name",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 3
+        },
+        {
+          "column_name": "contact_person",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 4
+        },
+        {
+          "column_name": "email",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 5
+        },
+        {
+          "column_name": "phone",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 6
+        },
+        {
+          "column_name": "slug",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 7
+        },
+        {
+          "column_name": "subscription_plan",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 8
+        },
+        {
+          "column_name": "subscription_status",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": "'active'::text",
+          "ordinal_position": 9
+        },
+        {
+          "column_name": "payment_id",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 10
+        },
+        {
+          "column_name": "payment_date",
+          "data_type": "timestamp with time zone",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 11
+        },
+        {
+          "column_name": "subscription_start_date",
+          "data_type": "timestamp with time zone",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "NO",
+          "column_default": "now()",
+          "ordinal_position": 12
+        },
+        {
+          "column_name": "subscription_end_date",
+          "data_type": "timestamp with time zone",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 13
+        },
+        {
+          "column_name": "max_applicants",
+          "data_type": "integer",
+          "character_maximum_length": null,
+          "numeric_precision": 32,
+          "numeric_scale": 0,
+          "is_nullable": "YES",
+          "column_default": "1000",
+          "ordinal_position": 14
+        },
+        {
+          "column_name": "used_applicants",
+          "data_type": "integer",
+          "character_maximum_length": null,
+          "numeric_precision": 32,
+          "numeric_scale": 0,
+          "is_nullable": "YES",
+          "column_default": "0",
+          "ordinal_position": 15
+        },
+        {
+          "column_name": "is_active",
+          "data_type": "boolean",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": "true",
+          "ordinal_position": 16
+        },
+        {
+          "column_name": "created_at",
+          "data_type": "timestamp with time zone",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "NO",
+          "column_default": "now()",
+          "ordinal_position": 17
+        },
+        {
+          "column_name": "updated_at",
+          "data_type": "timestamp with time zone",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "NO",
+          "column_default": "now()",
+          "ordinal_position": 18
+        }
+      ]
+    },
+    {
+      "table_name": "shortlists",
+      "columns": [
+        {
+          "column_name": "id",
+          "data_type": "uuid",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "NO",
+          "column_default": "gen_random_uuid()",
+          "ordinal_position": 1
+        },
+        {
+          "column_name": "owner_id",
+          "data_type": "uuid",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 2
+        },
+        {
+          "column_name": "owner_type",
+          "data_type": "USER-DEFINED",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 3
+        },
+        {
+          "column_name": "name",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 4
+        },
+        {
+          "column_name": "description",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 5
+        },
+        {
+          "column_name": "is_shared",
+          "data_type": "boolean",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": "false",
+          "ordinal_position": 6
+        },
+        {
+          "column_name": "shared_token",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 7
+        },
+        {
+          "column_name": "created_at",
+          "data_type": "timestamp with time zone",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "NO",
+          "column_default": "now()",
+          "ordinal_position": 8
+        },
+        {
+          "column_name": "updated_at",
+          "data_type": "timestamp with time zone",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "NO",
+          "column_default": "now()",
+          "ordinal_position": 9
+        }
+      ]
+    },
+    {
+      "table_name": "shortlist_items",
+      "columns": [
+        {
+          "column_name": "id",
+          "data_type": "uuid",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "NO",
+          "column_default": "gen_random_uuid()",
+          "ordinal_position": 1
+        },
+        {
+          "column_name": "shortlist_id",
+          "data_type": "uuid",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 2
+        },
+        {
+          "column_name": "applicant_id",
+          "data_type": "uuid",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "NO",
+          "column_default": null,
+          "ordinal_position": 3
+        },
+        {
+          "column_name": "notes",
+          "data_type": "text",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "YES",
+          "column_default": null,
+          "ordinal_position": 4
+        },
+        {
+          "column_name": "added_at",
+          "data_type": "timestamp with time zone",
+          "character_maximum_length": null,
+          "numeric_precision": null,
+          "numeric_scale": null,
+          "is_nullable": "NO",
+          "column_default": "now()",
+          "ordinal_position": 5
+        }
+      ]
+    }
+  ],
+  "primary_keys": [
+    {
+      "table_name": "clients",
+      "constraint_name": "clients_pkey",
+      "columns": [
+        "id"
+      ]
+    },
+    {
+      "table_name": "profiles",
+      "constraint_name": "profiles_pkey",
+      "columns": [
+        "id"
+      ]
+    },
+    {
+      "table_name": "applicants",
+      "constraint_name": "applicants_pkey",
+      "columns": [
+        "id"
+      ]
+    },
+    {
+      "table_name": "shortlists",
+      "constraint_name": "shortlists_pkey",
+      "columns": [
+        "id"
+      ]
+    },
+    {
+      "table_name": "shortlist_items",
+      "constraint_name": "shortlist_items_pkey",
+      "columns": [
+        "id"
+      ]
+    }
+  ],
+  "foreign_keys": [
+    {
+      "table_name": "profiles",
+      "constraint_name": "profiles_client_id_fkey",
+      "column_name": "client_id",
+      "foreign_table_name": "clients",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "applicants",
+      "constraint_name": "applicants_user_id_fkey",
+      "column_name": "user_id",
+      "foreign_table_name": "profiles",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "applicants",
+      "constraint_name": "applicants_client_id_fkey",
+      "column_name": "client_id",
+      "foreign_table_name": "clients",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "shortlists",
+      "constraint_name": "shortlists_owner_id_fkey",
+      "column_name": "owner_id",
+      "foreign_table_name": "profiles",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "shortlist_items",
+      "constraint_name": "shortlist_items_shortlist_id_fkey",
+      "column_name": "shortlist_id",
+      "foreign_table_name": "shortlists",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "shortlist_items",
+      "constraint_name": "shortlist_items_applicant_id_fkey",
+      "column_name": "applicant_id",
+      "foreign_table_name": "applicants",
+      "foreign_column_name": "id"
+    }
+  ],
+  "unique_constraints": [
+    {
+      "table_name": "clients",
+      "constraint_name": "clients_user_id_key",
+      "columns": [
+        "user_id"
+      ]
+    },
+    {
+      "table_name": "clients",
+      "constraint_name": "clients_email_key",
+      "columns": [
+        "email"
+      ]
+    },
+    {
+      "table_name": "clients",
+      "constraint_name": "clients_slug_key",
+      "columns": [
+        "slug"
+      ]
+    },
+    {
+      "table_name": "clients",
+      "constraint_name": "clients_payment_id_key",
+      "columns": [
+        "payment_id"
+      ]
+    },
+    {
+      "table_name": "profiles",
+      "constraint_name": "profiles_email_key",
+      "columns": [
+        "email"
+      ]
+    },
+    {
+      "table_name": "profiles",
+      "constraint_name": "profiles_applicant_id_key",
+      "columns": [
+        "applicant_id"
+      ]
+    },
+    {
+      "table_name": "applicants",
+      "constraint_name": "applicants_user_id_key",
+      "columns": [
+        "user_id"
+      ]
+    },
+    {
+      "table_name": "shortlists",
+      "constraint_name": "shortlists_shared_token_key",
+      "columns": [
+        "shared_token"
+      ]
+    },
+    {
+      "table_name": "shortlist_items",
+      "constraint_name": "shortlist_items_shortlist_id_applicant_id_key",
+      "columns": [
+        "shortlist_id",
+        "applicant_id"
+      ]
+    }
+  ],
+  "indexes": [
+    {
+      "table_name": "applicants",
+      "index_name": "applicants_pkey",
+      "index_definition": "CREATE UNIQUE INDEX applicants_pkey ON public.applicants USING btree (id)"
+    },
+    {
+      "table_name": "applicants",
+      "index_name": "applicants_user_id_key",
+      "index_definition": "CREATE UNIQUE INDEX applicants_user_id_key ON public.applicants USING btree (user_id)"
+    },
+    {
+      "table_name": "applicants",
+      "index_name": "idx_applicants_user_id",
+      "index_definition": "CREATE INDEX idx_applicants_user_id ON public.applicants USING btree (user_id)"
+    },
+    {
+      "table_name": "applicants",
+      "index_name": "idx_applicants_client_id",
+      "index_definition": "CREATE INDEX idx_applicants_client_id ON public.applicants USING btree (client_id)"
+    },
+    {
+      "table_name": "applicants",
+      "index_name": "idx_applicants_email",
+      "index_definition": "CREATE INDEX idx_applicants_email ON public.applicants USING btree (email)"
+    },
+    {
+      "table_name": "applicants",
+      "index_name": "idx_applicants_phone",
+      "index_definition": "CREATE INDEX idx_applicants_phone ON public.applicants USING btree (phone)"
+    },
+    {
+      "table_name": "applicants",
+      "index_name": "idx_applicants_status",
+      "index_definition": "CREATE INDEX idx_applicants_status ON public.applicants USING btree (status)"
+    },
+    {
+      "table_name": "applicants",
+      "index_name": "idx_applicants_is_deleted",
+      "index_definition": "CREATE INDEX idx_applicants_is_deleted ON public.applicants USING btree (is_deleted)"
+    },
+    {
+      "table_name": "applicants",
+      "index_name": "idx_applicants_created_at",
+      "index_definition": "CREATE INDEX idx_applicants_created_at ON public.applicants USING btree (created_at)"
+    },
+    {
+      "table_name": "applicants",
+      "index_name": "idx_applicants_client_status",
+      "index_definition": "CREATE INDEX idx_applicants_client_status ON public.applicants USING btree (client_id, status) WHERE (is_deleted = false)"
+    },
+    {
+      "table_name": "applicants",
+      "index_name": "idx_applicants_user_status",
+      "index_definition": "CREATE INDEX idx_applicants_user_status ON public.applicants USING btree (user_id, status) WHERE (is_deleted = false)"
+    },
+    {
+      "table_name": "profiles",
+      "index_name": "profiles_pkey",
+      "index_definition": "CREATE UNIQUE INDEX profiles_pkey ON public.profiles USING btree (id)"
+    },
+    {
+      "table_name": "profiles",
+      "index_name": "profiles_email_key",
+      "index_definition": "CREATE UNIQUE INDEX profiles_email_key ON public.profiles USING btree (email)"
+    },
+    {
+      "table_name": "profiles",
+      "index_name": "profiles_applicant_id_key",
+      "index_definition": "CREATE UNIQUE INDEX profiles_applicant_id_key ON public.profiles USING btree (applicant_id)"
+    },
+    {
+      "table_name": "profiles",
+      "index_name": "idx_profiles_email",
+      "index_definition": "CREATE INDEX idx_profiles_email ON public.profiles USING btree (email)"
+    },
+    {
+      "table_name": "profiles",
+      "index_name": "idx_profiles_role",
+      "index_definition": "CREATE INDEX idx_profiles_role ON public.profiles USING btree (role)"
+    },
+    {
+      "table_name": "profiles",
+      "index_name": "idx_profiles_client_id",
+      "index_definition": "CREATE INDEX idx_profiles_client_id ON public.profiles USING btree (client_id)"
+    },
+    {
+      "table_name": "profiles",
+      "index_name": "idx_profiles_applicant_id",
+      "index_definition": "CREATE INDEX idx_profiles_applicant_id ON public.profiles USING btree (applicant_id)"
+    },
+    {
+      "table_name": "profiles",
+      "index_name": "idx_profiles_applicant_id_unique",
+      "index_definition": "CREATE UNIQUE INDEX idx_profiles_applicant_id_unique ON public.profiles USING btree (applicant_id) WHERE (applicant_id IS NOT NULL)"
+    },
+    {
+      "table_name": "profiles",
+      "index_name": "idx_profiles_role_client",
+      "index_definition": "CREATE INDEX idx_profiles_role_client ON public.profiles USING btree (role, client_id) WHERE (client_id IS NOT NULL)"
+    },
+    {
+      "table_name": "clients",
+      "index_name": "clients_pkey",
+      "index_definition": "CREATE UNIQUE INDEX clients_pkey ON public.clients USING btree (id)"
+    },
+    {
+      "table_name": "clients",
+      "index_name": "clients_user_id_key",
+      "index_definition": "CREATE UNIQUE INDEX clients_user_id_key ON public.clients USING btree (user_id)"
+    },
+    {
+      "table_name": "clients",
+      "index_name": "clients_email_key",
+      "index_definition": "CREATE UNIQUE INDEX clients_email_key ON public.clients USING btree (email)"
+    },
+    {
+      "table_name": "clients",
+      "index_name": "clients_slug_key",
+      "index_definition": "CREATE UNIQUE INDEX clients_slug_key ON public.clients USING btree (slug)"
+    },
+    {
+      "table_name": "clients",
+      "index_name": "clients_payment_id_key",
+      "index_definition": "CREATE UNIQUE INDEX clients_payment_id_key ON public.clients USING btree (payment_id)"
+    },
+    {
+      "table_name": "clients",
+      "index_name": "idx_clients_user_id",
+      "index_definition": "CREATE INDEX idx_clients_user_id ON public.clients USING btree (user_id)"
+    },
+    {
+      "table_name": "clients",
+      "index_name": "idx_clients_slug",
+      "index_definition": "CREATE INDEX idx_clients_slug ON public.clients USING btree (slug)"
+    },
+    {
+      "table_name": "clients",
+      "index_name": "idx_clients_subscription_status",
+      "index_definition": "CREATE INDEX idx_clients_subscription_status ON public.clients USING btree (subscription_status)"
+    },
+    {
+      "table_name": "clients",
+      "index_name": "idx_clients_email",
+      "index_definition": "CREATE INDEX idx_clients_email ON public.clients USING btree (email)"
+    },
+    {
+      "table_name": "shortlists",
+      "index_name": "shortlists_pkey",
+      "index_definition": "CREATE UNIQUE INDEX shortlists_pkey ON public.shortlists USING btree (id)"
+    },
+    {
+      "table_name": "shortlists",
+      "index_name": "shortlists_shared_token_key",
+      "index_definition": "CREATE UNIQUE INDEX shortlists_shared_token_key ON public.shortlists USING btree (shared_token)"
+    },
+    {
+      "table_name": "shortlists",
+      "index_name": "idx_shortlists_owner_id",
+      "index_definition": "CREATE INDEX idx_shortlists_owner_id ON public.shortlists USING btree (owner_id)"
+    },
+    {
+      "table_name": "shortlists",
+      "index_name": "idx_shortlists_owner_type",
+      "index_definition": "CREATE INDEX idx_shortlists_owner_type ON public.shortlists USING btree (owner_type)"
+    },
+    {
+      "table_name": "shortlists",
+      "index_name": "idx_shortlists_shared_token",
+      "index_definition": "CREATE INDEX idx_shortlists_shared_token ON public.shortlists USING btree (shared_token) WHERE (shared_token IS NOT NULL)"
+    },
+    {
+      "table_name": "shortlist_items",
+      "index_name": "shortlist_items_pkey",
+      "index_definition": "CREATE UNIQUE INDEX shortlist_items_pkey ON public.shortlist_items USING btree (id)"
+    },
+    {
+      "table_name": "shortlist_items",
+      "index_name": "shortlist_items_shortlist_id_applicant_id_key",
+      "index_definition": "CREATE UNIQUE INDEX shortlist_items_shortlist_id_applicant_id_key ON public.shortlist_items USING btree (shortlist_id, applicant_id)"
+    },
+    {
+      "table_name": "shortlist_items",
+      "index_name": "idx_shortlist_items_shortlist_id",
+      "index_definition": "CREATE INDEX idx_shortlist_items_shortlist_id ON public.shortlist_items USING btree (shortlist_id)"
+    },
+    {
+      "table_name": "shortlist_items",
+      "index_name": "idx_shortlist_items_applicant_id",
+      "index_definition": "CREATE INDEX idx_shortlist_items_applicant_id ON public.shortlist_items USING btree (applicant_id)"
+    }
+  ],
+  "functions": [
+    {
+      "function_name": "get_complete_schema",
+      "routine_type": "FUNCTION",
+      "data_type": "json",
+      "routine_definition": "\r\nDECLARE\r\n  result json;\r\nBEGIN\r\n  SELECT json_build_object(\r\n    'tables', (\r\n      SELECT json_agg(\r\n        json_build_object(\r\n          'table_name', t.table_name,\r\n          'columns', (\r\n            SELECT json_agg(\r\n              json_build_object(\r\n                'column_name', c.column_name,\r\n                'data_type', c.data_type,\r\n                'character_maximum_length', c.character_maximum_length,\r\n                'numeric_precision', c.numeric_precision,\r\n                'numeric_scale', c.numeric_scale,\r\n                'is_nullable', c.is_nullable,\r\n                'column_default', c.column_default,\r\n                'ordinal_position', c.ordinal_position\r\n              ) ORDER BY c.ordinal_position\r\n            )\r\n            FROM information_schema.columns c\r\n            WHERE c.table_schema = 'public' \r\n              AND c.table_name = t.table_name\r\n          )\r\n        )\r\n      )\r\n      FROM information_schema.tables t\r\n      WHERE t.table_schema = 'public' \r\n        AND t.table_type = 'BASE TABLE'\r\n    ),\r\n    'primary_keys', (\r\n      SELECT json_agg(\r\n        json_build_object(\r\n          'table_name', tc.table_name,\r\n          'constraint_name', tc.constraint_name,\r\n          'columns', (\r\n            SELECT json_agg(kcu.column_name ORDER BY kcu.ordinal_position)\r\n            FROM information_schema.key_column_usage kcu\r\n            WHERE kcu.constraint_name = tc.constraint_name\r\n          )\r\n        )\r\n      )\r\n      FROM information_schema.table_constraints tc\r\n      WHERE tc.table_schema = 'public'\r\n        AND tc.constraint_type = 'PRIMARY KEY'\r\n    ),\r\n    'foreign_keys', (\r\n      SELECT json_agg(\r\n        json_build_object(\r\n          'table_name', tc.table_name,\r\n          'constraint_name', tc.constraint_name,\r\n          'column_name', kcu.column_name,\r\n          'foreign_table_name', ccu.table_name,\r\n          'foreign_column_name', ccu.column_name\r\n        )\r\n      )\r\n      FROM information_schema.table_constraints tc\r\n      JOIN information_schema.key_column_usage kcu \r\n        ON tc.constraint_name = kcu.constraint_name\r\n      JOIN information_schema.constraint_column_usage ccu \r\n        ON ccu.constraint_name = tc.constraint_name\r\n      WHERE tc.table_schema = 'public'\r\n        AND tc.constraint_type = 'FOREIGN KEY'\r\n    ),\r\n    'unique_constraints', (\r\n      SELECT json_agg(\r\n        json_build_object(\r\n          'table_name', tc.table_name,\r\n          'constraint_name', tc.constraint_name,\r\n          'columns', (\r\n            SELECT json_agg(kcu.column_name)\r\n            FROM information_schema.key_column_usage kcu\r\n            WHERE kcu.constraint_name = tc.constraint_name\r\n          )\r\n        )\r\n      )\r\n      FROM information_schema.table_constraints tc\r\n      WHERE tc.table_schema = 'public'\r\n        AND tc.constraint_type = 'UNIQUE'\r\n    ),\r\n    'indexes', (\r\n      SELECT json_agg(\r\n        json_build_object(\r\n          'table_name', tablename,\r\n          'index_name', indexname,\r\n          'index_definition', indexdef\r\n        )\r\n      )\r\n      FROM pg_indexes\r\n      WHERE schemaname = 'public'\r\n    ),\r\n    'functions', (\r\n      SELECT json_agg(\r\n        json_build_object(\r\n          'function_name', routine_name,\r\n          'routine_type', routine_type,\r\n          'data_type', data_type,\r\n          'routine_definition', routine_definition\r\n        )\r\n      )\r\n      FROM information_schema.routines\r\n      WHERE routine_schema = 'public'\r\n    ),\r\n    'triggers', (\r\n      SELECT json_agg(\r\n        json_build_object(\r\n          'trigger_name', trigger_name,\r\n          'event_object_table', event_object_table,\r\n          'event_manipulation', event_manipulation,\r\n          'action_timing', action_timing,\r\n          'action_statement', action_statement\r\n        )\r\n      )\r\n      FROM information_schema.triggers\r\n      WHERE trigger_schema = 'public'\r\n    ),\r\n    'views', (\r\n      SELECT json_agg(\r\n        json_build_object(\r\n          'view_name', table_name,\r\n          'view_definition', view_definition\r\n        )\r\n      )\r\n      FROM information_schema.views\r\n      WHERE table_schema = 'public'\r\n    ),\r\n    'sequences', (\r\n      SELECT json_agg(\r\n        json_build_object(\r\n          'sequence_name', sequence_name,\r\n          'data_type', data_type,\r\n          'start_value', start_value,\r\n          'minimum_value', minimum_value,\r\n          'maximum_value', maximum_value,\r\n          'increment', increment\r\n        )\r\n      )\r\n      FROM information_schema.sequences\r\n      WHERE sequence_schema = 'public'\r\n    ),\r\n    'types', (\r\n      SELECT json_agg(\r\n        json_build_object(\r\n          'type_name', typname,\r\n          'type_type', typtype\r\n        )\r\n      )\r\n      FROM pg_type t\r\n      JOIN pg_namespace n ON n.oid = t.typnamespace\r\n      WHERE n.nspname = 'public'\r\n        AND t.typtype IN ('c', 'e')\r\n    )\r\n  ) INTO result;\r\n  \r\n  RETURN result;\r\nEND;\r\n"
+    },
+    {
+      "function_name": "auto_update_profile_from_applicant",
+      "routine_type": "FUNCTION",
+      "data_type": "trigger",
+      "routine_definition": "\r\nBEGIN\r\n  -- Update profile with applicant data\r\n  UPDATE public.profiles\r\n  SET \r\n    email = COALESCE(NEW.email, profiles.email),\r\n    full_name = COALESCE(NEW.full_name, profiles.full_name),\r\n    updated_at = NOW()\r\n  WHERE id = NEW.user_id;\r\n  \r\n  -- If profile doesn't exist, create it\r\n  IF NOT FOUND THEN\r\n    INSERT INTO public.profiles (id, email, full_name, role)\r\n    VALUES (\r\n      NEW.user_id,\r\n      NEW.email,\r\n      NEW.full_name,\r\n      'applicant'\r\n    )\r\n    ON CONFLICT (id) DO UPDATE\r\n    SET \r\n      email = EXCLUDED.email,\r\n      full_name = EXCLUDED.full_name,\r\n      updated_at = NOW();\r\n  END IF;\r\n  \r\n  RETURN NEW;\r\nEND;\r\n"
+    },
+    {
+      "function_name": "get_user_role",
+      "routine_type": "FUNCTION",
+      "data_type": "USER-DEFINED",
+      "routine_definition": "\r\nBEGIN\r\n  RETURN (SELECT role FROM profiles WHERE id = auth.uid());\r\nEND;\r\n"
+    },
+    {
+      "function_name": "auto_create_profile_from_auth_user",
+      "routine_type": "FUNCTION",
+      "data_type": "trigger",
+      "routine_definition": "\r\nDECLARE\r\n  user_role_val user_role;\r\nBEGIN\r\n  -- Determine role from metadata or default to applicant\r\n  user_role_val := COALESCE(\r\n    (NEW.raw_user_meta_data->>'role')::user_role,\r\n    'applicant'::user_role\r\n  );\r\n  \r\n  -- Create profile\r\n  INSERT INTO profiles (\r\n    id,\r\n    email,\r\n    phone,\r\n    full_name,\r\n    role,\r\n    password_changed,\r\n    must_change_password\r\n  )\r\n  VALUES (\r\n    NEW.id,\r\n    COALESCE(NEW.email, ''),\r\n    NEW.phone,\r\n    COALESCE(NEW.raw_user_meta_data->>'full_name', ''),\r\n    user_role_val,\r\n    FALSE,\r\n    COALESCE((NEW.raw_user_meta_data->>'must_change_password')::BOOLEAN, FALSE)\r\n  )\r\n  ON CONFLICT (id) DO NOTHING;\r\n  \r\n  RETURN NEW;\r\nEND;\r\n"
+    },
+    {
+      "function_name": "is_admin",
+      "routine_type": "FUNCTION",
+      "data_type": "boolean",
+      "routine_definition": "\r\nBEGIN\r\n  RETURN EXISTS (\r\n    SELECT 1 FROM profiles\r\n    WHERE id = auth.uid()\r\n    AND role = 'admin'\r\n  );\r\nEND;\r\n"
+    },
+    {
+      "function_name": "auto_create_profile_from_applicant",
+      "routine_type": "FUNCTION",
+      "data_type": "trigger",
+      "routine_definition": "\r\nDECLARE\r\n  profile_user_id UUID;\r\n  auth_user_exists BOOLEAN;\r\nBEGIN\r\n  -- Check if auth user exists for this applicant\r\n  -- For old applicants, user_id might be NULL initially\r\n  -- We'll create profile when applicant data is inserted\r\n  \r\n  -- If user_id is provided, create/update profile\r\n  IF NEW.user_id IS NOT NULL THEN\r\n    -- Update profile with applicant data\r\n    UPDATE profiles\r\n    SET\r\n      applicant_id = NEW.id,\r\n      display_name = COALESCE(NEW.name, display_name),\r\n      location = COALESCE(NEW.city, location),\r\n      key_skills = COALESCE(NEW.key_skills, key_skills),\r\n      resume_file = COALESCE(NEW.resume_file, resume_file),\r\n      profile_image = COALESCE(NEW.profile_image, profile_image),\r\n      profile_complete_percent = COALESCE(NEW.profile_complete_percent, profile_complete_percent),\r\n      updated_at = NOW()\r\n    WHERE id = NEW.user_id;\r\n    \r\n    -- If profile doesn't exist, create it (shouldn't happen but safety check)\r\n    IF NOT FOUND THEN\r\n      INSERT INTO profiles (\r\n        id,\r\n        email,\r\n        phone,\r\n        full_name,\r\n        role,\r\n        applicant_id,\r\n        display_name,\r\n        location,\r\n        key_skills,\r\n        resume_file,\r\n        profile_image,\r\n        profile_complete_percent,\r\n        is_old_applicant,\r\n        password_changed,\r\n        must_change_password\r\n      )\r\n      VALUES (\r\n        NEW.user_id,\r\n        COALESCE(NEW.email, ''),\r\n        COALESCE(NEW.phone, ''),\r\n        COALESCE(NEW.name, ''),\r\n        'applicant',\r\n        NEW.id,\r\n        NEW.name,\r\n        NEW.city,\r\n        NEW.key_skills,\r\n        NEW.resume_file,\r\n        NEW.profile_image,\r\n        COALESCE(NEW.profile_complete_percent, 0),\r\n        TRUE, -- Mark as old applicant\r\n        FALSE,\r\n        TRUE -- Must change password\r\n      )\r\n      ON CONFLICT (id) DO UPDATE\r\n      SET\r\n        applicant_id = NEW.id,\r\n        display_name = COALESCE(NEW.name, profiles.display_name),\r\n        location = COALESCE(NEW.city, profiles.location),\r\n        key_skills = COALESCE(NEW.key_skills, profiles.key_skills),\r\n        resume_file = COALESCE(NEW.resume_file, profiles.resume_file),\r\n        profile_image = COALESCE(NEW.profile_image, profiles.profile_image),\r\n        profile_complete_percent = COALESCE(NEW.profile_complete_percent, profiles.profile_complete_percent),\r\n        updated_at = NOW();\r\n    END IF;\r\n  ELSE\r\n    -- For applicants without user_id (old applicants before auth created)\r\n    -- Profile will be created when auth user is created and linked\r\n    -- This is handled by the auth user trigger\r\n  END IF;\r\n  \r\n  RETURN NEW;\r\nEND;\r\n"
+    },
+    {
+      "function_name": "is_client",
+      "routine_type": "FUNCTION",
+      "data_type": "boolean",
+      "routine_definition": "\r\nBEGIN\r\n  RETURN EXISTS (\r\n    SELECT 1 FROM profiles\r\n    WHERE id = auth.uid()\r\n    AND role = 'client'\r\n  );\r\nEND;\r\n"
+    },
+    {
+      "function_name": "is_client_of",
+      "routine_type": "FUNCTION",
+      "data_type": "boolean",
+      "routine_definition": "\r\nBEGIN\r\n  RETURN EXISTS (\r\n    SELECT 1 FROM profiles\r\n    WHERE id = auth.uid()\r\n    AND role = 'client'\r\n    AND client_id = cid\r\n  );\r\nEND;\r\n"
+    },
+    {
+      "function_name": "is_self",
+      "routine_type": "FUNCTION",
+      "data_type": "boolean",
+      "routine_definition": "\r\nBEGIN\r\n  RETURN auth.uid() = uid;\r\nEND;\r\n"
+    },
+    {
+      "function_name": "can_admin_access",
+      "routine_type": "FUNCTION",
+      "data_type": "boolean",
+      "routine_definition": "\r\nBEGIN\r\n  RETURN is_admin();\r\nEND;\r\n"
+    },
+    {
+      "function_name": "update_updated_at_column",
+      "routine_type": "FUNCTION",
+      "data_type": "trigger",
+      "routine_definition": "\r\nBEGIN\r\n  NEW.updated_at = NOW();\r\n  RETURN NEW;\r\nEND;\r\n"
+    },
+    {
+      "function_name": "can_client_access",
+      "routine_type": "FUNCTION",
+      "data_type": "boolean",
+      "routine_definition": "\r\nBEGIN\r\n  RETURN is_client() AND (\r\n    SELECT client_id FROM profiles WHERE id = auth.uid()\r\n  ) = cid;\r\nEND;\r\n"
+    }
+  ],
+  "triggers": [
+    {
+      "trigger_name": "update_profiles_updated_at",
+      "event_object_table": "profiles",
+      "event_manipulation": "UPDATE",
+      "action_timing": "BEFORE",
+      "action_statement": "EXECUTE FUNCTION update_updated_at_column()"
+    },
+    {
+      "trigger_name": "update_applicants_updated_at",
+      "event_object_table": "applicants",
+      "event_manipulation": "UPDATE",
+      "action_timing": "BEFORE",
+      "action_statement": "EXECUTE FUNCTION update_updated_at_column()"
+    },
+    {
+      "trigger_name": "update_clients_updated_at",
+      "event_object_table": "clients",
+      "event_manipulation": "UPDATE",
+      "action_timing": "BEFORE",
+      "action_statement": "EXECUTE FUNCTION update_updated_at_column()"
+    },
+    {
+      "trigger_name": "update_shortlists_updated_at",
+      "event_object_table": "shortlists",
+      "event_manipulation": "UPDATE",
+      "action_timing": "BEFORE",
+      "action_statement": "EXECUTE FUNCTION update_updated_at_column()"
+    },
+    {
+      "trigger_name": "trg_auto_create_profile_from_applicant",
+      "event_object_table": "applicants",
+      "event_manipulation": "INSERT",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION auto_create_profile_from_applicant()"
+    },
+    {
+      "trigger_name": "trg_auto_create_profile_from_applicant",
+      "event_object_table": "applicants",
+      "event_manipulation": "UPDATE",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION auto_create_profile_from_applicant()"
+    },
+    {
+      "trigger_name": "trg_auto_update_profile_on_applicant_insert",
+      "event_object_table": "applicants",
+      "event_manipulation": "INSERT",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION auto_update_profile_from_applicant()"
+    },
+    {
+      "trigger_name": "trg_auto_update_profile_on_applicant_update",
+      "event_object_table": "applicants",
+      "event_manipulation": "UPDATE",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION auto_update_profile_from_applicant()"
+    }
+  ],
+  "views": null,
+  "sequences": null,
+  "types": [
+    {
+      "type_name": "work_experience_type",
+      "type_type": "e"
+    },
+    {
+      "type_name": "applicant_status",
+      "type_type": "e"
+    },
+    {
+      "type_name": "user_role",
+      "type_type": "e"
+    },
+    {
+      "type_name": "communication_rating",
+      "type_type": "e"
+    },
+    {
+      "type_name": "qualification_level",
+      "type_type": "e"
+    },
+    {
+      "type_name": "clients",
+      "type_type": "c"
+    },
+    {
+      "type_name": "profiles",
+      "type_type": "c"
+    },
+    {
+      "type_name": "applicants",
+      "type_type": "c"
+    },
+    {
+      "type_name": "shortlists",
+      "type_type": "c"
+    },
+    {
+      "type_name": "shortlist_items",
+      "type_type": "c"
+    }
+  ]
+}

@@ -1,0 +1,196 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 216 32% 17%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 216 32% 17%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 216 32% 17%;
+
+    --primary: 212 100% 32%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 180 100% 33%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 216 16% 95%;
+    --muted-foreground: 216 12% 45%;
+
+    --accent: 212 100% 32%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 216 16% 90%;
+    --input: 216 16% 90%;
+    --ring: 212 100% 32%;
+
+    --radius: 0.75rem;
+
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+
+    --info: 199 89% 48%;
+    --info-foreground: 0 0% 100%;
+
+    --gradient-primary: linear-gradient(135deg, hsl(212 100% 32%), hsl(180 100% 33%));
+    --gradient-subtle: linear-gradient(180deg, hsl(0 0% 100%), hsl(216 16% 98%));
+
+    --shadow-sm: 0 2px 4px hsl(216 32% 17% / 0.05);
+    --shadow-md: 0 4px 12px hsl(216 32% 17% / 0.08);
+    --shadow-lg: 0 8px 24px hsl(216 32% 17% / 0.12);
+    --shadow-xl: 0 12px 32px hsl(216 32% 17% / 0.16);
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 216 32% 17%;
+    --sidebar-primary: 212 100% 32%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 216 16% 95%;
+    --sidebar-accent-foreground: 216 32% 17%;
+    --sidebar-border: 216 16% 90%;
+    --sidebar-ring: 212 100% 32%;
+  }
+
+  .dark {
+    --background: 216 32% 8%;
+    --foreground: 0 0% 98%;
+
+    --card: 216 28% 12%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 216 28% 12%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 212 100% 45%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 180 100% 40%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 216 20% 18%;
+    --muted-foreground: 216 10% 60%;
+
+    --accent: 212 100% 45%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 216 20% 18%;
+    --input: 216 20% 18%;
+    --ring: 212 100% 45%;
+
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+
+    --info: 199 89% 48%;
+    --info-foreground: 0 0% 100%;
+
+    --gradient-primary: linear-gradient(135deg, hsl(212 100% 45%), hsl(180 100% 40%));
+    --gradient-subtle: linear-gradient(180deg, hsl(216 32% 8%), hsl(216 28% 12%));
+
+    --shadow-sm: 0 2px 4px hsl(0 0% 0% / 0.2);
+    --shadow-md: 0 4px 12px hsl(0 0% 0% / 0.3);
+    --shadow-lg: 0 8px 24px hsl(0 0% 0% / 0.4);
+    --shadow-xl: 0 12px 32px hsl(0 0% 0% / 0.5);
+
+    --sidebar-background: 216 28% 12%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 212 100% 45%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 216 20% 18%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 216 20% 18%;
+    --sidebar-ring: 212 100% 45%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+}
+
+@layer utilities {
+  /* Premium card hover effects */
+  .card-hover {
+    @apply transition-all duration-300 ease-out;
+  }
+  
+  .card-hover:hover {
+    @apply shadow-xl -translate-y-1;
+  }
+
+  /* Premium button hover */
+  .btn-hover {
+    @apply transition-all duration-300 ease-out;
+  }
+  
+  .btn-hover:hover {
+    @apply shadow-lg scale-[1.02];
+  }
+
+  /* Smooth accordion transition */
+  .accordion-smooth {
+    transition: height 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
+                opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Icon hover animation */
+  .icon-hover {
+    @apply transition-all duration-300;
+  }
+  
+  .icon-hover:hover {
+    @apply scale-110;
+  }
+
+  /* Gradient text */
+  .gradient-text {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary;
+  }
+
+  /* Section divider */
+  .section-divider {
+    @apply relative;
+  }
+  
+  .section-divider::before {
+    content: '';
+    @apply absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-border to-transparent;
+  }
+
+  /* Decorative background shapes */
+  .bg-dots {
+    background-image: radial-gradient(hsl(var(--muted-foreground) / 0.1) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+
+  .bg-grid {
+    background-image: 
+      linear-gradient(hsl(var(--border) / 0.5) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--border) / 0.5) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+}

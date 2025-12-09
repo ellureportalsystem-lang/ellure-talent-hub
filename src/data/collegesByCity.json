@@ -1,0 +1,132 @@
+{
+  "Mumbai": [
+    "Mumbai University", "IIT Bombay", "NITIE Mumbai", "SP Jain Institute of Management", "NMIMS University", "St. Xavier's College", "HR College of Commerce", "Jai Hind College", "KC College", "Mithibai College", "Sydenham College", "R.A. Podar College", "H.R. College", "Jai Hind College", "Sophia College", "Elphinstone College", "Wilson College", "Other"
+  ],
+  "Pune": [
+    "Pune University (SPPU)", "Fergusson College", "Symbiosis International University", "College of Engineering Pune (COEP)", "VIT Pune", "MIT World Peace University", "Bharati Vidyapeeth", "Sinhgad College", "Modern College", "Nowrosjee Wadia College", "Abasaheb Garware College", "ILS Law College", "FLAME University", "Indira College", "AISSMS College", "Other"
+  ],
+  "Bangalore": [
+    "Bangalore University", "IISc Bangalore", "IIT Bangalore", "Christ University", "St. Joseph's College", "Mount Carmel College", "Jain University", "PES University", "RV College of Engineering", "BMS College of Engineering", "MS Ramaiah College", "NMKRV College", "St. Joseph's College of Commerce", "Other"
+  ],
+  "Delhi": [
+    "Delhi University (DU)", "Jawaharlal Nehru University (JNU)", "IIT Delhi", "Jamia Millia Islamia", "Amity University", "GGSIPU", "St. Stephen's College", "Hindu College", "SRCC", "Lady Shri Ram College", "Miranda House", "Hansraj College", "Other"
+  ],
+  "Chennai": [
+    "University of Madras", "IIT Madras", "Anna University", "Loyola College", "St. Joseph's College", "Madras Christian College", "Presidency College", "MOP Vaishnav College", "Ethiraj College", "Women's Christian College", "Other"
+  ],
+  "Hyderabad": [
+    "Osmania University", "University of Hyderabad", "IIT Hyderabad", "BITS Hyderabad", "JNTU Hyderabad", "St. Joseph's College", "Nizam College", "Kakatiya University", "Other"
+  ],
+  "Kolkata": [
+    "University of Calcutta", "Jadavpur University", "Presidency University", "IIT Kharagpur", "St. Xavier's College", "Scottish Church College", "Loreto College", "Other"
+  ],
+  "Ahmedabad": [
+    "Gujarat University", "IIT Gandhinagar", "Nirma University", "GLS University", "St. Xavier's College", "HL College of Commerce", "Other"
+  ],
+  "Jaipur": [
+    "University of Rajasthan", "MNIT Jaipur", "Jaipur National University", "Poornima University", "Subodh College", "Maharani College", "Other"
+  ],
+  "Lucknow": [
+    "Lucknow University", "IIT Kanpur", "Amity University", "BBD University", "Other"
+  ],
+  "Chandigarh": [
+    "Panjab University", "Chandigarh University", "PEC University", "Other"
+  ],
+  "Nagpur": [
+    "Nagpur University", "VNIT Nagpur", "LIT Nagpur", "Other"
+  ],
+  "Indore": [
+    "Devi Ahilya University", "IIT Indore", "IIM Indore", "Other"
+  ],
+  "Bhopal": [
+    "Barkatullah University", "IIIT Bhopal", "Other"
+  ],
+  "Surat": [
+    "Veer Narmad South Gujarat University", "Sardar Vallabhbhai National Institute of Technology", "Other"
+  ],
+  "Vadodara": [
+    "MSU Baroda", "Other"
+  ],
+  "Coimbatore": [
+    "PSG College", "Amrita University", "Other"
+  ],
+  "Madurai": [
+    "Madurai Kamaraj University", "Thiagarajar College", "Other"
+  ],
+  "Vijayawada": [
+    "Acharya Nagarjuna University", "Other"
+  ],
+  "Visakhapatnam": [
+    "Andhra University", "Other"
+  ],
+  "Thiruvananthapuram": [
+    "University of Kerala", "Other"
+  ],
+  "Kochi": [
+    "Cochin University", "Other"
+  ],
+  "Patna": [
+    "Patna University", "Other"
+  ],
+  "Gaya": [
+    "Magadh University", "Other"
+  ],
+  "Guwahati": [
+    "Gauhati University", "IIT Guwahati", "Other"
+  ],
+  "Bhubaneswar": [
+    "Utkal University", "Other"
+  ],
+  "Raipur": [
+    "Pt. Ravishankar Shukla University", "Other"
+  ],
+  "Ranchi": [
+    "Ranchi University", "Other"
+  ],
+  "Jamshedpur": [
+    "XLRI Jamshedpur", "Other"
+  ],
+  "Dehradun": [
+    "Uttaranchal University", "Other"
+  ],
+  "Shimla": [
+    "Himachal Pradesh University", "Other"
+  ],
+  "Srinagar": [
+    "University of Kashmir", "Other"
+  ],
+  "Jammu": [
+    "University of Jammu", "Other"
+  ],
+  "Imphal": [
+    "Manipur University", "Other"
+  ],
+  "Aizawl": [
+    "Mizoram University", "Other"
+  ],
+  "Kohima": [
+    "Nagaland University", "Other"
+  ],
+  "Agartala": [
+    "Tripura University", "Other"
+  ],
+  "Gangtok": [
+    "Sikkim University", "Other"
+  ],
+  "Itanagar": [
+    "Arunachal University", "Other"
+  ],
+  "Shillong": [
+    "North Eastern Hill University", "Other"
+  ]
+}
+
+
+
+
+
+
+
+
+
+
