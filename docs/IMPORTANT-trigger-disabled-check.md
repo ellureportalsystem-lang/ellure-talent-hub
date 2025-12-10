@@ -81,3 +81,4 @@ ALTER TABLE applicants ENABLE TRIGGER trg_auto_create_profile_from_applicant;
 
 
 
+

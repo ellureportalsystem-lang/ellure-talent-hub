@@ -1,0 +1,113 @@
+warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'docs/supabase-schema-retrieval-method.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'package.json', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'scripts/checkAndDropTrigger.sql', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'scripts/checkUserExists.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'scripts/createClientAccount.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'scripts/createDemoAccounts.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'scripts/createProfilesAndAuthUsers.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'scripts/importApplicantData.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'scripts/inspectExcelFiles.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'scripts/queryCompleteSchema.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'scripts/resetUserPassword.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'scripts/verifyAndFixTriggers.sql', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'scripts/viewSchema.js', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'scripts/viewSchema.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/App.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/ProtectedRoute.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/RoleBasedRoute.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/contexts/AuthContext.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/lib/supabase.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/pages/Features.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/pages/Industries.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/pages/Services.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/pages/auth/ForceChangePassword.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/pages/auth/applicant-register/Step1BasicInfo.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/pages/auth/applicant-register/Step2Address.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/pages/auth/applicant-register/Step3Education.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/pages/auth/applicant-register/Step4Experience.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/pages/auth/applicant-register/Step7Review.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/pages/auth/register/AccountCreationMethod.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/pages/auth/register/SetPassword.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/pages/dashboard/ClientDashboard.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/pages/dashboard/admin/ApplicantProfileView.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/pages/dashboard/admin/ApplicantsManagement.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/pages/dashboard/admin/EnterpriseApplicantProfile.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/pages/dashboard/applicant/ApplicantProfile.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/pages/dashboard/client/CandidateProfileView.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/pages/dashboard/client/CandidatesPage.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/pages/dashboard/client/JobsPage.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/services/applicantService.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/services/masterDataService.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'vite.config.ts', LF will be replaced by CRLF the next time Git touches it
+ AUTHENTICATION_AND_PROFILE_SYSTEM_ANALYSIS.md     | 1 [32m+[m
+ THEME_DOCUMENTATION.md                            | 1 [32m+[m
+ data/old-applicant-data/README.md                 | 1 [32m+[m
+ database_schema_queries.md                        | 1 [32m+[m
+ docs/FIX-TRIGGER-ISSUE.md                         | 1 [32m+[m
+ docs/FIX-TRIGGERS-COMPLETE.md                     | 1 [32m+[m
+ docs/IMPORTANT-trigger-disabled-check.md          | 1 [32m+[m
+ docs/applicant-registration-form-analysis.md      | 1 [32m+[m
+ docs/auth-flow-analysis-and-plan.md               | 1 [32m+[m
+ docs/auth-implementation-quick-reference.md       | 1 [32m+[m
+ docs/complete-system-flow-documentation.md        | 1 [32m+[m
+ docs/create-profiles-guide.md                     | 1 [32m+[m
+ docs/data-import-guide.md                         | 1 [32m+[m
+ docs/database-schema-analysis-and-fixes.md        | 1 [32m+[m
+ docs/database-schema-complete-reference.md        | 1 [32m+[m
+ docs/database-schema-complete.md                  | 1 [32m+[m
+ docs/final-migration-steps.md                     | 1 [32m+[m
+ docs/fix-env-variables.md                         | 1 [32m+[m
+ docs/import-success-summary.md                    | 1 [32m+[m
+ docs/import-troubleshooting.md                    | 1 [32m+[m
+ docs/lovable-env-setup.md                         | 1 [32m+[m
+ docs/new-registration-flow.md                     | 1 [32m+[m
+ docs/phase1-completion-summary.md                 | 1 [32m+[m
+ docs/profiles-creation-success.md                 | 1 [32m+[m
+ docs/schema-migration-guide.md                    | 1 [32m+[m
+ docs/setup-env-file.md                            | 1 [32m+[m
+ docs/signup-error-deep-dive.md                    | 1 [32m+[m
+ docs/signup-error-fix-guide.md                    | 1 [32m+[m
+ docs/troubleshoot-login-400.md                    | 1 [32m+[m
+ scripts/FINAL-fix-signup-error.sql                | 1 [32m+[m
+ scripts/FIXED-signup-error-with-schema.sql        | 1 [32m+[m
+ scripts/addMissingColumns.sql                     | 1 [32m+[m
+ scripts/cleanupOldTriggersAndFunctions.sql        | 1 [32m+[m
+ scripts/compareWithDatabase.js                    | 1 [32m+[m
+ scripts/comprehensive-database-fix.sql            | 1 [32m+[m
+ scripts/createMissingAuthUsers.js                 | 1 [32m+[m
+ scripts/createNewSyncTrigger.sql                  | 1 [32m+[m
+ scripts/createSingleAuthUser.js                   | 1 [32m+[m
+ scripts/diagnose-signup-error.sql                 | 1 [32m+[m
+ scripts/disableTriggerForImport.sql               | 1 [32m+[m
+ scripts/enableTriggerAfterImport.sql              | 1 [32m+[m
+ scripts/finalColumnVerification.sql               | 1 [32m+[m
+ scripts/fix-signup-error-immediate.sql            | 1 [32m+[m
+ scripts/fix-signup-error-robust.sql               | 1 [32m+[m
+ scripts/fixProfileRolePermanently.sql             | 1 [32m+[m
+ scripts/fix_auto_create_profile_trigger.sql       | 1 [32m+[m
+ scripts/forceDisableTrigger.sql                   | 1 [32m+[m
+ scripts/generateCleanSchemaMigration.sql          | 1 [32m+[m
+ scripts/generateSchemaMigration.sql               | 1 [32m+[m
+ scripts/getCompleteSchema.sql                     | 1 [32m+[m
+ scripts/getCompleteSchemaFunction.sql             | 1 [32m+[m
+ scripts/querySchema.js                            | 1 [32m+[m
+ scripts/recreateAllTriggersAfterImport.sql        | 1 [32m+[m
+ scripts/recreateTriggerAfterImport.sql            | 1 [32m+[m
+ scripts/removeOldColumns.sql                      | 1 [32m+[m
+ scripts/resetAllPasswords.js                      | 1 [32m+[m
+ scripts/setupSchemaFunction.sql                   | 1 [32m+[m
+ scripts/verifyColumnMapping.js                    | 1 [32m+[m
+ scripts/verifyTriggerStatus.sql                   | 1 [32m+[m
+ src/components/ScrollToTop.tsx                    | 1 [32m+[m
+ src/config/supabase.ts                            | 1 [32m+[m
+ src/data/collegesByCity.json                      | 1 [32m+[m
+ src/data/indianStatesCities.json                  | 1 [32m+[m
+ src/hooks/useAuth.ts                              | 1 [32m+[m
+ src/lib/testSupabaseConnection.ts                 | 1 [32m+[m
+ src/pages/auth/applicant-register/Step5Skills.tsx | 1 [32m+[m
+ src/pages/auth/register/EmailSignUp.tsx           | 1 [32m+[m
+ src/pages/auth/register/PhoneSignUp.tsx           | 1 [32m+[m
+ src/pages/auth/register/VerifyOTP.tsx             | 1 [32m+[m
+ src/types/database.types.ts                       | 1 [32m+[m
+ 70 files changed, 70 insertions(+)

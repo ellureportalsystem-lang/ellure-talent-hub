@@ -40,3 +40,4 @@ WHERE t.event_object_table = 'applicants'
 
 
 
+

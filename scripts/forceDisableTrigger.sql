@@ -32,3 +32,4 @@ WHERE event_object_table = 'applicants'
 
 
 
+

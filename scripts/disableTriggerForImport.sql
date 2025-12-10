@@ -30,3 +30,4 @@ WHERE trigger_name = 'trg_auto_create_profile_from_applicant'
 
 
 
+
