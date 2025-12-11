@@ -8,15 +8,16 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
           {/* Company Info */}
           <div className="space-y-4">
-            <Link to="/" className="flex items-center gap-2 group">
+            <Link to="/" className="flex items-center gap-1 group">
               <img 
-                src="/logo1.png" 
+                src="/ellure-logo.png" 
                 alt="Ellure NexHire" 
-                className="h-8 w-8 object-contain transition-transform duration-300 group-hover:scale-110" 
+                className="h-12 w-auto object-contain transition-transform duration-300 group-hover:scale-110" 
               />
-              <span className="text-lg font-bold transition-colors duration-300 group-hover:text-primary">
-                Ellure NexHire
-              </span>
+              <div className="flex flex-col leading-none items-start">
+                <span className="text-lg font-bold transition-colors duration-300" style={{ color: '#3d4853' }}>Ellure</span>
+                <span className="text-lg font-bold transition-colors duration-300 -mt-2" style={{ color: '#0566cd' }}>NexHire</span>
+              </div>
             </Link>
             <p className="text-sm text-muted-foreground">
               Connecting exceptional talent with leading organizations through precision-driven recruitment solutions.

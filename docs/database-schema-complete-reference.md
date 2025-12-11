@@ -249,3 +249,4 @@ WHERE event_object_table = 'users' AND trigger_schema = 'auth';
 
 
 
+

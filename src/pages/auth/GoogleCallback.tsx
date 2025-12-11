@@ -95,7 +95,13 @@ const GoogleCallback = () => {
       <Card className="w-full max-w-md shadow-xl">
         <CardContent className="pt-6">
           <div className="flex flex-col items-center justify-center space-y-4">
-            <img src="/logo1.png" alt="Ellure NexHire" className="h-12 w-12 object-contain animate-pulse" />
+            <div className="flex flex-col items-center gap-1">
+              <img src="/ellure-logo.png" alt="Ellure NexHire" className="h-14 w-auto object-contain animate-pulse" />
+              <div className="flex flex-col items-center leading-none">
+                <span className="text-base font-bold" style={{ color: '#3d4853' }}>Ellure</span>
+                <span className="text-base font-bold -mt-2" style={{ color: '#0566cd' }}>NexHire</span>
+              </div>
+            </div>
             <h2 className="text-xl font-semibold">Completing sign in...</h2>
             <p className="text-sm text-muted-foreground text-center">
               Please wait while we redirect you to your dashboard.

@@ -40,10 +40,11 @@ const RegistrationLayout = ({
       {/* Header */}
       <header className="border-b bg-background/95 backdrop-blur sticky top-0 z-50">
         <div className="container flex h-16 items-center justify-between">
-          <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-            <img src="/logo1.png" alt="Ellure NexHire" className="h-8 w-8 object-contain" />
-            <div>
-              <h1 className="text-lg font-bold">Ellure NexHire</h1>
+          <Link to="/" className="flex items-center gap-1 hover:opacity-80 transition-opacity">
+            <img src="/ellure-logo.png" alt="Ellure NexHire" className="h-12 w-auto object-contain" />
+            <div className="flex flex-col leading-none items-start">
+              <span className="text-lg font-bold" style={{ color: '#3d4853' }}>Ellure</span>
+              <span className="text-lg font-bold -mt-2" style={{ color: '#0566cd' }}>NexHire</span>
             </div>
           </Link>
           <Link to="/">

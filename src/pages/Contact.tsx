@@ -30,20 +30,36 @@ const Contact = () => {
       <Navbar />
 
       {/* Hero Section */}
-      <section className="relative bg-gradient-primary text-primary-foreground py-14 md:py-20 overflow-hidden">
-        <div className="absolute inset-0 bg-grid opacity-10" />
-        <div className="absolute top-20 left-10 w-72 h-72 bg-white/5 rounded-full blur-3xl" />
+      <section className="relative py-10 md:py-14 overflow-hidden min-h-[300px] md:min-h-[350px] flex items-center">
+        {/* Background Image */}
+        <div className="absolute inset-0">
+          <img 
+            src="/contact-banner.jpg" 
+            alt="Contact Banner"
+            className="w-full h-full object-cover"
+            style={{ objectPosition: 'center 25%' }}
+          />
+          {/* Enhanced overlay for better text readability */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/30" />
+          <div className="absolute top-0 left-0 right-0 h-2/3 bg-gradient-to-b from-black/80 via-black/60 to-transparent" />
+        </div>
         
-        <div className="container relative text-center">
+        {/* Decorative elements */}
+        <div className="absolute inset-0 bg-grid opacity-5" />
+        
+        <div className="container relative z-10 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
+            className="max-w-4xl mx-auto"
           >
-            <span className="text-sm font-medium uppercase tracking-wider text-primary-foreground/80">Reach Out</span>
-            <h1 className="hero-title text-3xl md:text-4xl lg:text-5xl mt-2 mb-5"><span className="gold-text">Get in Touch</span></h1>
-            <p className="hero-subtitle text-base md:text-lg text-primary-foreground/90 max-w-3xl mx-auto">
-              We'd love to hear from you. Let's discuss how we can <span className="gold-text">help</span>.
+            <span className="text-sm font-medium uppercase tracking-wider text-white/90 drop-shadow-md">Reach Out</span>
+            <h1 className="hero-title text-3xl md:text-4xl lg:text-5xl mt-2 mb-5 text-white drop-shadow-lg" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>
+              <span className="text-[#FFD700]" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.7)' }}>Get in Touch</span>
+            </h1>
+            <p className="hero-subtitle text-base md:text-lg text-white/95 max-w-3xl mx-auto drop-shadow-md" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.5)' }}>
+              We'd love to hear from you. Let's discuss how we can <span className="text-[#FFD700] font-semibold" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.7)' }}>help</span>.
             </p>
           </motion.div>
         </div>

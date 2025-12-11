@@ -922,3 +922,4 @@ WHERE proname = 'auto_create_profile_from_auth_user';
 
 
 
+

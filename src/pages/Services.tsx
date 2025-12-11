@@ -73,56 +73,74 @@ const Services = () => {
       <Navbar />
 
       {/* Hero Section */}
-      <section className="relative bg-gradient-primary text-primary-foreground py-14 md:py-20 overflow-hidden">
-        <div className="absolute inset-0 bg-grid opacity-10" />
-        <div className="absolute top-20 right-10 w-72 h-72 bg-white/5 rounded-full blur-3xl" />
+      <section className="relative py-10 md:py-14 overflow-hidden min-h-[300px] md:min-h-[350px] flex items-center">
+        {/* Background Image */}
+        <div className="absolute inset-0">
+          <img 
+            src="/services-banner.jpg" 
+            alt="Services Banner"
+            className="w-full h-full object-cover"
+            style={{ objectPosition: 'center center' }}
+          />
+          {/* Enhanced overlay for better text readability */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/30" />
+          <div className="absolute top-0 left-0 right-0 h-2/3 bg-gradient-to-b from-black/80 via-black/60 to-transparent" />
+        </div>
         
-        <div className="container relative text-center">
+        {/* Decorative elements */}
+        <div className="absolute inset-0 bg-grid opacity-5" />
+        
+        <div className="container relative z-10 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
+            className="max-w-4xl mx-auto"
           >
-            <span className="text-sm font-medium uppercase tracking-wider text-primary-foreground/80">What We Do</span>
-            <h1 className="hero-title text-3xl md:text-4xl lg:text-5xl mt-2 mb-5">Our <span className="gold-text">Services</span></h1>
-            <p className="hero-subtitle text-base md:text-lg text-primary-foreground/90 max-w-3xl mx-auto">
-              Comprehensive recruitment solutions tailored to your <span className="gold-text">organizational needs</span>
+            <span className="text-sm font-medium uppercase tracking-wider text-white/90 drop-shadow-md">What We Do</span>
+            <h1 className="hero-title text-3xl md:text-4xl lg:text-5xl mt-2 mb-5 text-white drop-shadow-lg" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>
+              Our <span className="text-[#FFD700]" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.7)' }}>Services</span>
+            </h1>
+            <p className="hero-subtitle text-base md:text-lg text-white/95 max-w-3xl mx-auto drop-shadow-md" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.5)' }}>
+              Comprehensive <span className="text-[#FFD700] font-semibold" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.7)' }}>recruitment solutions</span> tailored to your organizational needs
             </p>
           </motion.div>
         </div>
       </section>
 
       {/* Services Grid */}
-      <section className="container py-16">
-        <motion.div 
-          className="text-center space-y-4 mb-12"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-        >
-          <span className="text-sm font-medium text-primary uppercase tracking-wider">Explore</span>
-          <h2 className="font-poppins text-3xl font-semibold tracking-tight">What We Offer</h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            Click on any service to learn more about how we can help your organization
-          </p>
-        </motion.div>
-        
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {services.map((service, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.05 }}
-              onClick={() => setExpandedService(expandedService === index ? null : index)}
-              className="cursor-pointer"
-            >
-              <Card className={`p-6 h-full card-hover group border-2 transition-all duration-300 ${
-                expandedService === index 
-                  ? 'border-primary shadow-xl' 
-                  : 'border-transparent hover:border-primary/20'
-              }`}>
+      <section className="relative py-16 md:py-20 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-background via-muted/20 to-background" />
+        <div className="container relative">
+          <motion.div 
+            className="text-center space-y-4 mb-12"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <span className="text-sm font-medium text-primary uppercase tracking-wider">Explore</span>
+            <h2 className="font-poppins text-3xl md:text-4xl font-semibold tracking-tight">What We Offer</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Click on any service to learn more about how we can help your organization
+            </p>
+          </motion.div>
+          
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {services.map((service, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.05 }}
+                onClick={() => setExpandedService(expandedService === index ? null : index)}
+                className="cursor-pointer"
+              >
+                <Card className={`p-6 h-full card-hover group border-2 transition-all duration-300 bg-gradient-to-br from-card to-card/80 ${
+                  expandedService === index 
+                    ? 'border-primary/50 shadow-2xl bg-gradient-to-br from-card to-primary/5 scale-[1.02]' 
+                    : 'border-primary/10 hover:border-primary/40 shadow-lg hover:shadow-xl'
+                }`}>
                 <div className="space-y-4">
                   <div className={`h-14 w-14 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-110 ${
                     expandedService === index ? "bg-primary text-primary-foreground" : "bg-primary/10"
@@ -169,6 +187,7 @@ const Services = () => {
               </Card>
             </motion.div>
           ))}
+          </div>
         </div>
       </section>
 
