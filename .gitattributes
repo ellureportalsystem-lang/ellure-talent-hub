@@ -1,0 +1,16 @@
+# Ensure banner images are always tracked as binary files
+*.jpg binary
+*.jpeg binary
+*.png binary
+*.gif binary
+*.svg binary
+*.webp binary
+
+# Prevent line ending issues
+*.jpg -text
+*.jpeg -text
+*.png -text
+*.gif -text
+*.svg -text
+*.webp -text
+
