@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Link, useNavigate } from "react-router-dom";
-import { Sparkles, Mail, Phone, ArrowLeft, Eye, EyeOff } from "lucide-react";
+import { Sparkles, Mail, Phone, ArrowLeft, Eye, EyeOff, Shield, Building2, UserPlus, User, FileText } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
@@ -258,6 +258,45 @@ const ApplicantLogin = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Navigation Buttons */}
+        <div className="mt-6 space-y-2">
+          <div className="text-center text-sm font-medium text-muted-foreground mb-3">
+            Quick Access
+          </div>
+          <div className="grid grid-cols-1 gap-2">
+            <Button variant="outline" className="w-full justify-start" asChild>
+              <Link to="/dashboard/applicant">
+                <User className="mr-2 h-4 w-4" />
+                Applicant Dashboard
+              </Link>
+            </Button>
+            <Button variant="outline" className="w-full justify-start" asChild>
+              <Link to="/dashboard/applicant/profile">
+                <FileText className="mr-2 h-4 w-4" />
+                Applicant Profile
+              </Link>
+            </Button>
+            <Button variant="outline" className="w-full justify-start" asChild>
+              <Link to="/dashboard/admin">
+                <Shield className="mr-2 h-4 w-4" />
+                Admin Dashboard
+              </Link>
+            </Button>
+            <Button variant="outline" className="w-full justify-start" asChild>
+              <Link to="/dashboard/client">
+                <Building2 className="mr-2 h-4 w-4" />
+                Client Dashboard
+              </Link>
+            </Button>
+            <Button variant="outline" className="w-full justify-start" asChild>
+              <Link to="/auth/applicant-register/step-1">
+                <UserPlus className="mr-2 h-4 w-4" />
+                User Registration
+              </Link>
+            </Button>
+          </div>
+        </div>
 
         <p className="mt-4 text-center text-xs text-muted-foreground">
           By continuing, you agree to our{" "}
