@@ -76,10 +76,10 @@ const App = () => (
           <Route path="/auth/applicant-register/step-7" element={<Step7Review />} />
           <Route path="/auth/applicant-register/success" element={<RegistrationSuccess />} />
           {/* Dashboard Routes */}
-          <Route path="/dashboard/applicant" element={<ApplicantDashboard />} />
           <Route path="/dashboard/applicant/profile" element={<ApplicantProfile />} />
-          <Route path="/dashboard/admin" element={<AdminDashboard />} />
-          <Route path="/dashboard/client" element={<ClientDashboard />} />
+          <Route path="/dashboard/applicant" element={<ApplicantDashboard />} />
+          <Route path="/dashboard/admin/*" element={<AdminDashboard />} />
+          <Route path="/dashboard/client/*" element={<ClientDashboard />} />
           {/* Redirect /auth/login to /auth/applicant for backward compatibility */}
           <Route path="/auth/login" element={<ApplicantLogin />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
