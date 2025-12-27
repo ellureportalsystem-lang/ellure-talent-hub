@@ -5,10 +5,17 @@ import { Badge } from "@/components/ui/badge";
 import { 
   LayoutDashboard, Users, FolderOpen, FileText, 
   Settings, UserCog, LogOut, BarChart3, Search, Briefcase,
-  ChevronLeft, ChevronRight, Bell
+  Bell, Menu, X, ChevronDown
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 // Import admin pages
 import AdminHome from "./admin/AdminHome";
@@ -23,7 +30,7 @@ const AdminDashboard = () => {
   const { profile, signOut } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleLogout = async () => {
     await signOut();
@@ -31,7 +38,7 @@ const AdminDashboard = () => {
   };
 
   const navItems = [
-    { path: "/dashboard/admin", label: "Dashboard", icon: LayoutDashboard },
+    { path: "/dashboard/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
     { path: "/dashboard/admin/applicants", label: "Resume Search", icon: Search, badge: "AI" },
     { path: "/dashboard/admin/folders", label: "Folders", icon: FolderOpen },
     { path: "/dashboard/admin/jobs", label: "Jobs", icon: Briefcase },
@@ -40,91 +47,52 @@ const AdminDashboard = () => {
     { path: "/dashboard/admin/settings", label: "Settings", icon: Settings },
   ];
 
+  const isActive = (path: string, exact?: boolean) => {
+    if (exact) return location.pathname === path;
+    return location.pathname === path || location.pathname.startsWith(path + "/");
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-subtle flex">
-      {/* Sidebar */}
-      <aside className={cn(
-        "bg-card border-r transition-all duration-300 shadow-lg flex-shrink-0",
-        sidebarOpen ? "w-64" : "w-20"
-      )}>
-        <div className="flex flex-col h-screen">
-          {/* Header */}
-          <div className="p-4 border-b bg-primary/5">
-            <div className="flex items-center justify-between">
-              {sidebarOpen && (
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center">
-                    <span className="text-primary-foreground font-bold text-lg">E</span>
-                  </div>
-                  <div>
-                    <h1 className="text-base font-bold text-foreground">Ellure NexHire</h1>
-                    <p className="text-xs text-muted-foreground truncate max-w-[140px]">
-                      {profile?.email || "Administrator"}
-                    </p>
-                  </div>
-                </div>
-              )}
-              {!sidebarOpen && (
-                <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center mx-auto">
-                  <span className="text-primary-foreground font-bold text-lg">E</span>
-                </div>
-              )}
+    <div className="min-h-screen bg-gradient-subtle flex flex-col">
+      {/* Top Navbar */}
+      <header className="sticky top-0 z-50 bg-card border-b shadow-sm">
+        <div className="flex items-center justify-between px-4 h-16">
+          {/* Logo */}
+          <Link to="/dashboard/admin" className="flex items-center gap-3">
+            <div className="h-9 w-9 rounded-lg bg-primary flex items-center justify-center">
+              <span className="text-primary-foreground font-bold text-lg">E</span>
             </div>
-          </div>
+            <div className="hidden sm:block">
+              <h1 className="text-base font-bold text-foreground leading-tight">Ellure NexHire</h1>
+              <p className="text-[10px] text-muted-foreground">Admin Portal</p>
+            </div>
+          </Link>
 
-          {/* Toggle Button */}
-          <div className="px-3 py-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              className={cn(
-                "w-full flex items-center gap-2 text-muted-foreground hover:text-foreground",
-                sidebarOpen ? "justify-end" : "justify-center"
-              )}
-            >
-              {sidebarOpen ? (
-                <>
-                  <span className="text-xs">Collapse</span>
-                  <ChevronLeft className="h-4 w-4" />
-                </>
-              ) : (
-                <ChevronRight className="h-4 w-4" />
-              )}
-            </Button>
-          </div>
-
-          {/* Navigation */}
-          <nav className="flex-1 px-3 space-y-1 overflow-y-auto">
+          {/* Desktop Navigation */}
+          <nav className="hidden lg:flex items-center gap-1">
             {navItems.map((item) => {
               const Icon = item.icon;
-              const isActive = location.pathname === item.path || 
-                (item.path !== "/dashboard/admin" && location.pathname.startsWith(item.path));
+              const active = isActive(item.path, item.exact);
               
               return (
                 <Link
                   key={item.path}
                   to={item.path}
                   className={cn(
-                    "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group",
-                    isActive
-                      ? "bg-primary text-primary-foreground shadow-md"
-                      : "hover:bg-muted text-muted-foreground hover:text-foreground"
+                    "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200",
+                    active
+                      ? "bg-primary text-primary-foreground"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
                   )}
                 >
-                  <Icon className={cn(
-                    "h-5 w-5 flex-shrink-0 transition-transform",
-                    !isActive && "group-hover:scale-110"
-                  )} />
-                  {sidebarOpen && (
-                    <span className="text-sm font-medium flex-1">{item.label}</span>
-                  )}
-                  {sidebarOpen && item.badge && (
+                  <Icon className="h-4 w-4" />
+                  <span>{item.label}</span>
+                  {item.badge && (
                     <Badge 
-                      variant={isActive ? "secondary" : "outline"} 
+                      variant={active ? "secondary" : "outline"} 
                       className={cn(
                         "text-[10px] px-1.5 py-0",
-                        isActive && "bg-primary-foreground/20 text-primary-foreground"
+                        active && "bg-primary-foreground/20 text-primary-foreground border-0"
                       )}
                     >
                       {item.badge}
@@ -135,31 +103,112 @@ const AdminDashboard = () => {
             })}
           </nav>
 
-          {/* Footer */}
-          <div className="p-3 border-t space-y-2">
-            {sidebarOpen && (
-              <div className="flex items-center justify-between px-3 py-2 rounded-lg bg-muted/50">
-                <div className="flex items-center gap-2">
-                  <Bell className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-xs text-muted-foreground">Notifications</span>
+          {/* Right Section */}
+          <div className="flex items-center gap-2">
+            {/* Notifications */}
+            <Button variant="ghost" size="icon" className="relative">
+              <Bell className="h-5 w-5 text-muted-foreground" />
+              <Badge 
+                variant="destructive" 
+                className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-[10px]"
+              >
+                3
+              </Badge>
+            </Button>
+
+            {/* User Menu */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="gap-2 px-2">
+                  <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
+                    <span className="text-sm font-semibold text-primary">
+                      {profile?.email?.[0]?.toUpperCase() || "A"}
+                    </span>
+                  </div>
+                  <div className="hidden md:block text-left">
+                    <p className="text-sm font-medium leading-tight">Administrator</p>
+                    <p className="text-[10px] text-muted-foreground truncate max-w-[120px]">
+                      {profile?.email || "admin@ellure.com"}
+                    </p>
+                  </div>
+                  <ChevronDown className="h-4 w-4 text-muted-foreground hidden md:block" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <div className="px-3 py-2">
+                  <p className="text-sm font-medium">Administrator</p>
+                  <p className="text-xs text-muted-foreground truncate">
+                    {profile?.email || "admin@ellure.com"}
+                  </p>
                 </div>
-                <Badge variant="destructive" className="text-[10px] px-1.5 py-0">3</Badge>
-              </div>
-            )}
-            <Button
-              variant="ghost"
-              className={cn(
-                "w-full rounded-xl text-muted-foreground hover:text-destructive hover:bg-destructive/10",
-                sidebarOpen ? "justify-start" : "justify-center"
-              )}
-              onClick={handleLogout}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link to="/dashboard/admin/settings" className="cursor-pointer">
+                    <Settings className="mr-2 h-4 w-4" />
+                    Settings
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem 
+                  onClick={handleLogout}
+                  className="text-destructive focus:text-destructive cursor-pointer"
+                >
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* Mobile Menu Toggle */}
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="lg:hidden"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
-              <LogOut className="h-5 w-5" />
-              {sidebarOpen && <span className="ml-3 text-sm">Logout</span>}
+              {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </Button>
           </div>
         </div>
-      </aside>
+
+        {/* Mobile Navigation */}
+        {mobileMenuOpen && (
+          <nav className="lg:hidden border-t bg-card px-4 py-3 space-y-1">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const active = isActive(item.path, item.exact);
+              
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={cn(
+                    "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all",
+                    active
+                      ? "bg-primary text-primary-foreground"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                  )}
+                >
+                  <Icon className="h-5 w-5" />
+                  <span>{item.label}</span>
+                  {item.badge && (
+                    <Badge 
+                      variant={active ? "secondary" : "outline"} 
+                      className={cn(
+                        "text-[10px] px-1.5 py-0 ml-auto",
+                        active && "bg-primary-foreground/20 text-primary-foreground border-0"
+                      )}
+                    >
+                      {item.badge}
+                    </Badge>
+                  )}
+                </Link>
+              );
+            })}
+          </nav>
+        )}
+      </header>
 
       {/* Main Content */}
       <main className="flex-1 overflow-auto bg-muted/30">
