@@ -7,9 +7,9 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Checkbox } from "@/components/ui/checkbox";
 import { 
-  FolderPlus, Folder, Users, Download, Share2, MoreHorizontal,
+  FolderPlus, Folder, Users, Download, MoreHorizontal,
   Search, Plus, Eye, FolderOpen, Star, ArrowLeft,
-  UserPlus, X, Check, Trash2
+  UserPlus, X, Check, Trash2, FileSpreadsheet, FileText
 } from "lucide-react";
 import {
   Dialog,
@@ -18,6 +18,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -28,8 +29,17 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import { mockApplicants } from "@/data/mockApplicants";
+import { mockApplicants, Applicant } from "@/data/mockApplicants";
+import { 
+  exportFields, 
+  defaultSelectedFields, 
+  exportToCSV, 
+  exportToExcel, 
+  getFieldsByCategory 
+} from "@/lib/exportUtils";
 
 interface Folder {
   id: number;
@@ -44,13 +54,16 @@ interface Folder {
 const ClientFoldersManagement = () => {
   const navigate = useNavigate();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isExportDialogOpen, setIsExportDialogOpen] = useState(false);
   const [selectedFolder, setSelectedFolder] = useState<Folder | null>(null);
+  const [exportFolder, setExportFolder] = useState<Folder | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [newFolderName, setNewFolderName] = useState("");
   const [newFolderDescription, setNewFolderDescription] = useState("");
   const [newFolderColor, setNewFolderColor] = useState("blue");
   const [selectedApplicants, setSelectedApplicants] = useState<number[]>([]);
   const [isAddApplicantsDialogOpen, setIsAddApplicantsDialogOpen] = useState(false);
+  const [selectedExportFields, setSelectedExportFields] = useState<string[]>(defaultSelectedFields);
 
   const [folders, setFolders] = useState<Folder[]>([
     { 
@@ -165,6 +178,71 @@ const ClientFoldersManagement = () => {
     navigate(`/dashboard/client/candidates/${applicantId}`);
   };
 
+  const handleOpenExportDialog = (folder: Folder) => {
+    setExportFolder(folder);
+    setIsExportDialogOpen(true);
+  };
+
+  const handleExport = (format: 'csv' | 'excel') => {
+    if (!exportFolder) return;
+    
+    const applicantsToExport = mockApplicants.filter(a => 
+      exportFolder.applicantIds.includes(a.id)
+    );
+    
+    if (applicantsToExport.length === 0) {
+      toast.error("No candidates to export");
+      return;
+    }
+
+    if (selectedExportFields.length === 0) {
+      toast.error("Please select at least one field to export");
+      return;
+    }
+
+    const filename = `${exportFolder.name.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}`;
+    
+    if (format === 'csv') {
+      exportToCSV(applicantsToExport, selectedExportFields, filename);
+      toast.success(`Exported ${applicantsToExport.length} candidates to CSV`);
+    } else {
+      exportToExcel(applicantsToExport, selectedExportFields, filename);
+      toast.success(`Exported ${applicantsToExport.length} candidates to Excel`);
+    }
+    
+    setIsExportDialogOpen(false);
+  };
+
+  const handleToggleField = (fieldKey: string) => {
+    setSelectedExportFields(prev => 
+      prev.includes(fieldKey) 
+        ? prev.filter(f => f !== fieldKey)
+        : [...prev, fieldKey]
+    );
+  };
+
+  const handleSelectAllFields = () => {
+    setSelectedExportFields(exportFields.map(f => f.key));
+  };
+
+  const handleDeselectAllFields = () => {
+    setSelectedExportFields([]);
+  };
+
+  const handleSelectCategory = (category: string) => {
+    const categoryFields = exportFields
+      .filter(f => f.category === category)
+      .map(f => f.key);
+    
+    const allSelected = categoryFields.every(f => selectedExportFields.includes(f));
+    
+    if (allSelected) {
+      setSelectedExportFields(prev => prev.filter(f => !categoryFields.includes(f)));
+    } else {
+      setSelectedExportFields(prev => [...new Set([...prev, ...categoryFields])]);
+    }
+  };
+
   const filteredFolders = folders.filter(f => 
     f.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     f.description.toLowerCase().includes(searchQuery.toLowerCase())
@@ -173,6 +251,109 @@ const ClientFoldersManagement = () => {
   const folderApplicants = selectedFolder 
     ? mockApplicants.filter(a => selectedFolder.applicantIds.includes(a.id))
     : [];
+
+  const fieldCategories = getFieldsByCategory();
+
+  // Export Dialog Component
+  const ExportDialog = () => (
+    <Dialog open={isExportDialogOpen} onOpenChange={setIsExportDialogOpen}>
+      <DialogContent className="max-w-2xl max-h-[85vh]">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Download className="h-5 w-5 text-primary" />
+            Export Candidates
+          </DialogTitle>
+          <DialogDescription>
+            Export {exportFolder?.count || 0} candidates from "{exportFolder?.name}" folder. 
+            Select the fields you want to include in the export.
+          </DialogDescription>
+        </DialogHeader>
+        
+        <div className="space-y-4">
+          {/* Quick Actions */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" onClick={handleSelectAllFields}>
+                Select All
+              </Button>
+              <Button variant="outline" size="sm" onClick={handleDeselectAllFields}>
+                Deselect All
+              </Button>
+            </div>
+            <Badge variant="secondary">
+              {selectedExportFields.length} fields selected
+            </Badge>
+          </div>
+
+          {/* Field Selection */}
+          <ScrollArea className="h-[350px] rounded-md border p-4">
+            <div className="space-y-6">
+              {Object.entries(fieldCategories).map(([categoryKey, category]) => {
+                const categoryFieldKeys = category.fields.map(f => f.key);
+                const allSelected = categoryFieldKeys.every(f => selectedExportFields.includes(f));
+                const someSelected = categoryFieldKeys.some(f => selectedExportFields.includes(f));
+                
+                return (
+                  <div key={categoryKey} className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <Checkbox
+                        checked={allSelected}
+                        // @ts-ignore - indeterminate is valid
+                        indeterminate={someSelected && !allSelected}
+                        onCheckedChange={() => handleSelectCategory(categoryKey)}
+                      />
+                      <Label className="font-semibold text-sm">{category.label}</Label>
+                      <Badge variant="outline" className="text-xs">
+                        {category.fields.filter(f => selectedExportFields.includes(f.key)).length}/{category.fields.length}
+                      </Badge>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 pl-6">
+                      {category.fields.map(field => (
+                        <label 
+                          key={field.key}
+                          className="flex items-center gap-2 text-sm cursor-pointer hover:text-primary transition-colors"
+                        >
+                          <Checkbox
+                            checked={selectedExportFields.includes(field.key)}
+                            onCheckedChange={() => handleToggleField(field.key)}
+                          />
+                          {field.label}
+                        </label>
+                      ))}
+                    </div>
+                    <Separator />
+                  </div>
+                );
+              })}
+            </div>
+          </ScrollArea>
+        </div>
+
+        <DialogFooter className="flex-col sm:flex-row gap-2">
+          <Button variant="outline" onClick={() => setIsExportDialogOpen(false)}>
+            Cancel
+          </Button>
+          <Button 
+            variant="outline" 
+            onClick={() => handleExport('csv')}
+            disabled={selectedExportFields.length === 0}
+            className="gap-2"
+          >
+            <FileText className="h-4 w-4" />
+            Export as CSV
+          </Button>
+          <Button 
+            onClick={() => handleExport('excel')}
+            disabled={selectedExportFields.length === 0}
+            className="gap-2"
+          >
+            <FileSpreadsheet className="h-4 w-4" />
+            Export as Excel
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
 
   // Folder Detail View
   if (selectedFolder) {
@@ -201,7 +382,12 @@ const ClientFoldersManagement = () => {
               <UserPlus className="h-4 w-4 mr-2" />
               Add Candidates
             </Button>
-            <Button variant="outline" size="sm">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => handleOpenExportDialog(selectedFolder)}
+              disabled={selectedFolder.count === 0}
+            >
               <Download className="h-4 w-4 mr-2" />
               Export All
             </Button>
@@ -372,6 +558,8 @@ const ClientFoldersManagement = () => {
             </div>
           </DialogContent>
         </Dialog>
+
+        <ExportDialog />
       </div>
     );
   }
@@ -532,7 +720,10 @@ const ClientFoldersManagement = () => {
                       <Eye className="mr-2 h-4 w-4" />
                       View Folder
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={(e) => e.stopPropagation()}>
+                    <DropdownMenuItem onClick={(e) => {
+                      e.stopPropagation();
+                      handleOpenExportDialog(folder);
+                    }}>
                       <Download className="mr-2 h-4 w-4" />
                       Export
                     </DropdownMenuItem>
@@ -578,6 +769,8 @@ const ClientFoldersManagement = () => {
           </CardContent>
         </Card>
       </div>
+
+      <ExportDialog />
     </div>
   );
 };
