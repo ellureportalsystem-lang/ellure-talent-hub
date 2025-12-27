@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
-import { FileCheck, TrendingUp, Users, Shield, Building2, Zap, ArrowRight, CheckCircle } from "lucide-react";
+import { FileCheck, TrendingUp, Users, Shield, Building2, Zap, ArrowRight, CheckCircle, Search, MessageSquare } from "lucide-react";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import Navbar from "@/components/layout/Navbar";
@@ -10,45 +10,45 @@ import Footer from "@/components/layout/Footer";
 const features = [
   {
     icon: FileCheck,
-    title: "Smart Application Management",
-    shortDesc: "Multi-step registration and automated profile creation",
-    fullDesc: "Multi-step registration, automated profile creation, resume parsing, and instant dashboard access. Streamline your applicant onboarding process with intelligent form handling and automatic data extraction.",
-    benefits: ["Automated profile generation", "Resume parsing", "Instant dashboard access", "Multi-format support"]
+    title: "Application Lifecycle Management",
+    shortDesc: "Tracks candidate journey end-to-end",
+    fullDesc: "Tracks candidate journey end-to-end. Mandatory for any serious hiring portal. HRs understand this immediately. Complete visibility into every stage of the application process from submission to final decision.",
+    benefits: ["End-to-end candidate tracking", "Stage-by-stage visibility", "HR-friendly interface", "Complete application history"]
   },
   {
-    icon: TrendingUp,
-    title: "Advanced Analytics",
-    shortDesc: "Track hiring performance and real-time metrics",
-    fullDesc: "Track hiring performance, applicant flow, skill clusters, and real-time metrics. Make data-driven decisions with comprehensive dashboards and detailed reports on your recruitment pipeline.",
-    benefits: ["Real-time metrics", "Skill clustering", "Performance tracking", "Custom reports"]
+    icon: Search,
+    title: "Context-Based Matching Engine",
+    shortDesc: "Matches candidates by relevance, not keywords",
+    fullDesc: "Matches candidates by relevance, not keywords. Strong differentiator when explained properly. Avoids fake 'AI' claims. Intelligent matching that understands context and role requirements for better candidate fit.",
+    benefits: ["Relevance-based matching", "Context understanding", "Better candidate fit", "Transparent process"]
+  },
+  {
+    icon: MessageSquare,
+    title: "HR–Recruiter Collaboration Workspace",
+    shortDesc: "Private feedback & notes for ethical hiring",
+    fullDesc: "Private feedback & notes. Ethical, transparent hiring. Aligns with Ellure's brand values. Secure workspace for HR and recruiters to collaborate, share feedback, and maintain transparent communication throughout the hiring process.",
+    benefits: ["Private feedback system", "Secure collaboration", "Transparent communication", "Ethical hiring practices"]
   },
   {
     icon: Users,
-    title: "Bulk Operations",
-    shortDesc: "Upload thousands of applicants and manage at scale",
-    fullDesc: "Upload thousands of applicants via CSV/Excel, export structured reports, and manage data at scale. Handle large-scale recruitment drives efficiently with our bulk processing capabilities.",
-    benefits: ["CSV/Excel import", "Mass exports", "Batch processing", "Data validation"]
+    title: "Controlled Bulk Actions",
+    shortDesc: "Saves recruiter time with enterprise-safe limits",
+    fullDesc: "Saves recruiter time. Prevents spam & misuse. Enterprise-safe. Controlled bulk operations with built-in limits to ensure quality and prevent abuse while maintaining efficiency for recruiters.",
+    benefits: ["Time-saving bulk operations", "Spam prevention", "Enterprise-safe limits", "Quality control"]
+  },
+  {
+    icon: TrendingUp,
+    title: "Essential Hiring Analytics",
+    shortDesc: "Actionable metrics without dashboard overload",
+    fullDesc: "Actionable metrics only. No dashboard overload. Builds trust with MNCs. Focused analytics that provide meaningful insights without overwhelming users with unnecessary data.",
+    benefits: ["Actionable insights", "Clean dashboard", "MNC-ready", "Trust-building metrics"]
   },
   {
     icon: Shield,
-    title: "Enterprise Security",
-    shortDesc: "Role-based access control and encrypted data",
-    fullDesc: "Role-based access control, audit logging, encrypted data, and SOC-2-ready workflows. Your data security is our priority with enterprise-grade protection and compliance features.",
-    benefits: ["Role-based access", "Audit logs", "Data encryption", "Compliance ready"]
-  },
-  {
-    icon: Building2,
-    title: "Client Collaboration Tools",
-    shortDesc: "Share candidate folders and manage communication",
-    fullDesc: "Share candidate folders, collect feedback, and manage communication efficiently. Enable seamless collaboration between recruiters and hiring managers with dedicated client portals.",
-    benefits: ["Candidate folders", "Feedback system", "Secure sharing", "Real-time updates"]
-  },
-  {
-    icon: Zap,
-    title: "Smart Matching Engine",
-    shortDesc: "AI-powered resume analysis and recommendations",
-    fullDesc: "AI-powered resume analysis and automated skill-based candidate recommendations. Leverage machine learning to find the perfect candidates faster and improve match quality.",
-    benefits: ["AI-powered matching", "Skill analysis", "Auto recommendations", "Quality scoring"]
+    title: "Enterprise-Grade Security & Compliance",
+    shortDesc: "Non-negotiable for MNC clients",
+    fullDesc: "Non-negotiable for MNC clients. Data protection & access control. Silent credibility booster. Enterprise-grade security with comprehensive data protection, access controls, and compliance features that MNCs require.",
+    benefits: ["Data protection", "Access control", "MNC compliance", "Enterprise security"]
   }
 ];
 
@@ -67,73 +67,65 @@ const Features = () => {
       <Navbar />
 
       {/* Hero Section */}
-      <section className="relative py-10 md:py-14 overflow-hidden min-h-[300px] md:min-h-[350px] flex items-center">
-        {/* Background Image */}
-        <div className="absolute inset-0">
-          <img 
-            src="/features-banner.jpg" 
-            alt="Features Banner"
-            className="w-full h-full object-cover"
-            style={{ objectPosition: 'center 25%' }}
-          />
-          {/* Enhanced overlay for better text readability */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/30" />
-          <div className="absolute top-0 left-0 right-0 h-2/3 bg-gradient-to-b from-black/80 via-black/60 to-transparent" />
-        </div>
+      <section className="relative bg-gradient-primary text-primary-foreground py-16 md:py-20 overflow-hidden">
+        {/* Full-sized Banner Background */}
+        <div 
+          className="absolute inset-0 bg-cover bg-right bg-no-repeat"
+          style={{
+            backgroundImage: `url(/features-banner.jpg)`,
+          }}
+        />
+        {/* Subtle overlay for text readability - natural banner appearance */}
+        <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-black/20 to-transparent" />
         
-        {/* Decorative elements */}
-        <div className="absolute inset-0 bg-grid opacity-5" />
-        
-        <div className="container relative z-10 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="max-w-4xl mx-auto"
-          >
-            <span className="text-sm font-medium uppercase tracking-wider text-white/90 drop-shadow-md">Capabilities</span>
-            <h1 className="hero-title text-3xl md:text-4xl lg:text-5xl mt-2 mb-5 text-white drop-shadow-lg" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>
-              <span className="text-[#FFD700]" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.7)' }}>Platform Features</span>
-            </h1>
-            <p className="hero-subtitle text-base md:text-lg text-white/95 max-w-3xl mx-auto drop-shadow-md" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.5)' }}>
-              Everything you need to manage recruitment at scale with <span className="text-[#FFD700] font-semibold" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.7)' }}>efficiency and precision</span>
-            </p>
-          </motion.div>
+        <div className="container relative">
+          <div className="flex items-center justify-center py-8">
+            {/* Text Content - Center */}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5 }}
+              className="max-w-2xl space-y-6 z-10 text-center"
+            >
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white"><span className="gold-text">Platform Features</span></h1>
+              <p className="text-xl text-white/90">
+                Everything you need to manage recruitment at scale with <span className="gold-text">efficiency and precision</span>
+              </p>
+            </motion.div>
+          </div>
         </div>
       </section>
 
       {/* Features Grid */}
-      <section className="relative py-16 md:py-20 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-background via-muted/20 to-background" />
-        <div className="container relative">
-          <motion.div 
-            className="text-center space-y-4 mb-12"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <span className="text-sm font-medium text-primary uppercase tracking-wider">Explore</span>
-            <h2 className="font-poppins text-3xl md:text-4xl font-semibold tracking-tight">Powerful Features</h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              Click on any feature to explore its capabilities and key benefits
-            </p>
-          </motion.div>
-          
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {features.map((feature, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                onClick={() => setExpandedFeature(expandedFeature === index ? null : index)}
-                className="cursor-pointer"
-              >
-                <Card className={`p-6 h-full card-hover group border-2 transition-all duration-300 ${
-                  expandedFeature === index 
-                    ? 'border-primary/50 shadow-2xl bg-gradient-to-br from-card to-primary/5 scale-[1.02]' 
-                    : 'border-primary/10 hover:border-primary/40 bg-gradient-to-br from-card to-card/50 shadow-lg hover:shadow-xl'
+      <section className="container py-10">
+        <motion.div 
+          className="text-center space-y-4 mb-8"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+        >
+          <span className="text-sm font-medium text-primary uppercase tracking-wider">Explore</span>
+          <h2 className="text-3xl font-bold">Powerful Features</h2>
+          <p className="text-muted-foreground max-w-2xl mx-auto">
+            Click on any feature to explore its capabilities and key benefits
+          </p>
+        </motion.div>
+        
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {features.map((feature, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: index * 0.1 }}
+              onClick={() => setExpandedFeature(expandedFeature === index ? null : index)}
+              className="cursor-pointer"
+            >
+              <Card className={`p-6 h-full card-hover group border-2 transition-all duration-300 shadow-md hover:shadow-xl ${
+                expandedFeature === index 
+                  ? 'border-primary shadow-xl' 
+                  : 'border-border hover:border-primary/60'
               }`}>
                 <div className="space-y-4">
                   <div className={`h-14 w-14 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-110 ${
@@ -189,24 +181,23 @@ const Features = () => {
               </Card>
             </motion.div>
           ))}
-          </div>
         </div>
       </section>
 
       {/* Stats Section */}
-      <section className="relative py-16 overflow-hidden">
+      <section className="relative py-10 overflow-hidden">
         <div className="absolute inset-0 bg-muted/30" />
         <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-border to-transparent" />
         
         <div className="container relative">
           <motion.div 
-            className="text-center space-y-4 mb-12"
+            className="text-center space-y-4 mb-8"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
             <span className="text-sm font-medium text-primary uppercase tracking-wider">Results</span>
-            <h2 className="font-poppins text-3xl font-semibold tracking-tight">Platform Impact</h2>
+            <h2 className="text-3xl font-bold">Platform Impact</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
               Real results from organizations using our platform
             </p>
@@ -221,7 +212,7 @@ const Features = () => {
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
               >
-                <Card className="p-6 text-center card-hover group">
+                <Card className="p-6 text-center card-hover group border-2 border-border shadow-md hover:shadow-xl hover:border-primary/60 transition-all duration-300">
                   <div className="text-4xl font-bold text-primary group-hover:scale-110 transition-transform duration-300">
                     {stat.value}
                   </div>
@@ -235,15 +226,15 @@ const Features = () => {
       </section>
 
       {/* Built for Enterprise */}
-      <section className="container py-16">
+      <section className="container py-10">
         <motion.div 
-          className="text-center space-y-4 mb-12"
+          className="text-center space-y-4 mb-8"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
         >
           <span className="text-sm font-medium text-primary uppercase tracking-wider">Enterprise Ready</span>
-          <h2 className="font-poppins text-3xl font-semibold tracking-tight">Built for Scale & Security</h2>
+          <h2 className="text-3xl font-bold">Built for Scale & Security</h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
             Enterprise-grade features designed for scale and security
           </p>
@@ -262,7 +253,7 @@ const Features = () => {
               viewport={{ once: true }}
               transition={{ delay: index * 0.1 }}
             >
-              <Card className="p-8 text-center card-hover group">
+              <Card className="p-8 text-center card-hover group border-2 border-border shadow-md hover:shadow-xl hover:border-primary/60 transition-all duration-300">
                 <div className="h-14 w-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4 transition-all duration-300 group-hover:scale-110 group-hover:bg-primary/20">
                   <item.icon className="h-7 w-7 text-primary" />
                 </div>
@@ -275,13 +266,21 @@ const Features = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="container py-16">
-        <Card className="p-12 bg-gradient-primary text-primary-foreground text-center relative overflow-hidden">
-          <div className="absolute inset-0 bg-grid opacity-10" />
+      <section className="container py-10">
+        <Card className="p-12 text-white text-center relative overflow-hidden">
+          {/* CTA Banner Background */}
+          <div 
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+            style={{
+              backgroundImage: `url(/features-cta-banner.jpg)`,
+            }}
+          />
+          {/* Natural overlay for text readability */}
+          <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-black/30 to-black/50" />
           <div className="relative z-10 max-w-2xl mx-auto space-y-6">
-            <h2 className="font-poppins text-3xl font-semibold tracking-tight">Ready to <span className="gold-text">Experience These Features</span>?</h2>
-            <p className="text-primary-foreground/90">
-              Get started today and transform your recruitment process.
+            <h2 className="text-3xl font-bold text-white">Ready to <span className="gold-text">Experience</span> These <span className="gold-text">Features</span>?</h2>
+            <p className="text-white/90">
+              Get started today and <span className="gold-text">transform</span> your recruitment process.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" variant="secondary" className="btn-hover" asChild>

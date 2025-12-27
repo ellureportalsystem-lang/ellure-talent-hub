@@ -73,6 +73,7 @@ const Footer = () => {
                 { to: "/industries", label: "Industries" },
                 { to: "/features", label: "Features" },
                 { to: "/contact", label: "Contact Us" },
+                { to: "/faq", label: "FAQ" },
               ].map((link) => (
                 <li key={link.to}>
                   <Link 
@@ -154,6 +155,9 @@ const Footer = () => {
               © {new Date().getFullYear()} Ellure NexHire. All rights reserved.
             </p>
             <div className="flex gap-6 text-sm text-muted-foreground">
+              <Link to="/faq" className="hover:text-primary transition-colors duration-300">
+                FAQ
+              </Link>
               <Link to="/privacy" className="hover:text-primary transition-colors duration-300">
                 Privacy Policy
               </Link>

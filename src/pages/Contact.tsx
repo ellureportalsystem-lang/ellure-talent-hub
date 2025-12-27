@@ -30,43 +30,37 @@ const Contact = () => {
       <Navbar />
 
       {/* Hero Section */}
-      <section className="relative py-10 md:py-14 overflow-hidden min-h-[300px] md:min-h-[350px] flex items-center">
-        {/* Background Image */}
-        <div className="absolute inset-0">
-          <img 
-            src="/contact-banner.jpg" 
-            alt="Contact Banner"
-            className="w-full h-full object-cover"
-            style={{ objectPosition: 'center 25%' }}
-          />
-          {/* Enhanced overlay for better text readability */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/30" />
-          <div className="absolute top-0 left-0 right-0 h-2/3 bg-gradient-to-b from-black/80 via-black/60 to-transparent" />
-        </div>
+      <section className="relative bg-gradient-primary text-primary-foreground py-16 md:py-20 overflow-hidden">
+        {/* Full-sized Banner Background */}
+        <div 
+          className="absolute inset-0 bg-cover bg-right bg-no-repeat"
+          style={{
+            backgroundImage: `url(/contact-banner.jpg)`,
+          }}
+        />
+        {/* Subtle overlay for text readability - natural banner appearance */}
+        <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-black/20 to-transparent" />
         
-        {/* Decorative elements */}
-        <div className="absolute inset-0 bg-grid opacity-5" />
-        
-        <div className="container relative z-10 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="max-w-4xl mx-auto"
-          >
-            <span className="text-sm font-medium uppercase tracking-wider text-white/90 drop-shadow-md">Reach Out</span>
-            <h1 className="hero-title text-3xl md:text-4xl lg:text-5xl mt-2 mb-5 text-white drop-shadow-lg" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>
-              <span className="text-[#FFD700]" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.7)' }}>Get in Touch</span>
-            </h1>
-            <p className="hero-subtitle text-base md:text-lg text-white/95 max-w-3xl mx-auto drop-shadow-md" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.5)' }}>
-              We'd love to hear from you. Let's discuss how we can <span className="text-[#FFD700] font-semibold" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.7)' }}>help</span>.
-            </p>
-          </motion.div>
+        <div className="container relative">
+          <div className="flex items-center justify-center py-8">
+            {/* Text Content - Center */}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5 }}
+              className="max-w-2xl space-y-6 z-10 text-center"
+            >
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white"><span className="gold-text">Get in Touch</span></h1>
+              <p className="text-xl text-white/90">
+                We'd love to hear from you. Let's discuss how we can <span className="gold-text">help</span>.
+              </p>
+            </motion.div>
+          </div>
         </div>
       </section>
 
       {/* Google Map Section */}
-      <section className="container pt-12 pb-6">
+      <section className="container pt-10 pb-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -78,7 +72,7 @@ const Contact = () => {
             rel="noopener noreferrer"
             className="block"
           >
-            <Card className="overflow-hidden card-hover cursor-pointer">
+            <Card className="overflow-hidden card-hover cursor-pointer border-2 border-border shadow-md hover:shadow-xl hover:border-primary/60 transition-all duration-300">
               <iframe
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3784.264833726844!2d73.90044017519742!3d18.50361518256973!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bc2c1c02ef704c1%3A0xe911db1b479e2e0a!2sEllure%20Consultting%20Services!5e0!3m2!1sen!2sin!4v1701680000000!5m2!1sen!2sin"
                 width="100%"
@@ -88,7 +82,7 @@ const Contact = () => {
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
                 className="rounded-lg pointer-events-none"
-                title="Ellure NexHire Location"
+                title="Ellure Consulting Services Location"
               />
             </Card>
           </a>
@@ -99,15 +93,15 @@ const Contact = () => {
       </section>
 
       {/* Contact Section */}
-      <section className="container py-12">
-        <div className="grid lg:grid-cols-2 gap-12">
+      <section className="container py-10">
+        <div className="grid lg:grid-cols-2 gap-8">
           {/* Contact Form */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
           >
-            <Card className="p-8 card-hover">
+            <Card className="p-8 card-hover border-2 border-border shadow-md hover:shadow-xl hover:border-primary/60 transition-all duration-300">
               <h2 className="text-2xl font-bold mb-6">Send Us a Message</h2>
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="space-y-2">
@@ -172,7 +166,7 @@ const Contact = () => {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
             >
-              <Card className="p-8 card-hover">
+              <Card className="p-8 card-hover border-2 border-border shadow-md hover:shadow-xl hover:border-primary/60 transition-all duration-300">
                 <h2 className="text-2xl font-bold mb-6">Contact Information</h2>
                 <div className="space-y-6">
                   {[
@@ -223,7 +217,7 @@ const Contact = () => {
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
             >
-              <Card className="p-8 card-hover">
+              <Card className="p-8 card-hover border-2 border-border shadow-md hover:shadow-xl hover:border-primary/60 transition-all duration-300">
                 <h2 className="text-2xl font-bold mb-6">Connect With Us</h2>
                 <p className="text-muted-foreground mb-6">
                   Follow us on social media for the latest updates and opportunities.
@@ -260,23 +254,31 @@ const Contact = () => {
               viewport={{ once: true }}
               transition={{ delay: 0.2 }}
             >
-              <Card className="p-8 bg-gradient-primary text-primary-foreground relative overflow-hidden">
-                <div className="absolute inset-0 bg-grid opacity-10" />
-                <div className="relative">
+              <Card className="p-8 text-white relative overflow-hidden border-2 border-border shadow-md hover:shadow-xl hover:border-primary/60 transition-all duration-300">
+                {/* Banner Background */}
+                <div 
+                  className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+                  style={{
+                    backgroundImage: `url(/contact-business-hours-banner.jpg)`,
+                  }}
+                />
+                {/* Natural overlay for text readability */}
+                <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-black/30 to-black/50" />
+                <div className="relative z-10">
                   <div className="flex items-center gap-3 mb-4">
-                    <Clock className="h-6 w-6" />
-                    <h2 className="text-2xl font-bold">Business Hours</h2>
+                    <Clock className="h-6 w-6 text-white" />
+                    <h2 className="text-2xl font-bold text-white">Business Hours</h2>
                   </div>
                   <div className="space-y-2">
-                    <p className="flex justify-between">
+                    <p className="flex justify-between text-white">
                       <span>Monday - Friday:</span>
                       <span className="font-medium">9:00 AM - 6:00 PM</span>
                     </p>
-                    <p className="flex justify-between">
+                    <p className="flex justify-between text-white">
                       <span>Saturday:</span>
                       <span className="font-medium">9:00 AM - 2:00 PM</span>
                     </p>
-                    <p className="flex justify-between">
+                    <p className="flex justify-between text-white">
                       <span>Sunday:</span>
                       <span className="font-medium">Closed</span>
                     </p>

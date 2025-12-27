@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
-import { Search, FileText, CheckCircle, BarChart3, Users, Briefcase, Database, PenTool, ArrowRight } from "lucide-react";
+import { FileText, CheckCircle, BarChart3, Users, Briefcase, ArrowRight, Shield } from "lucide-react";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import Navbar from "@/components/layout/Navbar";
@@ -9,60 +9,48 @@ import Footer from "@/components/layout/Footer";
 
 const services = [
   {
-    icon: Search,
-    title: "Executive Search",
-    shortDesc: "Precision-driven hiring for leadership roles",
-    fullDesc: "Confidential, precision-driven hiring for leadership and CXO roles with deep behavioral and capability assessments.",
-  },
-  {
     icon: FileText,
-    title: "Resume Processing",
-    shortDesc: "Professional resume restructuring and optimization",
-    fullDesc: "Professional restructuring, formatting, ATS optimization, and thorough quality checks for candidate resumes.",
+    title: "Resume Intake & Validation",
+    shortDesc: "Structured resume submission and basic validation",
+    fullDesc: "Structured resume submission and basic validation to ensure profiles are relevant and ready for hiring workflows.",
   },
   {
     icon: CheckCircle,
-    title: "Candidate Screening",
-    shortDesc: "Structured assessments and cultural fit analysis",
-    fullDesc: "Structured assessments including skill checks, communication evaluation, and cultural fit analysis.",
+    title: "Profile Relevance Screening",
+    shortDesc: "Initial screening based on skills and role fit",
+    fullDesc: "Initial screening based on skills, experience alignment, notice period, and role fit — without claiming deep interviews.",
   },
   {
     icon: BarChart3,
-    title: "Skill Mapping",
-    shortDesc: "Competency mapping and workforce optimization",
-    fullDesc: "Competency mapping to identify role-specific skills, optimize workforce planning, and enhance productivity.",
+    title: "Skill & Role Mapping",
+    shortDesc: "Accurate mapping of candidate skills to role requirements",
+    fullDesc: "Accurate mapping of candidate skills to role requirements to improve shortlist quality and relevance.",
   },
   {
     icon: Users,
     title: "Candidate–Client Coordination",
-    shortDesc: "End-to-end coordination and process management",
-    fullDesc: "End-to-end coordination from screening to scheduling to onboarding — reducing delays and boosting efficiency.",
+    shortDesc: "End-to-end coordination including interview scheduling",
+    fullDesc: "End-to-end coordination including interview scheduling, feedback sharing, offer updates, and joiner follow-ups.",
   },
   {
     icon: Briefcase,
-    title: "Contractual Staffing",
-    shortDesc: "Agile workforce solutions for temporary needs",
-    fullDesc: "Agile workforce solutions for temporary, seasonal, or project-based requirements with complete process management.",
+    title: "Hiring Process Support",
+    shortDesc: "Operational support across hiring stages",
+    fullDesc: "Operational support across hiring stages such as interview flow management, timeline follow-ups, and closure assistance.",
   },
   {
-    icon: Database,
-    title: "Database Management",
-    shortDesc: "Secure and structured data management",
-    fullDesc: "Secure and structured management of employee/candidate data with modern tools and analytics readiness.",
-  },
-  {
-    icon: PenTool,
-    title: "Resume Writing",
-    shortDesc: "Professional resume creation services",
-    fullDesc: "Professional resume creation including chronological, functional, and combination formats to maximize visibility.",
+    icon: Shield,
+    title: "Ethical Hiring Enablement",
+    shortDesc: "Promoting transparency and accountability",
+    fullDesc: "Promoting transparency, timely communication, and accountability across candidates and employers throughout the hiring process.",
   }
 ];
 
 const processSteps = [
-  { step: "01", title: "Understand", desc: "Deep dive into your requirements and culture" },
-  { step: "02", title: "Source", desc: "Identify and engage qualified candidates" },
-  { step: "03", title: "Screen", desc: "Thorough assessment and validation" },
-  { step: "04", title: "Deliver", desc: "Present shortlisted candidates and support onboarding" }
+  { step: "01", title: "Understand", desc: "Role requirements, expectations, and timelines are aligned." },
+  { step: "02", title: "Source", desc: "Relevant profiles are sourced through structured intake." },
+  { step: "03", title: "Screen", desc: "Profiles are screened and mapped for relevance and fit." },
+  { step: "04", title: "Deliver", desc: "Shortlists, coordination, and hiring support are delivered through the platform." }
 ];
 
 const Services = () => {
@@ -73,74 +61,80 @@ const Services = () => {
       <Navbar />
 
       {/* Hero Section */}
-      <section className="relative py-10 md:py-14 overflow-hidden min-h-[300px] md:min-h-[350px] flex items-center">
-        {/* Background Image */}
-        <div className="absolute inset-0">
-          <img 
-            src="/services-banner.jpg" 
-            alt="Services Banner"
-            className="w-full h-full object-cover"
-            style={{ objectPosition: 'center center' }}
-          />
-          {/* Enhanced overlay for better text readability */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/30" />
-          <div className="absolute top-0 left-0 right-0 h-2/3 bg-gradient-to-b from-black/80 via-black/60 to-transparent" />
-        </div>
+      <section className="relative bg-gradient-primary text-primary-foreground py-16 md:py-20 overflow-hidden">
+        {/* Full-sized Banner Background */}
+        <div 
+          className="absolute inset-0 bg-cover bg-right bg-no-repeat"
+          style={{
+            backgroundImage: `url(/services-banner.jpg)`,
+          }}
+        />
+        {/* Subtle overlay for text readability - natural banner appearance */}
+        <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-black/20 to-transparent" />
         
-        {/* Decorative elements */}
-        <div className="absolute inset-0 bg-grid opacity-5" />
-        
-        <div className="container relative z-10 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="max-w-4xl mx-auto"
-          >
-            <span className="text-sm font-medium uppercase tracking-wider text-white/90 drop-shadow-md">What We Do</span>
-            <h1 className="hero-title text-3xl md:text-4xl lg:text-5xl mt-2 mb-5 text-white drop-shadow-lg" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>
-              Our <span className="text-[#FFD700]" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.7)' }}>Services</span>
-            </h1>
-            <p className="hero-subtitle text-base md:text-lg text-white/95 max-w-3xl mx-auto drop-shadow-md" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.5)' }}>
-              Comprehensive <span className="text-[#FFD700] font-semibold" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.7)' }}>recruitment solutions</span> tailored to your organizational needs
-            </p>
-          </motion.div>
+        <div className="container relative">
+          <div className="flex items-center justify-center py-8">
+            {/* Text Content - Center */}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5 }}
+              className="max-w-2xl space-y-6 z-10 text-center"
+            >
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white">Our <span className="gold-text">Services</span></h1>
+              <p className="text-xl text-white/90">
+                Structured <span className="gold-text">hiring solutions</span> for employers and candidates.
+              </p>
+            </motion.div>
+          </div>
         </div>
       </section>
 
-      {/* Services Grid */}
-      <section className="relative py-16 md:py-20 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-background via-muted/20 to-background" />
-        <div className="container relative">
-          <motion.div 
-            className="text-center space-y-4 mb-12"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <span className="text-sm font-medium text-primary uppercase tracking-wider">Explore</span>
-            <h2 className="font-poppins text-3xl md:text-4xl font-semibold tracking-tight">What We Offer</h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              Click on any service to learn more about how we can help your organization
-            </p>
-          </motion.div>
-          
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {services.map((service, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.05 }}
-                onClick={() => setExpandedService(expandedService === index ? null : index)}
-                className="cursor-pointer"
-              >
-                <Card className={`p-6 h-full card-hover group border-2 transition-all duration-300 bg-gradient-to-br from-card to-card/80 ${
-                  expandedService === index 
-                    ? 'border-primary/50 shadow-2xl bg-gradient-to-br from-card to-primary/5 scale-[1.02]' 
-                    : 'border-primary/10 hover:border-primary/40 shadow-lg hover:shadow-xl'
-                }`}>
+      {/* Section 1: What We Do */}
+      <section className="container py-10">
+        <motion.div 
+          className="text-center space-y-4 mb-8 max-w-4xl mx-auto"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+        >
+          <h2 className="text-2xl md:text-3xl font-bold">What We Do</h2>
+          <p className="text-muted-foreground text-lg">
+            We support hiring outcomes through structured coordination, relevance screening, and ethical process management — without replacing internal HR or recruitment ownership.
+          </p>
+        </motion.div>
+      </section>
+
+      {/* Section 2: Our Services */}
+      <section className="container py-10">
+        <motion.div 
+          className="text-center space-y-4 mb-8"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+        >
+          <h2 className="text-3xl md:text-4xl font-bold">Our Services</h2>
+          <p className="text-muted-foreground text-lg">
+            Explore what we offer
+          </p>
+        </motion.div>
+        
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {services.map((service, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: index * 0.05 }}
+              onClick={() => setExpandedService(expandedService === index ? null : index)}
+              className="cursor-pointer"
+            >
+              <Card className={`p-6 h-full card-hover group border-2 transition-all duration-300 shadow-md hover:shadow-xl ${
+                expandedService === index 
+                  ? 'border-primary shadow-xl' 
+                  : 'border-border hover:border-primary/60'
+              }`}>
                 <div className="space-y-4">
                   <div className={`h-14 w-14 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-110 ${
                     expandedService === index ? "bg-primary text-primary-foreground" : "bg-primary/10"
@@ -187,26 +181,40 @@ const Services = () => {
               </Card>
             </motion.div>
           ))}
-          </div>
+        </div>
+        
+        {/* Optional Footnote */}
+        <div className="mt-6 text-center space-y-2">
+          <p className="text-sm text-muted-foreground">
+            Additional services such as resume writing may be provided upon candidate request.
+          </p>
         </div>
       </section>
 
-      {/* Process Section */}
-      <section className="relative py-16 overflow-hidden">
+      {/* Mandatory Clarity Line */}
+      <section className="container pb-6">
+        <div className="max-w-3xl mx-auto text-center">
+          <p className="text-sm text-muted-foreground">
+            Platform features such as application tracking and analytics are available within the Ellure Nexhire system.
+          </p>
+        </div>
+      </section>
+
+      {/* Section 3: How It Works */}
+      <section className="relative py-10 overflow-hidden">
         <div className="absolute inset-0 bg-muted/30" />
         <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-border to-transparent" />
         
         <div className="container relative">
           <motion.div 
-            className="text-center space-y-4 mb-12"
+            className="text-center space-y-4 mb-8"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <span className="text-sm font-medium text-primary uppercase tracking-wider">How It Works</span>
-            <h2 className="font-poppins text-3xl font-semibold tracking-tight">Our Process</h2>
+            <h2 className="text-3xl font-bold">How It Works</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              A systematic approach to finding the perfect talent for your organization
+              Our hiring process
             </p>
           </motion.div>
           
@@ -219,7 +227,7 @@ const Services = () => {
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
               >
-                <Card className="p-6 text-center card-hover group relative overflow-hidden">
+                <Card className="p-6 text-center card-hover group relative overflow-hidden border-2 border-border shadow-md hover:shadow-xl hover:border-primary/60 transition-all duration-300">
                   <div className="absolute top-0 right-0 w-20 h-20 bg-primary/5 rounded-bl-full" />
                   <div className="space-y-4 relative">
                     <div className="text-5xl font-bold text-primary/20 group-hover:text-primary/30 transition-colors duration-300">
@@ -235,43 +243,26 @@ const Services = () => {
         </div>
       </section>
 
-      {/* Why Choose Section */}
-      <section className="container py-16">
-        <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-          {[
-            { value: "500+", label: "Placements", desc: "Successful candidate placements" },
-            { value: "95%", label: "Satisfaction", desc: "Client satisfaction rate" },
-            { value: "48hrs", label: "Response", desc: "Average response time" },
-          ].map((stat, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.1 }}
-            >
-              <Card className="p-8 text-center card-hover">
-                <div className="text-4xl font-bold text-primary">{stat.value}</div>
-                <div className="font-semibold mt-2">{stat.label}</div>
-                <p className="text-sm text-muted-foreground mt-1">{stat.desc}</p>
-              </Card>
-            </motion.div>
-          ))}
-        </div>
-      </section>
-
       {/* CTA Section */}
-      <section className="container py-16">
-        <Card className="p-12 bg-gradient-primary text-primary-foreground text-center relative overflow-hidden">
-          <div className="absolute inset-0 bg-grid opacity-10" />
+      <section className="container py-10">
+        <Card className="p-12 text-white text-center relative overflow-hidden">
+          {/* CTA Banner Background */}
+          <div 
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+            style={{
+              backgroundImage: `url(/services-cta-banner.jpg)`,
+            }}
+          />
+          {/* Natural overlay for text readability */}
+          <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/60 to-black/70" />
           <div className="relative z-10 max-w-2xl mx-auto space-y-6">
-            <h2 className="font-poppins text-3xl font-semibold tracking-tight">Let's <span className="gold-text">Build Your Team Together</span></h2>
-            <p className="text-primary-foreground/90">
-              Get in touch to discuss your recruitment needs and discover how we can help.
+            <h2 className="text-3xl font-bold text-white">Ready to <span className="gold-text">Get Started</span>?</h2>
+            <p className="text-white/90">
+              Let's discuss your <span className="gold-text">hiring needs</span> and discover how we can <span className="gold-text">support</span> your organization.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" variant="secondary" className="btn-hover" asChild>
-                <Link to="/contact">Contact Us</Link>
+                <Link to="/contact">Get in Touch</Link>
               </Button>
               <Button size="lg" className="bg-white text-primary hover:bg-white/90 btn-hover" asChild>
                 <Link to="/about">Learn More</Link>
