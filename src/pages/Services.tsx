@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import MarketingLayout from "@/components/marketing/MarketingLayout";
+import MarketingPageHero from "@/components/marketing/MarketingPageHero";
 
 const services = [
   {
@@ -61,38 +62,21 @@ const Services = () => {
     <MarketingLayout showGeometry>
       <Navbar />
 
-      {/* Hero Section */}
-      <section className="relative bg-gradient-primary text-primary-foreground py-16 md:py-20 overflow-hidden">
-        {/* Full-sized Banner Background */}
-        <div 
-          className="absolute inset-0 bg-cover bg-right bg-no-repeat"
-          style={{
-            backgroundImage: `url(/services-banner.jpg)`,
-          }}
-        />
-        {/* Subtle overlay for text readability - natural banner appearance */}
-        <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-black/20 to-transparent" />
-        
-        <div className="container relative">
-          <div className="flex items-center justify-center py-8">
-            {/* Text Content - Center */}
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5 }}
-              className="max-w-2xl space-y-6 z-10 text-center"
-            >
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white">Our <span className="gold-text">Services</span></h1>
-              <p className="text-xl text-white/90">
-                Structured <span className="gold-text">hiring solutions</span> for employers and candidates.
-              </p>
-            </motion.div>
-          </div>
-        </div>
-      </section>
+      <MarketingPageHero
+        imageSrc="/services-banner.jpg"
+        title={
+          <>
+            Our <span className="gold-text">Services</span>
+          </>
+        }
+        subtitle={
+          <>
+            Structured <span className="gold-text">hiring solutions</span> for employers and candidates.
+          </>
+        }
+      />
 
-      {/* Section 1: What We Do */}
-      <section className="container py-10">
+      <section className="marketing-section">
         <motion.div 
           className="text-center space-y-4 mb-8 max-w-4xl mx-auto"
           initial={{ opacity: 0, y: 20 }}
@@ -107,20 +91,20 @@ const Services = () => {
       </section>
 
       {/* Section 2: Our Services */}
-      <section className="container py-10">
+      <section className="marketing-section">
         <motion.div 
-          className="text-center space-y-4 mb-8"
+          className="text-center space-y-3 sm:space-y-4 mb-6 sm:mb-8"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
         >
-          <h2 className="text-3xl md:text-4xl font-bold">Our Services</h2>
-          <p className="text-muted-foreground text-lg">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold">Our Services</h2>
+          <p className="text-muted-foreground text-base sm:text-lg px-2">
             Explore what we offer
           </p>
         </motion.div>
         
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6">
           {services.map((service, index) => (
             <motion.div
               key={index}
@@ -245,7 +229,7 @@ const Services = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="container py-10">
+      <section className="marketing-section">
         <Card className="p-12 text-white text-center relative overflow-hidden">
           {/* CTA Banner Background */}
           <div 

@@ -82,8 +82,7 @@ const Landing = () => {
       <Navbar />
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-primary text-primary-foreground min-h-[520px] sm:min-h-[560px] lg:min-h-[600px] flex items-center">
-        {/* Full-sized Banner Background Images */}
+      <section className="relative overflow-hidden bg-gradient-primary text-primary-foreground marketing-landing-hero flex items-center">
         <AnimatePresence mode="wait">
           <motion.div
             key={currentSlide}
@@ -91,16 +90,11 @@ const Landing = () => {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -100 }}
             transition={{ duration: 0.7, ease: [0.4, 0, 0.2, 1] }}
-            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-            style={{
-              backgroundImage: `url(/banner-${currentSlide + 1}.jpg)`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center right',
-            }}
+            className="absolute inset-0 marketing-hero-banner bg-cover bg-no-repeat"
+            style={{ backgroundImage: `url(/banner-${currentSlide + 1}.jpg)` }}
           />
         </AnimatePresence>
-        {/* Subtle overlay for text readability - natural banner appearance */}
-        <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-black/20 to-transparent" />
+        <div className="absolute inset-0 marketing-hero-overlay" />
         
         <div className="container relative w-full py-8 md:py-10 px-4 sm:px-6">
           <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
@@ -112,9 +106,9 @@ const Landing = () => {
                 animate={{ opacity: 1, x: 0 }} 
                 exit={{ opacity: 0, x: 20 }}
                 transition={{ duration: 0.6, ease: "easeInOut" }}
-                className="max-w-2xl space-y-4 sm:space-y-6 z-10 pt-4 sm:pt-6 lg:pt-0"
+                className="max-w-2xl space-y-3 sm:space-y-6 z-10 pt-2 sm:pt-6 lg:pt-0"
               >
-                <h1 className="hero-title text-3xl md:text-4xl lg:text-5xl leading-relaxed">
+                <h1 className="hero-title marketing-hero-title leading-tight sm:leading-relaxed">
                   {currentSlide === 0 ? (
                     <>
                       <div className="mb-2">Empowering Organizations With</div>
@@ -170,7 +164,7 @@ const Landing = () => {
             </div>
             </div>
 
-            <div className="order-1 lg:order-2 flex justify-center pt-12 sm:pt-16 lg:pt-0 z-10">
+            <div className="order-1 lg:order-2 flex justify-center pt-4 pb-2 sm:pt-12 lg:pt-0 z-10 w-full">
               <HeroDashboardMockup />
             </div>
           </div>
@@ -188,7 +182,7 @@ const Landing = () => {
             whileHover={{ y: -8 }}
             transition={{ duration: 0.3 }}
           >
-            <Card className="p-8 md:p-10 marketing-card-lift group cursor-pointer border-2 border-border shadow-lg hover:shadow-2xl hover:border-primary/60 transition-all duration-300 relative overflow-hidden">
+            <Card className="marketing-card-pad marketing-card-lift group cursor-pointer border-2 border-border shadow-lg hover:shadow-2xl hover:border-primary/60 transition-all duration-300 relative overflow-hidden">
               <div className="absolute top-0 right-0 w-40 h-40 bg-primary/10 rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               <div className="absolute bottom-0 left-0 w-32 h-32 bg-primary/5 rounded-tr-full opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               <div className="space-y-6 relative z-10">
@@ -221,7 +215,7 @@ const Landing = () => {
             whileHover={{ y: -8 }}
             transition={{ duration: 0.3 }}
           >
-            <Card className="p-8 md:p-10 marketing-card-lift group cursor-pointer border-2 border-border shadow-lg hover:shadow-2xl hover:border-secondary/60 transition-all duration-300 relative overflow-hidden">
+            <Card className="marketing-card-pad marketing-card-lift group cursor-pointer border-2 border-border shadow-lg hover:shadow-2xl hover:border-secondary/60 transition-all duration-300 relative overflow-hidden">
               <div className="absolute top-0 right-0 w-40 h-40 bg-secondary/10 rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               <div className="absolute bottom-0 left-0 w-32 h-32 bg-secondary/5 rounded-tr-full opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               <div className="space-y-6 relative z-10">
@@ -265,7 +259,7 @@ const Landing = () => {
               <h2 className="font-poppins text-3xl md:text-4xl font-semibold tracking-tight mt-3">About Us</h2>
               <div className="w-24 h-1 bg-gradient-to-r from-transparent via-primary to-transparent mx-auto mt-4 rounded-full" />
             </div>
-            <Card className="p-8 md:p-12 marketing-card-lift shadow-xl border-2 border-border hover:border-primary/60 hover:shadow-2xl transition-all duration-300 relative overflow-hidden group">
+            <Card className="marketing-card-pad marketing-card-lift shadow-xl border-2 border-border hover:border-primary/60 hover:shadow-2xl transition-all duration-300 relative overflow-hidden group">
               <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               <div className="absolute bottom-0 left-0 w-24 h-24 bg-primary/5 rounded-tr-full opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               <div className="relative z-10">
@@ -313,7 +307,7 @@ const Landing = () => {
               >
                 <Card 
                   onClick={() => setExpandedFeature(expandedFeature === i ? null : i)} 
-                  className={`p-6 cursor-pointer marketing-card-lift group border-2 transition-all duration-300 relative overflow-hidden shadow-md ${
+                  className={`p-5 sm:p-6 cursor-pointer marketing-card-lift group border-2 transition-all duration-300 relative overflow-hidden shadow-md ${
                     expandedFeature === i 
                       ? "border-primary shadow-2xl" 
                       : "border-border hover:border-primary/60 hover:shadow-xl"
@@ -387,26 +381,24 @@ const Landing = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <Card className="p-10 md:p-12 text-white text-center relative overflow-hidden shadow-2xl border-2 border-white/20 hover:border-white/40 transition-all duration-300">
+            <Card className="marketing-cta-card marketing-card-pad text-white text-center relative overflow-hidden shadow-2xl border-2 border-white/20">
               {/* CTA Banner Background */}
-              <div 
-                className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-                style={{
-                  backgroundImage: `url(/cta-banner.jpg)`,
-                }}
+              <div
+                className="absolute inset-0 marketing-cta-banner bg-cover bg-no-repeat"
+                style={{ backgroundImage: `url(/cta-banner.jpg)` }}
+                aria-hidden
               />
-              {/* Natural overlay for text readability */}
-              <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-black/30 to-black/50" />
-              <div className="relative z-10 max-w-2xl mx-auto space-y-6">
-                <h2 className="font-poppins text-3xl md:text-4xl font-semibold tracking-tight text-white">Ready to <span className="gold-text">Transform Your Hiring</span>?</h2>
-                <p className="hero-subtitle text-white/90 text-lg">
+              <div className="absolute inset-0 marketing-cta-overlay" aria-hidden />
+              <div className="relative z-10 max-w-2xl mx-auto space-y-4 sm:space-y-6">
+                <h2 className="font-poppins text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight text-white">Ready to <span className="gold-text">Transform Your Hiring</span>?</h2>
+                <p className="hero-subtitle text-white/90 text-base sm:text-lg">
                   Join hundreds of organizations that trust Ellure for their recruitment needs.
                 </p>
-                <div className="flex flex-col sm:flex-row gap-4 justify-center pt-2">
-                  <Button size="lg" variant="secondary" className="btn-hover btn-glow shadow-lg hover:shadow-xl" asChild>
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center pt-2 w-full">
+                  <Button size="lg" variant="secondary" className="btn-hover btn-glow shadow-lg w-full sm:w-auto" asChild>
                     <Link to="/contact">Get Started Today</Link>
                   </Button>
-                  <Button size="lg" className="bg-white text-primary hover:bg-white/90 btn-hover btn-glow-primary shadow-lg hover:shadow-xl" asChild>
+                  <Button size="lg" className="bg-white text-primary hover:bg-white/90 btn-hover btn-glow-primary shadow-lg w-full sm:w-auto" asChild>
                     <Link to="/services">View Our Services</Link>
                   </Button>
                 </div>

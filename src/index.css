@@ -352,4 +352,126 @@ All colors MUST be HSL.
     background-clip: text;
     color: transparent;
   }
+
+  /* ——— Marketing mobile (lg+ keeps desktop look) ——— */
+  .marketing-hero-banner {
+    background-position: center center;
+    background-size: cover;
+  }
+
+  @media (min-width: 768px) {
+    .marketing-hero-banner {
+      background-position: center right;
+    }
+  }
+
+  .marketing-hero-overlay {
+    background: linear-gradient(
+      180deg,
+      hsl(0 0% 0% / 0.72) 0%,
+      hsl(0 0% 0% / 0.55) 45%,
+      hsl(0 0% 0% / 0.35) 100%
+    );
+  }
+
+  @media (min-width: 768px) {
+    .marketing-hero-overlay {
+      background: linear-gradient(
+        to right,
+        hsl(0 0% 0% / 0.5) 0%,
+        hsl(0 0% 0% / 0.28) 50%,
+        transparent 100%
+      );
+    }
+  }
+
+  .marketing-page-hero {
+    min-height: min(52vh, 420px);
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  @media (min-width: 768px) {
+    .marketing-page-hero {
+      min-height: auto;
+    }
+  }
+
+  .marketing-page-hero-inner {
+    padding-top: 2.5rem;
+    padding-bottom: 2.5rem;
+  }
+
+  @media (min-width: 768px) {
+    .marketing-page-hero-inner {
+      padding-top: 2rem;
+      padding-bottom: 2rem;
+    }
+  }
+
+  .marketing-hero-title {
+    font-family: "Poppins", sans-serif;
+    font-weight: 700;
+    font-size: clamp(1.75rem, 5.5vw, 3.75rem);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+  }
+
+  .marketing-hero-subtitle {
+    font-family: "Poppins", sans-serif;
+    font-size: clamp(0.95rem, 2.8vw, 1.25rem);
+    line-height: 1.55;
+    max-width: 36rem;
+  }
+
+  .marketing-section {
+    @apply container px-4 sm:px-6 py-8 md:py-10;
+  }
+
+  .marketing-card-pad {
+    @apply p-5 sm:p-6 md:p-8 lg:p-10;
+  }
+
+  .marketing-cta-banner {
+    background-position: center center;
+    background-size: cover;
+  }
+
+  .marketing-cta-overlay {
+    background: linear-gradient(
+      180deg,
+      hsl(0 0% 0% / 0.65) 0%,
+      hsl(0 0% 0% / 0.5) 100%
+    );
+  }
+
+  @media (min-width: 768px) {
+    .marketing-cta-overlay {
+      background: linear-gradient(
+        to right,
+        hsl(0 0% 0% / 0.55) 0%,
+        hsl(0 0% 0% / 0.35) 50%,
+        hsl(0 0% 0% / 0.45) 100%
+      );
+    }
+  }
+
+  .marketing-landing-hero {
+    min-height: min(88svh, 640px);
+  }
+
+  @media (min-width: 1024px) {
+    .marketing-landing-hero {
+      min-height: 600px;
+    }
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .marketing-card-lift:hover {
+      @apply -translate-y-1.5 shadow-xl;
+    }
+    .card-hover:hover {
+      @apply shadow-xl -translate-y-1;
+    }
+  }
 }

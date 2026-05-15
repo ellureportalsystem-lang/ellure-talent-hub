@@ -14,6 +14,7 @@ import {
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import MarketingLayout from "@/components/marketing/MarketingLayout";
+import MarketingPageHero from "@/components/marketing/MarketingPageHero";
 
 const industries = [
   {
@@ -74,38 +75,14 @@ const Industries = () => {
     <MarketingLayout showGeometry>
       <Navbar />
 
-      {/* Hero Section */}
-      <section className="relative bg-gradient-primary text-primary-foreground py-16 md:py-20 overflow-hidden">
-        {/* Full-sized Banner Background */}
-        <div 
-          className="absolute inset-0 bg-cover bg-right bg-no-repeat"
-          style={{
-            backgroundImage: `url(/industries-banner.jpg)`,
-          }}
-        />
-        {/* Subtle overlay for text readability - natural banner appearance */}
-        <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-black/20 to-transparent" />
-        
-        <div className="container relative">
-          <div className="flex items-center justify-center py-8">
-            {/* Text Content - Center */}
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5 }}
-              className="max-w-2xl space-y-6 z-10 text-center"
-            >
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white"><span className="gold-text">Industries We Serve</span></h1>
-              <p className="text-xl text-white/90">
-                Specialised <span className="gold-text">recruitment expertise</span> across diverse sectors
-              </p>
-            </motion.div>
-          </div>
-        </div>
-      </section>
+      <MarketingPageHero
+        imageSrc="/industries-banner.jpg"
+        title={<> <span className="gold-text">Industries We Serve</span></>}
+        subtitle={<>Specialised <span className="gold-text">recruitment expertise</span> across diverse sectors</>}
+      />
 
       {/* Section 1: Sector Expertise */}
-      <section className="container py-10">
+      <section className="marketing-section">
         <motion.div 
           className="text-center space-y-4 mb-8"
           initial={{ opacity: 0, y: 20 }}
@@ -190,7 +167,7 @@ const Industries = () => {
       </section>
 
       {/* Section 3: Industry Partnership Stats */}
-      <section className="container py-10">
+      <section className="marketing-section">
         <motion.div 
           className="text-center space-y-4 mb-8"
           initial={{ opacity: 0, y: 20 }}
@@ -225,7 +202,7 @@ const Industries = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="container py-10">
+      <section className="marketing-section">
         <Card className="p-12 text-white text-center relative overflow-hidden">
           {/* CTA Banner Background */}
           <div 

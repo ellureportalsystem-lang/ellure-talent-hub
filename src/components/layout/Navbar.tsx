@@ -19,16 +19,16 @@ const Navbar = () => {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center justify-between">
-        <Link to="/" className="flex items-center gap-1 group">
+      <div className="container flex h-14 sm:h-16 items-center justify-between px-4 sm:px-6">
+        <Link to="/" className="flex items-center gap-1 group min-w-0">
           <img 
             src="/ellure-logo.png" 
             alt="Ellure NexHire" 
-            className="h-14 w-auto object-contain transition-transform duration-300 group-hover:scale-105" 
+            className="h-10 sm:h-14 w-auto object-contain transition-transform duration-300 group-hover:scale-105 shrink-0" 
           />
           <div className="flex flex-col leading-none items-start">
-            <span className="text-xl font-bold" style={{ color: '#3d4853' }}>Ellure</span>
-            <span className="text-xl font-bold -mt-2" style={{ color: '#0566cd' }}>NexHire</span>
+            <span className="text-base sm:text-xl font-bold" style={{ color: '#3d4853' }}>Ellure</span>
+            <span className="text-base sm:text-xl font-bold -mt-1 sm:-mt-2" style={{ color: '#0566cd' }}>NexHire</span>
           </div>
         </Link>
 

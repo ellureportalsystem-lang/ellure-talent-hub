@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import MarketingLayout from "@/components/marketing/MarketingLayout";
+import MarketingPageHero from "@/components/marketing/MarketingPageHero";
 
 const features = [
   {
@@ -67,38 +68,14 @@ const Features = () => {
     <MarketingLayout showGeometry>
       <Navbar />
 
-      {/* Hero Section */}
-      <section className="relative bg-gradient-primary text-primary-foreground py-16 md:py-20 overflow-hidden">
-        {/* Full-sized Banner Background */}
-        <div 
-          className="absolute inset-0 bg-cover bg-right bg-no-repeat"
-          style={{
-            backgroundImage: `url(/features-banner.jpg)`,
-          }}
-        />
-        {/* Subtle overlay for text readability - natural banner appearance */}
-        <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-black/20 to-transparent" />
-        
-        <div className="container relative">
-          <div className="flex items-center justify-center py-8">
-            {/* Text Content - Center */}
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5 }}
-              className="max-w-2xl space-y-6 z-10 text-center"
-            >
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white"><span className="gold-text">Platform Features</span></h1>
-              <p className="text-xl text-white/90">
-                Everything you need to manage recruitment at scale with <span className="gold-text">efficiency and precision</span>
-              </p>
-            </motion.div>
-          </div>
-        </div>
-      </section>
+      <MarketingPageHero
+        imageSrc="/features-banner.jpg"
+        title={<> <span className="gold-text">Platform Features</span></>}
+        subtitle={<>Everything you need to manage recruitment at scale with <span className="gold-text">efficiency and precision</span></>}
+      />
 
       {/* Features Grid */}
-      <section className="container py-10">
+      <section className="marketing-section">
         <motion.div 
           className="text-center space-y-4 mb-8"
           initial={{ opacity: 0, y: 20 }}
@@ -227,7 +204,7 @@ const Features = () => {
       </section>
 
       {/* Built for Enterprise */}
-      <section className="container py-10">
+      <section className="marketing-section">
         <motion.div 
           className="text-center space-y-4 mb-8"
           initial={{ opacity: 0, y: 20 }}
@@ -267,7 +244,7 @@ const Features = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="container py-10">
+      <section className="marketing-section">
         <Card className="p-12 text-white text-center relative overflow-hidden">
           {/* CTA Banner Background */}
           <div 

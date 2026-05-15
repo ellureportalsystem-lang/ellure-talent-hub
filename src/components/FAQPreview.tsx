@@ -24,7 +24,7 @@ const faqPreview = [
 
 export const FAQPreview = () => {
   return (
-    <section className="py-10 md:py-12 relative overflow-hidden">
+    <section className="py-10 md:py-12 relative overflow-hidden px-4 sm:px-6">
       <div className="absolute inset-0 bg-gradient-to-b from-muted/40 via-muted/20 to-transparent" />
       <div className="container relative">
         <motion.div 
@@ -41,7 +41,7 @@ export const FAQPreview = () => {
         </motion.div>
         
         <div className="max-w-4xl mx-auto">
-          <div className="grid md:grid-cols-2 gap-6 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-8">
             {faqPreview.map((faq, index) => (
               <motion.div
                 key={index}
@@ -51,8 +51,8 @@ export const FAQPreview = () => {
                 transition={{ delay: index * 0.1 }}
                 whileHover={{ y: -4 }}
               >
-                <Card className="p-6 h-full card-hover border-2 border-border shadow-md hover:shadow-xl hover:border-primary/60 transition-all duration-300">
-                  <h3 className="font-semibold text-lg mb-3 text-foreground">{faq.question}</h3>
+                <Card className="p-5 sm:p-6 h-full marketing-card-lift card-hover border-2 border-border shadow-md hover:shadow-xl hover:border-primary/60 transition-all duration-300">
+                  <h3 className="font-semibold text-base sm:text-lg mb-3 text-foreground">{faq.question}</h3>
                   <p className="text-muted-foreground leading-relaxed">{faq.answer}</p>
                 </Card>
               </motion.div>

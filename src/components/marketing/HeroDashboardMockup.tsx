@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 
 const HeroDashboardMockup = ({ className = "" }: { className?: string }) => (
   <motion.div
-    className={`relative w-full max-w-[280px] sm:max-w-md mx-auto lg:mx-0 lg:ml-auto ${className}`}
+    className={`relative w-full max-w-[min(100%,260px)] sm:max-w-md mx-auto lg:mx-0 lg:ml-auto ${className}`}
     initial={{ opacity: 0, y: 24, scale: 0.96 }}
     animate={{ opacity: 1, y: 0, scale: 1 }}
     transition={{ duration: 0.8, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}

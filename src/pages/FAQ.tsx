@@ -5,6 +5,7 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import MarketingLayout from "@/components/marketing/MarketingLayout";
+import MarketingPageHero from "@/components/marketing/MarketingPageHero";
 
 const mainFAQs = [
   {
@@ -40,27 +41,14 @@ const FAQ = () => {
     <MarketingLayout showGeometry>
       <Navbar />
 
-      {/* Hero Section */}
-      <section className="relative bg-gradient-primary text-primary-foreground py-16 md:py-20 overflow-hidden">
-        <div className="container relative">
-          <div className="flex items-center py-8">
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5 }}
-              className="max-w-2xl space-y-6 z-10"
-            >
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white">Frequently Asked Questions</h1>
-              <p className="text-xl text-white/90">
-                Find answers to common questions about Ellure Nexhire
-              </p>
-            </motion.div>
-          </div>
-        </div>
-      </section>
+      <MarketingPageHero
+        title="Frequently Asked Questions"
+        subtitle="Find answers to common questions about Ellure Nexhire"
+        align="left"
+      />
 
       {/* FAQ Section */}
-      <section className="container py-16">
+      <section className="marketing-section">
         <div className="max-w-3xl mx-auto space-y-4">
           {mainFAQs.map((faq, index) => (
             <motion.div

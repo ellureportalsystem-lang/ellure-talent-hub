@@ -7,44 +7,22 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import MarketingLayout from "@/components/marketing/MarketingLayout";
 import { FadeInSection } from "@/components/marketing/FadeInSection";
+import MarketingPageHero from "@/components/marketing/MarketingPageHero";
 
 const About = () => {
   return (
     <MarketingLayout showGeometry>
       <Navbar />
 
-      {/* Hero Section */}
-      <section className="relative bg-gradient-primary text-primary-foreground py-16 md:py-20 overflow-hidden">
-        {/* Full-sized Banner Background */}
-        <div 
-          className="absolute inset-0 bg-cover bg-right bg-no-repeat"
-          style={{
-            backgroundImage: `url(/about-banner.jpg)`,
-          }}
-        />
-        {/* Subtle overlay for text readability - natural banner appearance */}
-        <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-black/20 to-transparent" />
-        
-        <div className="container relative">
-          <div className="flex items-center py-8">
-            {/* Text Content - Left Side */}
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5 }}
-              className="max-w-2xl space-y-6 z-10"
-            >
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white"><span className="gold-text">About Us</span></h1>
-              <p className="text-xl text-white/90">
-                Building <span className="gold-text">structured, ethical, and scalable</span> hiring experiences.
-              </p>
-            </motion.div>
-          </div>
-        </div>
-      </section>
+      <MarketingPageHero
+        imageSrc="/about-banner.jpg"
+        align="left"
+        title={<span className="gold-text">About Us</span>}
+        subtitle={<>Building <span className="gold-text">structured, ethical, and scalable</span> hiring experiences.</>}
+      />
 
       {/* Section 1: Our History */}
-      <section className="container py-10">
+      <section className="marketing-section">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -91,7 +69,7 @@ const About = () => {
       </section>
 
       {/* Section 3: Our Vision */}
-      <section className="container py-10">
+      <section className="marketing-section">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -146,7 +124,7 @@ const About = () => {
       </section>
 
       {/* Section 5: Why Choose Ellure */}
-      <section className="container py-10">
+      <section className="marketing-section">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -209,7 +187,7 @@ const About = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="container py-10">
+      <section className="marketing-section">
         <Card className="p-12 text-white text-center relative overflow-hidden">
           {/* CTA Banner Background */}
           <div 
