@@ -8,6 +8,7 @@ import { Lock, ArrowLeft, Eye, EyeOff, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/contexts/AuthContext";
+import { CandidateFAQs } from "@/components/CandidateFAQs";
 
 const SetPassword = () => {
   const navigate = useNavigate();
@@ -108,7 +109,20 @@ const SetPassword = () => {
       let currentSession = sessionData.session;
 
       if (!currentSession) {
-        // Fallback: try to sign in (temporary)
+        // Check if email confirmation is required
+        if (data.user && !data.user.email_confirmed_at) {
+          // Email confirmation required - show message and redirect
+          toast({
+            title: "Account Created",
+            description: "Please check your email to confirm your account, then sign in.",
+            variant: "default",
+          });
+          navigate("/auth/login");
+          setIsLoading(false);
+          return;
+        }
+        
+        // Try to sign in (if auto-confirmed or phone signup)
         console.log("No session after signup, attempting sign in...");
         const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
           email: normalizedEmail,
@@ -118,10 +132,21 @@ const SetPassword = () => {
 
         if (signInError) {
           console.error("Sign in error:", signInError);
-          toast({
-            title: "Account Created",
-            description: "Your account was created but requires email confirmation. Please check your email or try signing in.",
-          });
+          
+          // Handle email confirmation error
+          if (signInError.message.includes("Email not confirmed") || signInError.message.includes("email_not_confirmed")) {
+            toast({
+              title: "Email Confirmation Required",
+              description: "Please check your email and click the confirmation link, then try signing in again.",
+              variant: "default",
+            });
+          } else {
+            toast({
+              title: "Account Created",
+              description: "Your account was created. Please sign in.",
+              variant: "default",
+            });
+          }
           navigate("/auth/login");
           setIsLoading(false);
           return;
@@ -294,6 +319,11 @@ const SetPassword = () => {
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back
             </Button>
+          </div>
+
+          {/* Candidate FAQs */}
+          <div className="mt-8 pt-6 border-t">
+            <CandidateFAQs />
           </div>
         </CardContent>
       </Card>

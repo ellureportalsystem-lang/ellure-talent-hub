@@ -1,8 +1,8 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
-import { Card, CardContent } from "@/components/ui/card";
+import { useAuth } from "@/contexts/AuthContext";
+import { Loader2 } from "lucide-react";
 
 const GoogleCallback = () => {
   const navigate = useNavigate();
@@ -12,78 +12,69 @@ const GoogleCallback = () => {
     const handleCallback = async () => {
       try {
         // Get the session from the OAuth callback
-        const { data: { session }, error } = await supabase.auth.getSession();
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
-        if (error) {
-          console.error('OAuth callback error:', error);
-          navigate('/auth/login?error=oauth_failed');
+        if (sessionError) {
+          console.error("❌ Session error:", sessionError);
+          navigate("/auth/login");
           return;
         }
 
-        if (!session || !session.user) {
-          console.error('No session found after OAuth');
-          navigate('/auth/login?error=no_session');
+        if (!session?.user) {
+          console.error("❌ No session found");
+          navigate("/auth/login");
           return;
         }
 
-        // Wait a moment for profile to be created by trigger
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        
+        console.log("✅ Google OAuth callback successful for user:", session.user.id);
+
         // Check if profile exists
-        const { data: existingProfile } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', session.user.id)
+        const { data: existingProfile, error: profileError } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", session.user.id)
           .maybeSingle();
 
-        if (!existingProfile) {
-          // Profile doesn't exist, create it manually (fallback if trigger failed)
-          // Use role from metadata or default to applicant
-          const userRole = session.user.user_metadata?.role || 'applicant';
-          
-          const { error: createError } = await supabase
-            .from('profiles')
-            .insert({
-              id: session.user.id,
-              email: session.user.email || `user-${session.user.id}@generated.local`,
-              full_name: session.user.user_metadata?.full_name || session.user.user_metadata?.name || '',
-              role: userRole, // Use role from metadata, not hardcoded 'applicant'
-            });
-
-          if (createError) {
-            console.error('Error creating profile:', createError);
-          }
+        if (profileError && profileError.code !== "PGRST116") {
+          console.error("❌ Error checking profile:", profileError);
+          navigate("/auth/login");
+          return;
         }
-        // DO NOT modify existing profile role - preserve admin/client roles
-        
+
+        // If profile doesn't exist, create one
+        if (!existingProfile) {
+          const { error: insertError } = await supabase.from("profiles").insert({
+            id: session.user.id,
+            email: session.user.email || `user-${session.user.id}@generated.local`,
+            email_address: session.user.email || `user-${session.user.id}@generated.local`,
+            full_name: session.user.user_metadata?.full_name || session.user.user_metadata?.name || "",
+            role: session.user.user_metadata?.role || "applicant",
+          });
+
+          if (insertError) {
+            console.error("❌ Error creating profile:", insertError);
+            navigate("/auth/login");
+            return;
+          }
+
+          console.log("✅ Profile created for Google OAuth user");
+        }
+
         // Refresh profile to get the latest data
-        const updatedProfile = await refreshProfile();
+        const profile = await refreshProfile();
 
         // Navigate based on role
-        if (updatedProfile?.role === 'admin') {
-          navigate('/dashboard/admin');
-        } else if (updatedProfile?.role === 'client') {
-          navigate('/dashboard/client');
+        if (profile?.role === "admin") {
+          navigate("/dashboard/admin");
+        } else if (profile?.role === "client") {
+          navigate("/dashboard/client");
         } else {
-          // For applicants, check if they have completed registration
-          // If no applicant record exists, redirect to registration form
-          const { data: applicant } = await supabase
-            .from('applicants')
-            .select('id')
-            .eq('user_id', session.user.id)
-            .maybeSingle();
-          
-          if (!applicant) {
-            // New user, redirect to registration form
-            navigate('/auth/applicant-register/step-1');
-          } else {
-            // Existing applicant, go to dashboard
-            navigate('/dashboard/applicant');
-          }
+          // Default to applicant flow - redirect to profile page
+          navigate("/dashboard/applicant/profile");
         }
-      } catch (error) {
-        console.error('Error handling OAuth callback:', error);
-        navigate('/auth/login?error=callback_error');
+      } catch (error: any) {
+        console.error("❌ Unexpected error in Google callback:", error);
+        navigate("/auth/login");
       }
     };
 
@@ -91,27 +82,13 @@ const GoogleCallback = () => {
   }, [navigate, refreshProfile]);
 
   return (
-    <div className="min-h-screen bg-gradient-subtle flex items-center justify-center p-4">
-      <Card className="w-full max-w-md shadow-xl">
-        <CardContent className="pt-6">
-          <div className="flex flex-col items-center justify-center space-y-4">
-            <div className="flex flex-col items-center gap-1">
-              <img src="/ellure-logo.png" alt="Ellure NexHire" className="h-14 w-auto object-contain animate-pulse" />
-              <div className="flex flex-col items-center leading-none">
-                <span className="text-base font-bold" style={{ color: '#3d4853' }}>Ellure</span>
-                <span className="text-base font-bold -mt-2" style={{ color: '#0566cd' }}>NexHire</span>
-              </div>
-            </div>
-            <h2 className="text-xl font-semibold">Completing sign in...</h2>
-            <p className="text-sm text-muted-foreground text-center">
-              Please wait while we redirect you to your dashboard.
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+    <div className="min-h-screen bg-gradient-subtle flex items-center justify-center">
+      <div className="text-center space-y-4">
+        <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
+        <p className="text-muted-foreground">Completing sign in...</p>
+      </div>
     </div>
   );
 };
 
 export default GoogleCallback;
-

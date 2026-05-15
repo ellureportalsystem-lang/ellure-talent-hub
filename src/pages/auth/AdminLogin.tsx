@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Link, useNavigate } from "react-router-dom";
-import { Shield, ArrowLeft, Eye, EyeOff, Building2, UserPlus, User, FileText } from "lucide-react";
+import { Shield, ArrowLeft, Eye, EyeOff, Building2, UserPlus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
@@ -16,7 +16,7 @@ const AdminLogin = () => {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { signIn, profile, refreshProfile, signOut } = useAuth();
+  const { signIn, refreshProfile } = useAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,116 +26,115 @@ const AdminLogin = () => {
       const result = await signIn(email, password);
 
       if (result.error) {
+        const desc = result.error.message || "Invalid credentials";
+        const isConnectionError = /cannot reach the server|check your internet|supabase project url/i.test(desc);
         toast({
-          title: "Login failed",
-          description: result.error.message || "Invalid credentials",
+          title: isConnectionError ? "Connection error" : "Login failed",
+          description: desc,
           variant: "destructive",
         });
         setIsLoading(false);
         return;
       }
 
-      // Login successful - wait for profile and verify role
-      toast({
-        title: "Success",
-        description: "Login successful!",
-      });
-      
-      // Wait for profile to load
-      let updatedProfile = await refreshProfile();
-      
-      // If profile not loaded, wait a bit and try again
-      if (!updatedProfile) {
-        await new Promise(resolve => setTimeout(resolve, 1000));
+      const { data: { user: authUser }, error: getUserError } = await supabase.auth.getUser();
+
+      if (getUserError || !authUser) {
+        toast({ title: "Error", description: "Failed to get user information.", variant: "destructive" });
+        setIsLoading(false);
+        return;
+      }
+
+      let updatedProfile = null;
+      try {
+        const profilePromise = supabase.from('profiles').select('*').eq('id', authUser.id).maybeSingle();
+        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 5000));
+        const result = await Promise.race([profilePromise, timeoutPromise]) as any;
+        if (!result.error) updatedProfile = result.data;
+      } catch {
         updatedProfile = await refreshProfile();
       }
-      
-      // Verify role before navigation
+
       if (!updatedProfile) {
-        toast({
-          title: "Error",
-          description: "Profile not found. Please contact support.",
-          variant: "destructive",
-        });
+        toast({ title: "Error", description: "Profile not found.", variant: "destructive" });
         setIsLoading(false);
         return;
       }
-      
+
       if (updatedProfile.role !== 'admin') {
-        toast({
-          title: "Access Denied",
-          description: `This account has role "${updatedProfile.role}" but admin access is required. Please use the correct login page.`,
-          variant: "destructive",
-        });
+        const { data: adminUser } = await supabase.from('admin_users').select('admin_role, status').eq('user_id', updatedProfile.id).maybeSingle();
+
+        if (adminUser?.status === 'pending') {
+          toast({ title: "Access Pending", description: "Your admin access request is pending approval." });
+        } else if (adminUser?.status === 'rejected') {
+          toast({ title: "Access Denied", description: "Your admin access request has been rejected.", variant: "destructive" });
+        } else {
+          toast({ title: "Access Denied", description: "This account does not have admin access.", variant: "destructive" });
+        }
         setIsLoading(false);
         return;
       }
-      
-      // Role verified, navigate to admin dashboard
-      navigate("/dashboard/admin");
+
+      toast({ title: "Welcome back!", description: "Redirecting to admin dashboard..." });
       setIsLoading(false);
+      navigate("/dashboard/admin");
     } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message || "An error occurred",
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: error.message || "An error occurred", variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-subtle flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        {/* Back Button */}
-        <Button variant="ghost" asChild className="mb-4">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <div className="w-full max-w-[420px]">
+        <Button variant="ghost" size="sm" asChild className="mb-6 text-muted-foreground">
           <Link to="/">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Home
           </Link>
         </Button>
 
-        <Card className="shadow-xl border-2 border-primary/20">
-          <CardHeader className="space-y-1 text-center">
-            <div className="flex flex-col items-center justify-center mb-4 gap-1">
+        <Card className="border shadow-lg">
+          <CardHeader className="space-y-4 text-center pb-2">
+            <div className="flex flex-col items-center gap-2">
               <img src="/ellure-logo.png" alt="Ellure NexHire" className="h-14 w-auto object-contain" />
-              <div className="flex flex-col items-center leading-none">
-                <span className="text-base font-bold" style={{ color: '#3d4853' }}>Ellure</span>
-                <span className="text-base font-bold -mt-2" style={{ color: '#0566cd' }}>NexHire</span>
+              <div className="flex flex-col items-center leading-tight">
+                <span className="text-base font-bold text-foreground">Ellure</span>
+                <span className="text-base font-bold text-primary -mt-0.5">NexHire</span>
               </div>
             </div>
-            <div className="flex items-center justify-center gap-2">
-              <CardTitle className="text-2xl">Admin Portal</CardTitle>
-              <span className="text-xs bg-secondary/20 text-secondary px-2 py-1 rounded-full">
-                Secure
-              </span>
+            <div>
+              <div className="flex items-center justify-center gap-2">
+                <CardTitle className="text-xl">Admin Portal</CardTitle>
+                <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium">
+                  Secure
+                </span>
+              </div>
+              <CardDescription className="mt-1">
+                Restricted access for authorized administrators
+              </CardDescription>
             </div>
-            <CardDescription>
-              Restricted access for authorized administrators
-            </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-2">
             <form onSubmit={handleLogin} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="admin-email">Admin Email</Label>
+                <Label htmlFor="admin-email" className="text-sm">Admin Email</Label>
                 <Input
                   id="admin-email"
                   type="email"
                   placeholder="admin@ellureconsulting.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  className="h-10"
                   required
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="admin-password">Password</Label>
-                  <Link
-                    to="/auth/forgot-password"
-                    className="text-xs text-primary hover:underline"
-                  >
+                  <Label htmlFor="admin-password" className="text-sm">Password</Label>
+                  <Link to="/auth/forgot-password" className="text-xs text-primary hover:underline">
                     Forgot password?
                   </Link>
                 </div>
@@ -143,9 +142,10 @@ const AdminLogin = () => {
                   <Input
                     id="admin-password"
                     type={showPassword ? "text" : "password"}
-                    placeholder="••••••••"
+                    placeholder="Enter your password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    className="h-10 pr-10"
                     required
                   />
                   <Button
@@ -155,72 +155,53 @@ const AdminLogin = () => {
                     className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
                     onClick={() => setShowPassword(!showPassword)}
                   >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4 text-muted-foreground" />
-                    ) : (
-                      <Eye className="h-4 w-4 text-muted-foreground" />
-                    )}
+                    {showPassword ? <EyeOff className="h-4 w-4 text-muted-foreground" /> : <Eye className="h-4 w-4 text-muted-foreground" />}
                   </Button>
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  Demo: admin@ellureconsulting.com / admin@123
+                <p className="text-[11px] text-muted-foreground">
+                  Admin: <code className="bg-muted px-1 py-0.5 rounded text-foreground font-medium">vishal5952v@gmail.com</code> / <code className="bg-muted px-1 py-0.5 rounded text-foreground font-medium">Admin@123</code>
                 </p>
               </div>
 
-              <Button type="submit" className="w-full" disabled={isLoading}>
+              <Button type="submit" className="w-full h-10" disabled={isLoading}>
                 {isLoading ? "Authenticating..." : "Sign In"}
               </Button>
             </form>
 
-            <div className="mt-6 p-4 bg-muted/50 rounded-lg">
-              <div className="flex items-start gap-3">
-                <Shield className="h-5 w-5 text-primary mt-0.5" />
-                <div className="space-y-1">
-                  <p className="text-sm font-medium">Security Notice</p>
-                  <p className="text-xs text-muted-foreground">
-                    All admin actions are logged and monitored. Only authorized personnel should access this portal.
+            <div className="mt-5 p-3 bg-muted/50 rounded-lg">
+              <div className="flex items-start gap-2.5">
+                <Shield className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="text-xs font-medium">Security Notice</p>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">
+                    All admin actions are logged. Only authorized personnel should access this portal.
                   </p>
                 </div>
               </div>
             </div>
 
-            <div className="mt-6 text-center text-sm text-muted-foreground">
-              <p>Need admin access?</p>
-              <Link to="/contact" className="text-primary hover:underline">
-                Contact your system administrator
+            <div className="mt-5 pt-5 border-t text-center">
+              <span className="text-sm text-muted-foreground">Don't have an admin account? </span>
+              <Link to="/admin/auth/signup" className="text-sm text-primary hover:underline font-medium">
+                Request Access
               </Link>
             </div>
           </CardContent>
         </Card>
 
-        {/* Navigation Buttons */}
         <div className="mt-6 space-y-2">
-          <div className="text-center text-sm font-medium text-muted-foreground mb-3">
-            Quick Access
-          </div>
-          <div className="grid grid-cols-1 gap-2">
-            <Button variant="outline" className="w-full justify-start" asChild>
-              <Link to="/dashboard/applicant">
-                <User className="mr-2 h-4 w-4" />
-                Applicant Dashboard
+          <p className="text-center text-xs font-medium text-muted-foreground mb-3">Other Portals</p>
+          <div className="grid grid-cols-2 gap-2">
+            <Button variant="outline" size="sm" className="w-full justify-start h-9 text-xs" asChild>
+              <Link to="/auth/applicant">
+                <UserPlus className="mr-2 h-3.5 w-3.5" />
+                Applicant Login
               </Link>
             </Button>
-            <Button variant="outline" className="w-full justify-start" asChild>
-              <Link to="/dashboard/applicant/profile">
-                <FileText className="mr-2 h-4 w-4" />
-                Applicant Profile
-              </Link>
-            </Button>
-            <Button variant="outline" className="w-full justify-start" asChild>
-              <Link to="/dashboard/client">
-                <Building2 className="mr-2 h-4 w-4" />
-                Client Dashboard
-              </Link>
-            </Button>
-            <Button variant="outline" className="w-full justify-start" asChild>
-              <Link to="/auth/applicant-register/step-1">
-                <UserPlus className="mr-2 h-4 w-4" />
-                User Registration
+            <Button variant="outline" size="sm" className="w-full justify-start h-9 text-xs" asChild>
+              <Link to="/client/auth/login">
+                <Building2 className="mr-2 h-3.5 w-3.5" />
+                Client Login
               </Link>
             </Button>
           </div>

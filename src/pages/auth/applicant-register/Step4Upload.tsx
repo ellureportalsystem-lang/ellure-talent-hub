@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Upload, FileText, Image as ImageIcon, X } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/lib/supabase";
+import { uploadApplicantProfileImage, uploadApplicantResume } from "@/lib/applicantMediaUpload";
 import { useAuth } from "@/contexts/AuthContext";
 
 // No schema needed for Step 6 - just file uploads
@@ -119,40 +120,6 @@ const Step4Upload = () => {
     }
   };
 
-  const uploadFile = async (file: File, type: 'resume' | 'profile'): Promise<string | null> => {
-    try {
-      if (!user?.id) {
-        throw new Error('User ID is required for file upload');
-      }
-
-      const fileExt = file.name.split('.').pop();
-      const timestamp = Date.now();
-      const fileName = `${type}_${timestamp}.${fileExt}`;
-      // New folder structure: resumes/applicants/{user_id}/resume_timestamp.pdf
-      const filePath = `applicants/${user.id}/${fileName}`;
-
-      const { data, error } = await supabase.storage
-        .from('resumes')
-        .upload(filePath, file, {
-          cacheControl: '3600',
-          upsert: false,
-        });
-
-      if (error) {
-        throw error;
-      }
-
-      const { data: urlData } = supabase.storage
-        .from('resumes')
-        .getPublicUrl(filePath);
-
-      return urlData.publicUrl;
-    } catch (error) {
-      console.error('Error uploading file:', error);
-      return null;
-    }
-  };
-
   const onSubmit = async () => {
     if (!resumeFile) {
       toast({
@@ -183,19 +150,14 @@ const Step4Upload = () => {
 
       if (resumeFile && !uploadedResumeUrl) {
         setUploadProgress(30);
-        uploadedResumeUrl = await uploadFile(resumeFile, 'resume');
-        if (!uploadedResumeUrl) {
-          throw new Error("Failed to upload resume");
-        }
+        uploadedResumeUrl = await uploadApplicantResume(resumeFile, { authUserId: user.id });
         setResumeUrl(uploadedResumeUrl);
       }
 
       if (profilePicture && !uploadedProfileUrl) {
         setUploadProgress(60);
-        uploadedProfileUrl = await uploadFile(profilePicture, 'profile');
-        if (uploadedProfileUrl) {
-          setProfileImageUrl(uploadedProfileUrl);
-        }
+        uploadedProfileUrl = await uploadApplicantProfileImage(profilePicture, { authUserId: user.id });
+        setProfileImageUrl(uploadedProfileUrl);
       }
 
       setUploadProgress(80);
@@ -228,8 +190,9 @@ const Step4Upload = () => {
         description: error.message || "Failed to upload files. Please try again.",
         variant: "destructive",
       });
-      setIsUploading(false);
       setUploadProgress(0);
+    } finally {
+      setIsUploading(false);
     }
   };
 

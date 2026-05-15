@@ -1,6 +1,6 @@
-import { useState, useMemo, useCallback } from "react";
-import { motion } from "framer-motion";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState, useMemo, useCallback, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -17,6 +17,14 @@ import {
   List,
   RefreshCw,
   SlidersHorizontal,
+  Loader2,
+  AlertCircle,
+  Search,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+  Upload,
 } from "lucide-react";
 import BooleanSearchBar from "@/components/dashboard/admin/BooleanSearchBar";
 import ResumeSearchFilters, {
@@ -24,7 +32,7 @@ import ResumeSearchFilters, {
 } from "@/components/dashboard/admin/ResumeSearchFilters";
 import ApplicantTable from "@/components/dashboard/admin/ApplicantTable";
 import BulkActionsBar from "@/components/dashboard/admin/BulkActionsBar";
-import { mockApplicants, Applicant } from "@/data/mockApplicants";
+import { useApplicants, Applicant } from "@/hooks/useApplicants";
 
 const defaultFilters: SearchFilters = {
   keywords: "",
@@ -48,189 +56,117 @@ const ApplicantsManagement = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState<SearchFilters>(defaultFilters);
   const [filtersCollapsed, setFiltersCollapsed] = useState(false);
-  const [selectedIds, setSelectedIds] = useState<number[]>([]);
-  const [sortField, setSortField] = useState("lastActive");
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [sortField, setSortField] = useState("created_at");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
   const [viewMode, setViewMode] = useState<"table" | "grid">("table");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
 
-  // Boolean search parser
+  const dbFilters = useMemo(() => {
+    const cities = filters.currentCity.length > 0 ? filters.currentCity : undefined;
+    const skills = filters.skills.length > 0 ? filters.skills : undefined;
+    const education = filters.education.length > 0 ? filters.education : undefined;
+    const noticePeriod = filters.noticePeriod.length > 0 ? filters.noticePeriod : undefined;
+
+    return {
+      experience: filters.experienceRange as [number, number],
+      salary: filters.salaryRange as [number, number],
+      cities,
+      skills,
+      education,
+      noticePeriod,
+      status: undefined,
+    };
+  }, [filters]);
+
+  const { applicants: allApplicants, loading, totalCount, error } = useApplicants({
+    searchQuery: searchQuery.trim() || undefined,
+    filters: dbFilters,
+    sortField: sortField === "lastActive" ? "created_at" : sortField,
+    sortOrder: sortDirection,
+    page: currentPage,
+    pageSize: pageSize,
+  });
+
+  useEffect(() => {
+    if (error) {
+      console.error('Error loading applicants:', error);
+    }
+  }, [error]);
+
   const parseBooleanSearch = useCallback((query: string, applicant: Applicant): boolean => {
     if (!query.trim()) return true;
-
-    // Convert to lowercase for case-insensitive matching
     const lowerQuery = query.toLowerCase();
+    const skillsArray = (applicant.key_skills || '').split(/[,;|]/).map(s => s.trim());
     const searchableText = [
-      applicant.name,
-      applicant.designation,
-      applicant.currentCompany,
-      ...applicant.skills,
-      applicant.currentCity,
-      applicant.education.degree,
-    ]
-      .join(" ")
-      .toLowerCase();
+      applicant.name || '',
+      applicant.current_designation || applicant.job_role || '',
+      applicant.current_company || '',
+      ...skillsArray,
+      applicant.city || applicant.city_current_location || '',
+      applicant.highest_qualification || applicant.education_level || '',
+    ].filter(Boolean).join(" ").toLowerCase();
 
-    // Simple boolean parser
-    // Handle NOT
     if (lowerQuery.includes(" not ")) {
       const [include, exclude] = lowerQuery.split(" not ");
-      const includeMatch = include ? searchableText.includes(include.replace(/"/g, "").trim()) : true;
-      const excludeMatch = exclude ? searchableText.includes(exclude.replace(/"/g, "").trim()) : false;
-      return includeMatch && !excludeMatch;
+      return (include ? searchableText.includes(include.replace(/"/g, "").trim()) : true) &&
+        !(exclude ? searchableText.includes(exclude.replace(/"/g, "").trim()) : false);
     }
-
-    // Handle AND
     if (lowerQuery.includes(" and ")) {
-      const terms = lowerQuery.split(" and ").map((t) => t.replace(/"/g, "").trim());
-      return terms.every((term) => searchableText.includes(term));
+      return lowerQuery.split(" and ").map((t) => t.replace(/"/g, "").trim()).every((term) => searchableText.includes(term));
     }
-
-    // Handle OR
     if (lowerQuery.includes(" or ")) {
-      const terms = lowerQuery.split(" or ").map((t) => t.replace(/"/g, "").trim());
-      return terms.some((term) => searchableText.includes(term));
+      return lowerQuery.split(" or ").map((t) => t.replace(/"/g, "").trim()).some((term) => searchableText.includes(term));
     }
-
-    // Simple search
     return searchableText.includes(lowerQuery.replace(/"/g, ""));
   }, []);
 
-  // Filter applicants
   const filteredApplicants = useMemo(() => {
-    return mockApplicants.filter((applicant) => {
-      // Boolean search
+    if (!searchQuery.trim() || (!searchQuery.includes(" and ") && !searchQuery.includes(" or ") && !searchQuery.includes(" not "))) {
+      return allApplicants;
+    }
+    return allApplicants.filter((applicant) => {
       if (!parseBooleanSearch(searchQuery, applicant)) return false;
-
-      // Experience filter
-      if (
-        applicant.experience < filters.experienceRange[0] ||
-        applicant.experience > filters.experienceRange[1]
-      )
-        return false;
-
-      // Salary filter
-      if (
-        applicant.currentCTC < filters.salaryRange[0] ||
-        applicant.currentCTC > filters.salaryRange[1]
-      )
-        return false;
-
-      // Location filter
-      if (
-        filters.currentCity.length > 0 &&
-        !filters.currentCity.includes(applicant.currentCity)
-      )
-        return false;
-
-      if (
-        filters.preferredCity.length > 0 &&
-        !filters.preferredCity.includes(applicant.preferredCity)
-      )
-        return false;
-
-      // Skills filter
-      if (
-        filters.skills.length > 0 &&
-        !filters.skills.some((skill) => applicant.skills.includes(skill))
-      )
-        return false;
-
-      // Notice period filter
-      if (
-        filters.noticePeriod.length > 0 &&
-        !filters.noticePeriod.includes(applicant.noticePeriod)
-      )
-        return false;
-
-      // Education filter
-      if (
-        filters.education.length > 0 &&
-        !filters.education.includes(applicant.education.highest)
-      )
-        return false;
-
-      // Current company filter
-      if (
-        filters.currentCompany.length > 0 &&
-        !filters.currentCompany.includes(applicant.currentCompany)
-      )
-        return false;
-
-      // Gender filter
-      if (
-        filters.gender.length > 0 &&
-        !filters.gender.includes(applicant.gender)
-      )
-        return false;
-
-      // Year of passing filter
-      if (
-        applicant.education.yearOfPassing < filters.yearOfPassing[0] ||
-        applicant.education.yearOfPassing > filters.yearOfPassing[1]
-      )
-        return false;
-
-      // Activity filters
+      if (filters.yearOfPassing) {
+        const passingYear = parseInt((applicant as any).year_of_passing || (applicant as any).passing_year?.toString() || '0');
+        if (passingYear < filters.yearOfPassing[0] || passingYear > filters.yearOfPassing[1]) return false;
+      }
       if (filters.registeredDays !== null) {
-        const daysAgo = Math.floor(
-          (Date.now() - new Date(applicant.registeredDate).getTime()) /
-            (1000 * 60 * 60 * 24)
-        );
+        const daysAgo = Math.floor((Date.now() - new Date(applicant.created_at).getTime()) / 86400000);
         if (daysAgo > filters.registeredDays) return false;
       }
-
-      if (filters.activeDays !== null) {
-        const daysAgo = Math.floor(
-          (Date.now() - new Date(applicant.lastActive).getTime()) /
-            (1000 * 60 * 60 * 24)
-        );
-        if (daysAgo > filters.activeDays) return false;
-      }
-
       return true;
     });
-  }, [searchQuery, filters, parseBooleanSearch]);
+  }, [allApplicants, searchQuery, filters, parseBooleanSearch]);
 
-  // Sort applicants
   const sortedApplicants = useMemo(() => {
+    if (sortField === "created_at" || sortField === "updated_at") return filteredApplicants;
     return [...filteredApplicants].sort((a, b) => {
       let comparison = 0;
       switch (sortField) {
-        case "name":
-          comparison = a.name.localeCompare(b.name);
-          break;
+        case "name": comparison = (a.name || '').localeCompare(b.name || ''); break;
         case "experience":
-          comparison = a.experience - b.experience;
+          comparison = parseFloat(a.total_experience_numbers || a.total_experience || '0') - parseFloat(b.total_experience_numbers || b.total_experience || '0');
           break;
-        case "currentCTC":
-          comparison = a.currentCTC - b.currentCTC;
-          break;
-        case "currentCity":
-          comparison = a.currentCity.localeCompare(b.currentCity);
-          break;
-        case "lastActive":
-          comparison =
-            new Date(a.lastActive).getTime() - new Date(b.lastActive).getTime();
-          break;
-        case "status":
-          comparison = a.status.localeCompare(b.status);
-          break;
-        default:
-          comparison = 0;
+        case "currentCTC": comparison = parseFloat(a.current_ctc || '0') - parseFloat(b.current_ctc || '0'); break;
+        case "currentCity": comparison = (a.city || a.city_current_location || '').localeCompare(b.city || b.city_current_location || ''); break;
+        case "status": comparison = (a.status || '').localeCompare(b.status || ''); break;
       }
       return sortDirection === "asc" ? comparison : -comparison;
     });
   }, [filteredApplicants, sortField, sortDirection]);
 
-  // Paginate
   const paginatedApplicants = useMemo(() => {
-    const start = (currentPage - 1) * pageSize;
-    return sortedApplicants.slice(start, start + pageSize);
-  }, [sortedApplicants, currentPage, pageSize]);
+    if (filteredApplicants.length !== allApplicants.length) {
+      const start = (currentPage - 1) * pageSize;
+      return sortedApplicants.slice(start, start + pageSize);
+    }
+    return sortedApplicants;
+  }, [sortedApplicants, currentPage, pageSize, filteredApplicants.length, allApplicants.length]);
 
-  const totalPages = Math.ceil(sortedApplicants.length / pageSize);
+  const displayTotal = filteredApplicants.length !== allApplicants.length ? filteredApplicants.length : totalCount;
+  const totalPages = Math.ceil(displayTotal / pageSize);
 
   const handleSort = (field: string) => {
     if (sortField === field) {
@@ -241,50 +177,54 @@ const ApplicantsManagement = () => {
     }
   };
 
-  const handleSearch = () => {
-    setCurrentPage(1);
-  };
-
   const handleResetFilters = () => {
     setFilters(defaultFilters);
     setSearchQuery("");
     setCurrentPage(1);
   };
 
+  const isFiltered = searchQuery.trim().length > 0 || filters.currentCity.length > 0 || filters.skills.length > 0 || filters.education.length > 0;
+
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 lg:p-6 space-y-4 max-w-[1600px] mx-auto">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2">
-            <Users className="h-6 w-6 text-primary" />
+          <h1 className="text-xl font-bold flex items-center gap-2">
+            <Search className="h-5 w-5 text-primary" />
             Resume Search
           </h1>
-          <p className="text-muted-foreground mt-1">
-            Advanced candidate search with Boolean operators
+          <p className="text-sm text-muted-foreground mt-0.5">
+            {loading ? 'Searching...' : `${displayTotal.toLocaleString()} candidates in database`}
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={handleResetFilters}>
-            <RefreshCw className="h-4 w-4 mr-2" />
+          <Button variant="default" size="sm" className="h-8 text-xs" asChild>
+            <Link to="/dashboard/admin/applicants/bulk-resumes">
+              <Upload className="h-3.5 w-3.5 mr-1.5" />
+              Bulk CV upload
+            </Link>
+          </Button>
+          <Button variant="outline" size="sm" onClick={handleResetFilters} className="h-8 text-xs">
+            <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
             Reset
           </Button>
         </div>
       </div>
 
       {/* Search Bar */}
-      <Card className="shadow-lg border-0 overflow-visible">
-        <CardContent className="p-6">
+      <Card className="border shadow-sm">
+        <CardContent className="p-4">
           <BooleanSearchBar
             value={searchQuery}
             onChange={setSearchQuery}
-            onSearch={handleSearch}
+            onSearch={() => setCurrentPage(1)}
           />
         </CardContent>
       </Card>
 
       {/* Main Content */}
-      <div className="flex gap-6">
+      <div className="flex gap-4">
         {/* Filters Sidebar */}
         <ResumeSearchFilters
           filters={filters}
@@ -295,164 +235,159 @@ const ApplicantsManagement = () => {
         />
 
         {/* Results */}
-        <div className="flex-1 space-y-4">
-          {/* Results Header */}
-          <Card className="shadow-sm">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-2">
-                    <span className="text-2xl font-bold text-primary">
-                      {sortedApplicants.length.toLocaleString()}
-                    </span>
-                    <span className="text-muted-foreground">candidates found</span>
-                  </div>
-                  {(searchQuery || Object.values(filters).some(v => 
-                    Array.isArray(v) ? v.length > 0 : v !== null && v !== defaultFilters[Object.keys(defaultFilters).find(k => defaultFilters[k as keyof SearchFilters] === v) as keyof SearchFilters]
-                  )) && (
-                    <Badge variant="secondary" className="gap-1">
-                      <Filter className="h-3 w-3" />
-                      Filtered
-                    </Badge>
-                  )}
-                </div>
-                <div className="flex items-center gap-2">
-                  {filtersCollapsed && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setFiltersCollapsed(false)}
-                    >
-                      <SlidersHorizontal className="h-4 w-4 mr-2" />
-                      Filters
-                    </Button>
-                  )}
-                  <Select
-                    value={pageSize.toString()}
-                    onValueChange={(v) => {
-                      setPageSize(parseInt(v));
-                      setCurrentPage(1);
-                    }}
-                  >
-                    <SelectTrigger className="w-32">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="10">10 per page</SelectItem>
-                      <SelectItem value="25">25 per page</SelectItem>
-                      <SelectItem value="50">50 per page</SelectItem>
-                      <SelectItem value="100">100 per page</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <div className="flex items-center border rounded-lg">
-                    <Button
-                      variant={viewMode === "table" ? "secondary" : "ghost"}
-                      size="sm"
-                      onClick={() => setViewMode("table")}
-                      className="rounded-r-none"
-                    >
-                      <List className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant={viewMode === "grid" ? "secondary" : "ghost"}
-                      size="sm"
-                      onClick={() => setViewMode("grid")}
-                      className="rounded-l-none"
-                    >
-                      <LayoutGrid className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
+        <div className="flex-1 space-y-3 min-w-0">
+          {/* Results toolbar */}
+          <div className="flex items-center justify-between gap-3 px-1">
+            <div className="flex items-center gap-3">
+              <span className="text-sm font-medium tabular-nums">
+                {loading ? (
+                  <Loader2 className="h-4 w-4 animate-spin inline-block" />
+                ) : (
+                  <span className="text-primary font-bold">{displayTotal.toLocaleString()}</span>
+                )}
+                <span className="text-muted-foreground ml-1.5">results</span>
+              </span>
+              {isFiltered && (
+                <Badge variant="secondary" className="gap-1 text-[10px] h-5">
+                  <Filter className="h-3 w-3" />
+                  Filtered
+                </Badge>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              {filtersCollapsed && (
+                <Button variant="outline" size="sm" className="h-8 text-xs" onClick={() => setFiltersCollapsed(false)}>
+                  <SlidersHorizontal className="h-3.5 w-3.5 mr-1.5" />
+                  Filters
+                </Button>
+              )}
+              <Select value={pageSize.toString()} onValueChange={(v) => { setPageSize(parseInt(v)); setCurrentPage(1); }}>
+                <SelectTrigger className="w-[110px] h-8 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="10">10 / page</SelectItem>
+                  <SelectItem value="25">25 / page</SelectItem>
+                  <SelectItem value="50">50 / page</SelectItem>
+                  <SelectItem value="100">100 / page</SelectItem>
+                </SelectContent>
+              </Select>
+              <div className="flex items-center border rounded-md h-8 overflow-hidden">
+                <Button
+                  variant={viewMode === "table" ? "secondary" : "ghost"}
+                  size="sm"
+                  onClick={() => setViewMode("table")}
+                  className="rounded-none h-8 w-8 p-0"
+                >
+                  <List className="h-3.5 w-3.5" />
+                </Button>
+                <Button
+                  variant={viewMode === "grid" ? "secondary" : "ghost"}
+                  size="sm"
+                  onClick={() => setViewMode("grid")}
+                  className="rounded-none h-8 w-8 p-0"
+                >
+                  <LayoutGrid className="h-3.5 w-3.5" />
+                </Button>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
-          {/* Results Table */}
-          <ApplicantTable
-            applicants={paginatedApplicants}
-            selectedIds={selectedIds}
-            onSelectionChange={setSelectedIds}
-            sortField={sortField}
-            sortDirection={sortDirection}
-            onSort={handleSort}
-            isAdmin={true}
-          />
+          {/* Error */}
+          {error && (
+            <Card className="border-destructive/50 bg-destructive/5">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3 text-destructive">
+                  <AlertCircle className="h-5 w-5 flex-shrink-0" />
+                  <div>
+                    <p className="text-sm font-medium">Error Loading Candidates</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {error.message || 'Failed to fetch applicants.'}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Table */}
+          {!error && (
+            <ApplicantTable
+              applicants={paginatedApplicants}
+              selectedIds={selectedIds}
+              onSelectionChange={setSelectedIds}
+              sortField={sortField}
+              sortDirection={sortDirection}
+              onSort={handleSort}
+              isAdmin={true}
+            />
+          )}
+
+          {/* Empty State */}
+          {!loading && !error && paginatedApplicants.length === 0 && (
+            <Card className="border">
+              <CardContent className="p-12 text-center">
+                <Users className="h-10 w-10 text-muted-foreground/40 mx-auto mb-3" />
+                <h3 className="text-base font-semibold mb-1">No candidates found</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  {isFiltered ? "Try adjusting your search or filters" : "No applicants in the database yet"}
+                </p>
+                {isFiltered && (
+                  <Button variant="outline" size="sm" onClick={handleResetFilters}>Clear Filters</Button>
+                )}
+              </CardContent>
+            </Card>
+          )}
 
           {/* Pagination */}
-          <Card className="shadow-sm">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-muted-foreground">
-                  Showing {(currentPage - 1) * pageSize + 1} -{" "}
-                  {Math.min(currentPage * pageSize, sortedApplicants.length)} of{" "}
-                  {sortedApplicants.length.toLocaleString()} candidates
-                </p>
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setCurrentPage(1)}
-                    disabled={currentPage === 1}
-                  >
-                    First
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setCurrentPage(currentPage - 1)}
-                    disabled={currentPage === 1}
-                  >
-                    Previous
-                  </Button>
-                  <div className="flex items-center gap-1">
-                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                      let page;
-                      if (totalPages <= 5) {
-                        page = i + 1;
-                      } else if (currentPage <= 3) {
-                        page = i + 1;
-                      } else if (currentPage >= totalPages - 2) {
-                        page = totalPages - 4 + i;
-                      } else {
-                        page = currentPage - 2 + i;
-                      }
-                      return (
-                        <Button
-                          key={page}
-                          variant={currentPage === page ? "default" : "outline"}
-                          size="sm"
-                          onClick={() => setCurrentPage(page)}
-                          className="w-8"
-                        >
-                          {page}
-                        </Button>
-                      );
-                    })}
-                  </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setCurrentPage(currentPage + 1)}
-                    disabled={currentPage === totalPages}
-                  >
-                    Next
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setCurrentPage(totalPages)}
-                    disabled={currentPage === totalPages}
-                  >
-                    Last
-                  </Button>
-                </div>
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between pt-1">
+              <p className="text-xs text-muted-foreground">
+                {loading ? "Loading..." : (
+                  <>
+                    Showing {((currentPage - 1) * pageSize + 1).toLocaleString()}-{Math.min(currentPage * pageSize, displayTotal).toLocaleString()} of {displayTotal.toLocaleString()}
+                  </>
+                )}
+              </p>
+              <div className="flex items-center gap-1">
+                <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => setCurrentPage(1)} disabled={currentPage === 1}>
+                  <ChevronsLeft className="h-3.5 w-3.5" />
+                </Button>
+                <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => setCurrentPage(currentPage - 1)} disabled={currentPage === 1}>
+                  <ChevronLeft className="h-3.5 w-3.5" />
+                </Button>
+
+                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                  let page: number;
+                  if (totalPages <= 5) page = i + 1;
+                  else if (currentPage <= 3) page = i + 1;
+                  else if (currentPage >= totalPages - 2) page = totalPages - 4 + i;
+                  else page = currentPage - 2 + i;
+                  return (
+                    <Button
+                      key={page}
+                      variant={currentPage === page ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setCurrentPage(page)}
+                      className="h-8 w-8 p-0 text-xs"
+                    >
+                      {page}
+                    </Button>
+                  );
+                })}
+
+                <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => setCurrentPage(currentPage + 1)} disabled={currentPage === totalPages}>
+                  <ChevronRight className="h-3.5 w-3.5" />
+                </Button>
+                <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages}>
+                  <ChevronsRight className="h-3.5 w-3.5" />
+                </Button>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Bulk Actions Bar */}
       <BulkActionsBar
         selectedCount={selectedIds.length}
         onClearSelection={() => setSelectedIds([])}

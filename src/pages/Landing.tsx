@@ -7,6 +7,10 @@ import { useState, useEffect } from "react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { FAQPreview } from "@/components/FAQPreview";
+import MarketingLayout from "@/components/marketing/MarketingLayout";
+import StatsStrip from "@/components/marketing/StatsStrip";
+import HeroDashboardMockup from "@/components/marketing/HeroDashboardMockup";
+import { FadeInSection } from "@/components/marketing/FadeInSection";
 
 const heroSlides = [
   {
@@ -62,13 +66,6 @@ const features = [
   }
 ];
 
-const trustedStats = [
-  { value: "500+", label: "Successful Placements" },
-  { value: "50+", label: "Corporate Clients" },
-  { value: "8+", label: "Years Experience" },
-  { value: "95%", label: "Client Satisfaction" },
-];
-
 const Landing = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [expandedFeature, setExpandedFeature] = useState<number | null>(null);
@@ -81,11 +78,11 @@ const Landing = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-subtle">
+    <MarketingLayout showGeometry>
       <Navbar />
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-primary text-primary-foreground h-[480px] md:h-[530px] flex items-center">
+      <section className="relative overflow-hidden bg-gradient-primary text-primary-foreground min-h-[520px] sm:min-h-[560px] lg:min-h-[600px] flex items-center">
         {/* Full-sized Banner Background Images */}
         <AnimatePresence mode="wait">
           <motion.div
@@ -105,9 +102,9 @@ const Landing = () => {
         {/* Subtle overlay for text readability - natural banner appearance */}
         <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-black/20 to-transparent" />
         
-        <div className="container relative w-full h-full">
-          <div className="flex flex-col justify-center h-full py-8">
-            {/* Text Content - Left Side */}
+        <div className="container relative w-full py-8 md:py-10 px-4 sm:px-6">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+            <div className="flex flex-col justify-center order-2 lg:order-1 z-10">
             <AnimatePresence mode="wait">
               <motion.div 
                 key={currentSlide} 
@@ -115,7 +112,7 @@ const Landing = () => {
                 animate={{ opacity: 1, x: 0 }} 
                 exit={{ opacity: 0, x: 20 }}
                 transition={{ duration: 0.6, ease: "easeInOut" }}
-                className="max-w-2xl space-y-6 z-10 pt-32 md:pt-36"
+                className="max-w-2xl space-y-4 sm:space-y-6 z-10 pt-4 sm:pt-6 lg:pt-0"
               >
                 <h1 className="hero-title text-3xl md:text-4xl lg:text-5xl leading-relaxed">
                   {currentSlide === 0 ? (
@@ -142,14 +139,14 @@ const Landing = () => {
             </AnimatePresence>
             
             {/* Static Buttons - Centered, don't change with banners */}
-            <div className="flex flex-col sm:flex-row gap-4 pt-20 md:pt-24 z-10 justify-center">
-              <Button size="lg" variant="secondary" className="btn-hover text-base px-8" asChild>
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-6 sm:pt-8 z-10">
+              <Button size="lg" variant="secondary" className="btn-hover btn-glow text-base px-6 sm:px-8 w-full sm:w-auto" asChild>
                 <Link to="/auth/register">
                   Join as Applicant
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
-              <Button size="lg" className="bg-white text-primary hover:bg-white/90 btn-hover text-base px-8" asChild>
+              <Button size="lg" className="bg-white text-primary hover:bg-white/90 btn-hover btn-glow-primary text-base px-6 sm:px-8 w-full sm:w-auto" asChild>
                 <Link to="/contact">
                   Hire Talent
                   <ArrowRight className="ml-2 h-4 w-4" />
@@ -158,7 +155,7 @@ const Landing = () => {
             </div>
             
             {/* Static Slider indicators - Centered */}
-            <div className="flex gap-2 pt-16 md:pt-20 z-10 justify-center">
+            <div className="flex gap-2 pt-6 sm:pt-8 z-10">
               {heroSlides.map((_, i) => (
                 <button 
                   key={i} 
@@ -171,39 +168,18 @@ const Landing = () => {
                 />
               ))}
             </div>
+            </div>
+
+            <div className="order-1 lg:order-2 flex justify-center pt-12 sm:pt-16 lg:pt-0 z-10">
+              <HeroDashboardMockup />
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Stats Strip */}
-      <section className="bg-background border-b relative py-6">
-        <div className="absolute inset-0 bg-gradient-to-b from-muted/20 to-transparent" />
-        <div className="container relative">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-            {trustedStats.map((stat, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                whileHover={{ y: -4, scale: 1.02 }}
-              >
-                <Card className="p-6 text-center card-hover border-2 border-border shadow-md hover:shadow-xl hover:border-primary/60 transition-all duration-300 relative overflow-hidden group">
-                  <div className="absolute top-0 right-0 w-20 h-20 bg-primary/5 rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  <div className="relative z-10">
-                    <div className="text-3xl md:text-4xl font-bold text-primary mb-2">{stat.value}</div>
-                    <div className="text-sm md:text-base text-muted-foreground font-medium">{stat.label}</div>
-                  </div>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <StatsStrip />
 
-      {/* CTA Cards Section */}
-      <section className="container py-10 md:py-12">
+      <FadeInSection className="container py-10 md:py-12 px-4 sm:px-6">
         <div className="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -212,7 +188,7 @@ const Landing = () => {
             whileHover={{ y: -8 }}
             transition={{ duration: 0.3 }}
           >
-            <Card className="p-8 md:p-10 card-hover group cursor-pointer border-2 border-border shadow-lg hover:shadow-2xl hover:border-primary/60 transition-all duration-300 relative overflow-hidden">
+            <Card className="p-8 md:p-10 marketing-card-lift group cursor-pointer border-2 border-border shadow-lg hover:shadow-2xl hover:border-primary/60 transition-all duration-300 relative overflow-hidden">
               <div className="absolute top-0 right-0 w-40 h-40 bg-primary/10 rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               <div className="absolute bottom-0 left-0 w-32 h-32 bg-primary/5 rounded-tr-full opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               <div className="space-y-6 relative z-10">
@@ -224,14 +200,14 @@ const Landing = () => {
                 <ul className="space-y-3">
                   {["Free profile creation", "Access to top companies", "Career guidance support"].map((item, i) => (
                     <li key={i} className="flex items-center gap-3 text-sm text-muted-foreground">
-                      <div className="h-5 w-5 rounded-full bg-success/10 flex items-center justify-center flex-shrink-0 shadow-sm">
-                        <CheckCircle className="h-3.5 w-3.5 text-success" />
+                      <div className="h-5 w-5 rounded-full bg-secondary/10 flex items-center justify-center flex-shrink-0 shadow-sm">
+                        <CheckCircle className="h-3.5 w-3.5 text-secondary" />
                       </div>
                       {item}
                     </li>
                   ))}
                 </ul>
-                <Button asChild className="w-full btn-hover shadow-md hover:shadow-xl transition-all duration-300" size="lg">
+                <Button asChild className="w-full btn-hover btn-glow shadow-md hover:shadow-xl transition-all duration-300" size="lg">
                   <Link to="/auth/register">Register Now</Link>
                 </Button>
               </div>
@@ -245,7 +221,7 @@ const Landing = () => {
             whileHover={{ y: -8 }}
             transition={{ duration: 0.3 }}
           >
-            <Card className="p-8 md:p-10 card-hover group cursor-pointer border-2 border-border shadow-lg hover:shadow-2xl hover:border-secondary/60 transition-all duration-300 relative overflow-hidden">
+            <Card className="p-8 md:p-10 marketing-card-lift group cursor-pointer border-2 border-border shadow-lg hover:shadow-2xl hover:border-secondary/60 transition-all duration-300 relative overflow-hidden">
               <div className="absolute top-0 right-0 w-40 h-40 bg-secondary/10 rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               <div className="absolute bottom-0 left-0 w-32 h-32 bg-secondary/5 rounded-tr-full opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               <div className="space-y-6 relative z-10">
@@ -257,24 +233,23 @@ const Landing = () => {
                 <ul className="space-y-3">
                   {["Pre-screened candidates", "Industry-specific talent", "Fast turnaround time"].map((item, i) => (
                     <li key={i} className="flex items-center gap-3 text-sm text-muted-foreground">
-                      <div className="h-5 w-5 rounded-full bg-success/10 flex items-center justify-center flex-shrink-0 shadow-sm">
-                        <CheckCircle className="h-3.5 w-3.5 text-success" />
+                      <div className="h-5 w-5 rounded-full bg-secondary/10 flex items-center justify-center flex-shrink-0 shadow-sm">
+                        <CheckCircle className="h-3.5 w-3.5 text-secondary" />
                       </div>
                       {item}
                     </li>
                   ))}
                 </ul>
-                <Button asChild className="w-full bg-secondary text-secondary-foreground hover:bg-secondary/90 btn-hover shadow-md hover:shadow-xl transition-all duration-300" size="lg">
+                <Button asChild className="w-full bg-secondary text-secondary-foreground hover:bg-secondary/90 btn-hover btn-glow shadow-md hover:shadow-xl transition-all duration-300" size="lg">
                   <Link to="/contact">Contact Us</Link>
                 </Button>
               </div>
             </Card>
           </motion.div>
         </div>
-      </section>
+      </FadeInSection>
 
-      {/* About Us Section */}
-      <section className="relative py-10 md:py-12 overflow-hidden">
+      <FadeInSection className="relative py-10 md:py-12 overflow-hidden px-4 sm:px-6">
         <div className="absolute inset-0 bg-gradient-to-b from-muted/40 via-muted/20 to-transparent" />
         <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-border to-transparent" />
         
@@ -290,7 +265,7 @@ const Landing = () => {
               <h2 className="font-poppins text-3xl md:text-4xl font-semibold tracking-tight mt-3">About Us</h2>
               <div className="w-24 h-1 bg-gradient-to-r from-transparent via-primary to-transparent mx-auto mt-4 rounded-full" />
             </div>
-            <Card className="p-8 md:p-12 card-hover shadow-xl border-2 border-border hover:border-primary/60 hover:shadow-2xl transition-all duration-300 relative overflow-hidden group">
+            <Card className="p-8 md:p-12 marketing-card-lift shadow-xl border-2 border-border hover:border-primary/60 hover:shadow-2xl transition-all duration-300 relative overflow-hidden group">
               <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               <div className="absolute bottom-0 left-0 w-24 h-24 bg-primary/5 rounded-tr-full opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               <div className="relative z-10">
@@ -309,10 +284,9 @@ const Landing = () => {
             </Card>
           </motion.div>
         </div>
-      </section>
+      </FadeInSection>
 
-      {/* Features Section */}
-      <section className="py-10 md:py-12">
+      <FadeInSection className="py-10 md:py-12 px-4 sm:px-6">
         <div className="container">
           <motion.div 
             className="text-center mb-8"
@@ -339,7 +313,7 @@ const Landing = () => {
               >
                 <Card 
                   onClick={() => setExpandedFeature(expandedFeature === i ? null : i)} 
-                  className={`p-6 cursor-pointer card-hover group border-2 transition-all duration-300 relative overflow-hidden shadow-md ${
+                  className={`p-6 cursor-pointer marketing-card-lift group border-2 transition-all duration-300 relative overflow-hidden shadow-md ${
                     expandedFeature === i 
                       ? "border-primary shadow-2xl" 
                       : "border-border hover:border-primary/60 hover:shadow-xl"
@@ -404,10 +378,9 @@ const Landing = () => {
             </Button>
           </div>
         </div>
-      </section>
+      </FadeInSection>
 
-      {/* Final CTA */}
-      <section className="py-10 md:py-12">
+      <FadeInSection className="py-10 md:py-12 px-4 sm:px-6">
         <div className="container">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -430,10 +403,10 @@ const Landing = () => {
                   Join hundreds of organizations that trust Ellure for their recruitment needs.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center pt-2">
-                  <Button size="lg" variant="secondary" className="btn-hover shadow-lg hover:shadow-xl" asChild>
+                  <Button size="lg" variant="secondary" className="btn-hover btn-glow shadow-lg hover:shadow-xl" asChild>
                     <Link to="/contact">Get Started Today</Link>
                   </Button>
-                  <Button size="lg" className="bg-white text-primary hover:bg-white/90 btn-hover shadow-lg hover:shadow-xl" asChild>
+                  <Button size="lg" className="bg-white text-primary hover:bg-white/90 btn-hover btn-glow-primary shadow-lg hover:shadow-xl" asChild>
                     <Link to="/services">View Our Services</Link>
                   </Button>
                 </div>
@@ -441,13 +414,12 @@ const Landing = () => {
             </Card>
           </motion.div>
         </div>
-      </section>
+      </FadeInSection>
 
-      {/* FAQ Preview Section */}
       <FAQPreview />
 
       <Footer />
-    </div>
+    </MarketingLayout>
   );
 };
 

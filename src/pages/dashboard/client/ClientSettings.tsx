@@ -5,7 +5,8 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { Bell, Building2, Key } from "lucide-react";
+import { Bell, Building2, Key, HelpCircle } from "lucide-react";
+import { HRFAQs } from "@/components/HRFAQs";
 
 const ClientSettings = () => {
   return (
@@ -161,6 +162,19 @@ const ClientSettings = () => {
             />
           </div>
           <Button>Update Password</Button>
+        </CardContent>
+      </Card>
+
+      {/* Help & Support */}
+      <Card className="shadow-sm">
+        <CardHeader>
+          <CardTitle className="text-lg flex items-center gap-2">
+            <HelpCircle className="h-5 w-5" />
+            Help & Support
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <HRFAQs />
         </CardContent>
       </Card>
     </div>

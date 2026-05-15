@@ -60,7 +60,7 @@ const Navbar = () => {
               </Link>
             );
           })}
-          <Button asChild className="ml-4 transition-all duration-300 hover:scale-105 hover:shadow-lg">
+          <Button asChild className="ml-4 btn-glow btn-glow-primary transition-all duration-300">
             <Link to="/auth/login">Login / Register</Link>
           </Button>
         </nav>
@@ -103,7 +103,7 @@ const Navbar = () => {
                   </Link>
                 );
               })}
-              <Button asChild className="mt-2">
+              <Button asChild className="mt-2 w-full btn-glow">
                 <Link to="/auth/login" onClick={() => setMobileMenuOpen(false)}>
                   Login / Register
                 </Link>

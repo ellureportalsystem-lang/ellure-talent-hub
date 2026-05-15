@@ -4,10 +4,17 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, AlertTriangle, Loader2 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { updateProfileSummary } from "@/services/applicantService";
+import {
+  syncApplicantSkillsFromChipList,
+  deleteApplicantExperienceRow,
+  deleteApplicantEducationRow,
+  deleteApplicantSkillRow,
+  resyncApplicantKeySkillsFromTable,
+  saveResumeHeadline,
+} from "@/services/applicantProfileMutations";
 import { toast } from "sonner";
 import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/hooks/useAuth";
-import { mockApplicants, Applicant } from "@/data/mockApplicants";
 
 // Profile Components
 import ProfileHeader from "@/components/profile/ProfileHeader";
@@ -29,8 +36,8 @@ import AccomplishmentsSection from "@/components/profile/sections/Accomplishment
 import OnlineProfilesSection from "@/components/profile/sections/OnlineProfilesSection";
 
 // Icons
-import { 
-  FileText, Code2, Briefcase, GraduationCap, FolderKanban, 
+import {
+  FileText, Code2, Briefcase, GraduationCap, FolderKanban,
   User, Target, Globe, Award, Activity, UserCircle, Settings
 } from "lucide-react";
 
@@ -45,7 +52,6 @@ const EnterpriseApplicantProfile = ({ viewMode = 'admin', applicantId: propAppli
   // Use prop ID if provided, otherwise use URL param
   const id = propApplicantId || paramId;
   const { toast: toastHook } = useToast();
-  const { user, profile: authProfile } = useAuth();
   const [activeSection, setActiveSection] = useState('resume');
   const [isFavorite, setIsFavorite] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -55,111 +61,109 @@ const EnterpriseApplicantProfile = ({ viewMode = 'admin', applicantId: propAppli
   const [experienceData, setExperienceData] = useState<any[]>([]);
   const [skillsData, setSkillsData] = useState<any[]>([]);
   const [profileSummary, setProfileSummary] = useState('');
+  const [savingSummary, setSavingSummary] = useState(false);
+  const [profileReloadNonce, setProfileReloadNonce] = useState(0);
 
-  // TEMPORARY: Demo mode - use mock data
+  // Fetch applicant data from database
   useEffect(() => {
     const fetchData = async () => {
-      // TEMPORARY: Always use mock data for demo UI
-      const mockApplicant = mockApplicants.find(a => a.id.toString() === id) || mockApplicants[0];
-      
-      // Convert mock applicant to database format
-      const mockData = {
-        id: mockApplicant.id.toString(),
-        name: mockApplicant.name,
-        email: mockApplicant.email,
-        phone: mockApplicant.phone,
-        city: mockApplicant.currentCity,
-        skill: mockApplicant.primarySkill,
-        job_role: mockApplicant.primarySkill,
-        skill_job_role_applying_for: mockApplicant.primarySkill,
-        total_experience: mockApplicant.experience.toString(),
-        current_company: mockApplicant.currentCompany,
-        current_designation: mockApplicant.designation,
-        designation: mockApplicant.designation,
-        current_ctc: mockApplicant.currentCTC,
-        expected_ctc: mockApplicant.expectedCTC,
-        exp_ctc: mockApplicant.expectedCTC,
-        notice_period: mockApplicant.noticePeriod,
-        highest_qualification: mockApplicant.education.highest,
-        education_level: mockApplicant.education.highest,
-        course_degree_name: mockApplicant.education.degree,
-        course_degree: mockApplicant.education.degree,
-        university_institute_name: mockApplicant.education.university,
-        university: mockApplicant.education.university,
-        year_of_passing: mockApplicant.education.yearOfPassing,
-        passing_year: mockApplicant.education.yearOfPassing,
-        percentage: mockApplicant.education.percentage.toString(),
-        key_skills: mockApplicant.skills.join(','),
-        status: mockApplicant.status,
-        gender: mockApplicant.gender,
-        age: mockApplicant.age,
-        communication: mockApplicant.communicationSkill,
-        profile_image: mockApplicant.profilePhoto || null,
-        resume_file: mockApplicant.resumeUrl || null,
-        created_at: mockApplicant.registeredDate,
-        updated_at: mockApplicant.resumeUpdated,
-        preferred_city: mockApplicant.preferredCity,
-      };
-      
-      setApplicantData(mockData);
-      
-      // TEMPORARY: Create mock experience and education data
-      const mockExperiences = [
-    {
-      id: 1,
-          company_name: mockApplicant.currentCompany,
-          designation: mockApplicant.designation,
-          employment_type: "Full-time",
-          city_id: mockApplicant.currentCity,
-          start_date: new Date(Date.now() - 2 * 365 * 24 * 60 * 60 * 1000).toISOString(),
-          is_current: true,
-          responsibilities: "Leading development teams, architecting solutions, and implementing best practices.",
-          current_ctc: mockApplicant.currentCTC,
-          notice_period: mockApplicant.noticePeriod
+      if (!id) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        // Fetch applicant data
+        const { data: applicant, error: applicantError } = await supabase
+          .from('applicants')
+          .select('*')
+          .eq('id', id)
+          .single();
+
+        if (applicantError) {
+          console.error('Error fetching applicant:', applicantError);
+          toastHook({
+            title: "Error",
+            description: "Failed to load applicant profile",
+            variant: "destructive",
+          });
+          setLoading(false);
+          return;
         }
-      ];
-      
-      const mockEducation = [
-    {
-      id: 1,
-          education_level: mockApplicant.education.highest,
-          degree_id: mockApplicant.education.degree,
-          course_id: mockApplicant.education.degree,
-          institution_id: mockApplicant.education.university,
-          passing_year: mockApplicant.education.yearOfPassing,
-          percentage: mockApplicant.education.percentage,
-          is_highest: true
+
+        if (applicant) {
+          setApplicantData(applicant);
         }
-      ];
-      
-      const mockSkills = mockApplicant.skills.map((skill, idx) => ({
-        id: idx + 1,
-        skill_name: skill,
-        skill_version: "Latest",
-        years_of_experience: Math.min(mockApplicant.experience, 5),
-        skill_level: 'Expert'
-      }));
-      
-      setExperienceData(mockExperiences);
-      setEducationData(mockEducation);
-      setSkillsData(mockSkills);
-      setLoading(false);
-      
-      // TEMPORARY: Skip database fetch, use mock data only
-      // Original database fetch code removed for demo mode
+
+        // Fetch education data
+        const { data: education, error: educationError } = await supabase
+          .from('applicant_education')
+          .select('*')
+          .eq('applicant_id', id)
+          .order('is_highest', { ascending: false })
+          .order('passing_year', { ascending: false });
+
+        if (!educationError && education) {
+          setEducationData(education);
+        }
+
+        // Fetch experience data
+        const { data: experience, error: experienceError } = await supabase
+          .from('applicant_experience')
+          .select('*')
+          .eq('applicant_id', id)
+          .order('start_date', { ascending: false });
+
+        if (!experienceError && experience) {
+          setExperienceData(experience);
+        }
+
+        // Fetch skills data
+        const { data: skills, error: skillsError } = await supabase
+          .from('applicant_skills')
+          .select('*')
+          .eq('applicant_id', id)
+          .order('skill_level', { ascending: false });
+
+        if (!skillsError && skills) {
+          setSkillsData(skills);
+        }
+
+        // Fetch profile data if available
+        if (applicant?.user_id) {
+          const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', applicant.user_id)
+            .single();
+
+          if (!profileError && profile) {
+            setProfileData(profile);
+            const summary = (profile as { summary?: string }).summary || (applicant as { profile_summary?: string }).profile_summary || '';
+            setProfileSummary(summary);
+          } else {
+            const summary = (applicant as { profile_summary?: string }).profile_summary || '';
+            setProfileSummary(summary);
+          }
+        } else {
+          const summary = (applicant as { profile_summary?: string })?.profile_summary || '';
+          setProfileSummary(summary);
+        }
+
+        setLoading(false);
+      } catch (error: any) {
+        console.error('Error fetching data:', error);
+        toastHook({
+          title: "Error",
+          description: error.message || "Failed to load profile data",
+          variant: "destructive",
+        });
+        setLoading(false);
+      }
     };
 
     fetchData();
-  }, [id, navigate, toastHook, viewMode, authProfile, user]);
-
-  // Update profile summary when applicant data is loaded
-  useEffect(() => {
-    if (applicantData) {
-      const summary = applicantData.profile_summary || 
-        `Highly motivated ${applicantData.current_designation || applicantData.designation || 'Professional'} with ${applicantData.total_experience || 0} years of experience. Passionate about building scalable solutions and working with cutting-edge technologies.`;
-      setProfileSummary(summary);
-    }
-  }, [applicantData]);
+  }, [id, profileReloadNonce, toastHook]);
 
   // Intersection observer for active section detection (must be before early returns)
   useEffect(() => {
@@ -207,6 +211,7 @@ const EnterpriseApplicantProfile = ({ viewMode = 'admin', applicantId: propAppli
   // Map database data to component format
   const applicant = {
     id: applicantData.id,
+    userId: applicantData.user_id ?? null,
     name: applicantData.name || applicantData.full_name || profileData?.full_name || "N/A",
     email: applicantData.email || applicantData.email_address || profileData?.email || "N/A",
     phone: applicantData.phone || applicantData.mobile_number || profileData?.phone || "N/A",
@@ -240,11 +245,13 @@ const EnterpriseApplicantProfile = ({ viewMode = 'admin', applicantId: propAppli
     communicationSkill: applicantData.communication || 'Average',
     profilePhoto: applicantData.profile_image || profileData?.profile_image || null,
     resumeUrl: applicantData.resume_file || profileData?.resume_file || null,
+    resumeHeadline: profileData?.headline ?? '',
   };
 
-  // Map experience data
-  const experiences = experienceData.map((exp, index) => ({
-    id: exp.id || index + 1,
+  // Map experience data: use applicant_experience table when available, else show flat data from applicants row
+  const experiencesFromTable = experienceData.map((exp) => ({
+    id: exp.id,
+    deletable: Boolean(exp.id),
     company: exp.company_name || "N/A",
     designation: exp.designation || "N/A",
     employmentType: exp.employment_type || "Full-time",
@@ -256,10 +263,30 @@ const EnterpriseApplicantProfile = ({ viewMode = 'admin', applicantId: propAppli
     ctc: exp.current_ctc || applicant.currentCTC,
     noticePeriod: exp.notice_period || applicant.noticePeriod
   }));
+  const hasExperienceInRow = !!(applicantData.current_company || applicantData.current_designation || applicantData.total_experience);
+  const experiences = experiencesFromTable.length > 0
+    ? experiencesFromTable
+    : hasExperienceInRow
+      ? [{
+          id: 'registration-summary',
+          deletable: false,
+          company: applicantData.current_company || "N/A",
+          designation: applicantData.current_designation || "N/A",
+          employmentType: "Full-time",
+          location: applicant.currentCity,
+          startDate: "N/A",
+          endDate: undefined as string | undefined,
+          isCurrent: true,
+          responsibilities: "Experience details from profile.",
+          ctc: applicant.currentCTC,
+          noticePeriod: applicant.noticePeriod
+        }]
+      : [];
 
-  // Map education data
-  const mappedEducationData = educationData.map((edu, index) => ({
-    id: edu.id || index + 1,
+  // Map education data: use applicant_education when available, else show flat data from applicants row
+  const educationFromTable = educationData.map((edu, index) => ({
+    id: edu.id ?? `education-row-${index}`,
+    deletable: Boolean(edu.id),
     degree: edu.degree_id || edu.course_id || applicant.education.degree || "N/A",
     specialization: edu.course_id || "N/A",
     institution: edu.institution_id || applicant.education.university || "N/A",
@@ -268,39 +295,73 @@ const EnterpriseApplicantProfile = ({ viewMode = 'admin', applicantId: propAppli
     marks: edu.percentage ? String(edu.percentage) : "N/A",
     type: (edu.education_level?.toLowerCase().includes('graduation') || edu.education_level?.toLowerCase().includes('degree')) ? 'graduation' as const : 'school' as const
   }));
+  const hasEducationInRow = !!(applicantData.education_level || applicantData.highest_qualification || applicantData.university || applicantData.university_institute_name || applicantData.course_degree);
+  const mappedEducationData = educationFromTable.length > 0
+    ? educationFromTable
+    : hasEducationInRow
+      ? [{
+          id: 'registration-education',
+          deletable: false,
+          degree: applicant.education.degree,
+          specialization: "N/A",
+          institution: applicant.education.university,
+          yearOfPassing: typeof applicant.education.yearOfPassing === 'number' ? applicant.education.yearOfPassing : new Date().getFullYear(),
+          gradingSystem: applicant.education.percentage ? "Percentage" : "CGPA",
+          marks: applicant.education.percentage ? String(applicant.education.percentage) : "N/A",
+          type: (applicant.education.highest?.toLowerCase().includes('graduation') || applicant.education.degree?.toLowerCase().includes('degree')) ? 'graduation' as const : 'school' as const
+        }]
+      : [];
 
-  // Map IT skills from applicant_skills table
-  const itSkills = skillsData.map((skill, index) => ({
-    id: skill.id || index + 1,
+  // Map IT skills: use applicant_skills table when available, else derive from applicants.key_skills
+  const itSkillsFromTable = skillsData.map((skill, index) => ({
+    id: skill.id ?? `it-skill-${index}`,
+    deletable: Boolean(skill.id),
     name: skill.skill_name || "N/A",
-    version: skill.skill_version || "Latest",
-    experience: skill.years_of_experience || Math.min(applicant.experience, 5),
-    proficiency: (skill.skill_level || 'Intermediate') as 'Beginner' | 'Intermediate' | 'Expert'
+    version: skill.skill_version || '',
+    experience: skill.years_of_experience || 0,
+    proficiency: (skill.skill_level || 'Beginner') as 'Beginner' | 'Intermediate' | 'Expert'
   }));
+  const keySkillsArr = applicantData.key_skills
+    ? (typeof applicantData.key_skills === 'string' ? applicantData.key_skills.split(',').map((s: string) => s.trim()).filter(Boolean) : applicantData.key_skills)
+    : [];
+  const itSkills = itSkillsFromTable.length > 0
+    ? itSkillsFromTable
+    : keySkillsArr.map((name: string, index: number) => ({
+        id: `key-skill-${index}`,
+        deletable: false,
+        name,
+        version: '',
+        experience: 0,
+        proficiency: 'Beginner' as const
+      }));
 
   // Projects (can be extended later with projects table)
   const projects: any[] = [];
 
-  // Career profile (using applicantData directly since applicant is defined later)
   const careerProfile = {
-    currentIndustry: applicantData.current_industry || "IT Software",
-    preferredIndustry: applicantData.preferred_industry || "IT Software, Product Companies",
-    functionalArea: applicantData.functional_area || "Engineering / Software Development",
-    preferredRole: applicantData.job_role || applicantData.current_designation || applicantData.designation || "Software Engineer",
-    desiredJobType: applicantData.desired_job_type ? (typeof applicantData.desired_job_type === 'string' ? applicantData.desired_job_type.split(',') : applicantData.desired_job_type) : ["Full-time"],
-    preferredLocations: applicantData.preferred_locations ? (typeof applicantData.preferred_locations === 'string' ? applicantData.preferred_locations.split(',') : applicantData.preferred_locations) : [applicantData.preferred_city || applicantData.city || "N/A", applicantData.city || "N/A"],
+    currentIndustry: applicantData.current_industry || '',
+    preferredIndustry: applicantData.preferred_industry || '',
+    functionalArea: applicantData.functional_area || '',
+    preferredRole: applicantData.job_role || applicantData.current_designation || applicantData.designation || '',
+    desiredJobType: applicantData.desired_job_type
+      ? (typeof applicantData.desired_job_type === 'string' ? applicantData.desired_job_type.split(',').map((s: string) => s.trim()).filter(Boolean) : applicantData.desired_job_type)
+      : [],
+    preferredLocations: applicantData.preferred_locations
+      ? (typeof applicantData.preferred_locations === 'string' ? applicantData.preferred_locations.split(',').map((s: string) => s.trim()).filter(Boolean) : applicantData.preferred_locations)
+      : (applicantData.preferred_city ? [applicantData.preferred_city] : (applicantData.city ? [applicantData.city] : [])),
     expectedSalary: applicantData.expected_ctc || applicantData.exp_ctc || 0,
-    openToRelocation: applicantData.open_to_relocation !== false
+    openToRelocation: applicantData.open_to_relocation === true || applicantData.open_to_relocation === 'true'
   };
 
-  // Personal details (using applicantData directly since applicant is defined later)
   const personalDetails = {
-    dateOfBirth: applicantData.date_of_birth || applicantData.dob || "N/A",
-    gender: applicantData.gender || 'Other',
-    maritalStatus: applicantData.marital_status || "N/A",
-    languages: applicantData.languages ? (typeof applicantData.languages === 'string' ? applicantData.languages.split(',') : applicantData.languages) : ["English"],
-    address: applicantData.address || applicantData.address_line1 || "N/A",
-    homeTown: applicantData.city || applicantData.city_current_location || "N/A"
+    dateOfBirth: applicantData.date_of_birth || applicantData.dob || '',
+    gender: applicantData.gender || '',
+    maritalStatus: applicantData.marital_status || '',
+    languages: applicantData.languages
+      ? (typeof applicantData.languages === 'string' ? applicantData.languages.split(',').map((s: string) => s.trim()).filter(Boolean) : applicantData.languages)
+      : [],
+    address: applicantData.address || applicantData.address_line1 || '',
+    homeTown: applicantData.city || applicantData.city_current_location || ''
   };
 
   // Accomplishments (can be extended later with accomplishments table)
@@ -318,13 +379,17 @@ const EnterpriseApplicantProfile = ({ viewMode = 'admin', applicantId: propAppli
     ? skillsData.map(s => s.skill_name)
     : (applicantData.key_skills ? (typeof applicantData.key_skills === 'string' ? applicantData.key_skills.split(',').map((s: string) => s.trim()) : applicantData.key_skills) : []);
   
+  // Profile completion: consider both normalized tables and applicants row data
+  const hasEmployment = experienceData.length > 0 || !!(applicantData.current_company || applicantData.current_designation || applicantData.total_experience);
+  const hasEducation = educationData.length > 0 || !!(applicantData.education_level || applicantData.highest_qualification || applicantData.university || applicantData.course_degree);
+  const hasItSkills = skillsData.length > 0 || (applicantSkills.length > 0);
   const completionItems = [
     { id: '1', label: 'Resume uploaded', completed: !!(applicantData.resume_file || profileData?.resume_file), section: 'resume' },
-    { id: '2', label: 'Resume headline added', completed: profileSummary.length > 50, section: 'resume' },
+    { id: '2', label: 'Resume headline added', completed: (profileData?.headline ?? '').trim().length > 10, section: 'resume' },
     { id: '3', label: 'Key skills added', completed: applicantSkills.length > 3, section: 'skills' },
-    { id: '4', label: 'Employment details', completed: experienceData.length > 0, section: 'experience' },
-    { id: '5', label: 'Education details', completed: educationData.length > 0, section: 'education' },
-    { id: '6', label: 'IT skills added', completed: skillsData.length > 0, section: 'itskills' },
+    { id: '4', label: 'Employment details', completed: hasEmployment, section: 'experience' },
+    { id: '5', label: 'Education details', completed: hasEducation, section: 'education' },
+    { id: '6', label: 'IT skills added', completed: hasItSkills, section: 'itskills' },
     { id: '7', label: 'Projects added', completed: projects.length > 0, section: 'projects' },
     { id: '8', label: 'Profile summary', completed: profileSummary.length > 50, section: 'summary' },
     { id: '9', label: 'Online profiles linked', completed: Object.values(onlineProfiles).some(v => v), section: 'links' },
@@ -347,50 +412,56 @@ const EnterpriseApplicantProfile = ({ viewMode = 'admin', applicantId: propAppli
 
   const canEdit = viewMode !== 'client';
 
-  return (
-    <div className="min-h-screen bg-muted/30">
-      {/* Top Bar */}
-      <div className="sticky top-0 z-50 bg-background/95 backdrop-blur border-b">
-        <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
-          <Button variant="ghost" onClick={() => {
-            if (viewMode === 'applicant') {
-              navigate('/dashboard/applicant');
-            } else if (viewMode === 'client') {
-              navigate('/dashboard/client/candidates');
-            } else {
-              navigate('/dashboard/admin/applicants');
-            }
-          }} className="gap-2">
-            <ArrowLeft className="h-4 w-4" />
-            Back to {viewMode === 'applicant' ? 'Dashboard' : viewMode === 'client' ? 'Candidates' : 'Applicants'}
-          </Button>
-          {viewMode === 'client' && (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground bg-yellow-500/10 px-3 py-1.5 rounded-full">
-              <AlertTriangle className="h-4 w-4 text-yellow-600" />
-              Read-only Client View
-            </div>
-          )}
-        </div>
-      </div>
+  const isRowUuid = (rowId: string | number) =>
+    typeof rowId === "string" &&
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(rowId);
 
-      <div className="max-w-7xl mx-auto px-6 py-6">
-        {/* Profile Header */}
+  return (
+    <div className={viewMode === 'applicant' ? 'bg-muted/30' : 'min-h-screen bg-muted/30'}>
+      {viewMode !== 'applicant' && (
+        <div className="sticky top-0 z-50 bg-background/95 backdrop-blur border-b">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2 flex items-center justify-between">
+            <Button variant="ghost" onClick={() => {
+              if (viewMode === 'client') {
+                navigate('/dashboard/client/candidates');
+              } else {
+                navigate('/dashboard/admin/applicants');
+              }
+            }} className="gap-2">
+              <ArrowLeft className="h-4 w-4" />
+              Back to {viewMode === 'client' ? 'Candidates' : 'Applicants'}
+            </Button>
+            {viewMode === 'client' && (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground bg-yellow-500/10 px-3 py-1.5 rounded-full">
+                <AlertTriangle className="h-4 w-4 text-yellow-600" />
+                Read-only Client View
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-5">
         <ProfileHeader
           applicant={applicant}
           viewMode={viewMode}
           profileCompletion={completionPercentage}
-          onEdit={() => toast.info("Edit profile clicked")}
+          onEdit={() => {
+            const el = document.getElementById('resume');
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
+          }}
           onDelete={() => toast.error("Delete profile clicked")}
           onAddNote={() => toast.info("Add note clicked")}
           onAddToFolder={() => toast.info("Add to folder clicked")}
           onShortlist={() => toast.success("Added to shortlist")}
           onFavorite={() => setIsFavorite(!isFavorite)}
           isFavorite={isFavorite}
+          onProfileImageUploaded={(url) => {
+            setApplicantData({ ...applicantData, profile_image: url });
+          }}
         />
 
-        {/* Main Content Grid */}
-        <div className="mt-8 grid lg:grid-cols-12 gap-6">
-          {/* Left Sidebar - Navigation */}
+        <div className="mt-6 grid lg:grid-cols-12 gap-5">
           <div className="lg:col-span-2 hidden lg:block">
             <ProfileSidebar 
               activeSection={activeSection} 
@@ -398,21 +469,51 @@ const EnterpriseApplicantProfile = ({ viewMode = 'admin', applicantId: propAppli
             />
           </div>
 
-          {/* Main Content */}
-          <div className="lg:col-span-7 space-y-6">
+          <div className="lg:col-span-7 space-y-5">
             {/* Resume Section */}
             <div id="resume" data-section>
               <ProfileSection
                 id="resume-section"
                 title="Resume & Headline"
-                icon={<FileText className="h-5 w-5" />}
+                icon={<FileText className="h-4 w-4" />}
                 canEdit={canEdit}
                 badge="Important"
               >
                 <ResumeSection
                   applicant={applicant}
                   viewMode={viewMode}
-                  onUpdateHeadline={(headline) => toast.success("Headline updated")}
+                  onUpdateHeadline={async (headline) => {
+                    const { error } = await saveResumeHeadline(applicantData.id, applicantData.user_id, headline);
+                    if (error) {
+                      toast.error(error);
+                      throw new Error(error);
+                    }
+                    toast.success("Headline saved");
+                    if (profileData && applicantData.user_id) {
+                      setProfileData({ ...profileData, headline });
+                    }
+                    setProfileReloadNonce((n) => n + 1);
+                  }}
+                  onResumeUploaded={(url) => {
+                    setApplicantData({ ...applicantData, resume_file: url, upload_cv_any_format: url, updated_at: new Date().toISOString() });
+                    if (profileData && applicantData.user_id) {
+                      setProfileData({ ...profileData, resume_file: url });
+                    }
+                    toast.success("Resume linked to profile");
+                    setProfileReloadNonce((n) => n + 1);
+                  }}
+                  onResumeRemoved={() => {
+                    setApplicantData({
+                      ...applicantData,
+                      resume_file: null,
+                      upload_cv_any_format: null,
+                      updated_at: new Date().toISOString(),
+                    });
+                    if (profileData) {
+                      setProfileData({ ...profileData, resume_file: null });
+                    }
+                    setProfileReloadNonce((n) => n + 1);
+                  }}
                 />
               </ProfileSection>
             </div>
@@ -422,14 +523,26 @@ const EnterpriseApplicantProfile = ({ viewMode = 'admin', applicantId: propAppli
               <ProfileSection
                 id="skills-section"
                 title="Key Skills"
-                icon={<Code2 className="h-5 w-5" />}
+                icon={<Code2 className="h-4 w-4" />}
                 canEdit={canEdit}
                 badge="250 chars"
               >
                 <SkillsSection
                   skills={applicant.skills}
                   viewMode={viewMode}
-                  onUpdateSkills={(skills) => toast.success("Skills updated")}
+                  onUpdateSkills={async (skills) => {
+                    const { error } = await syncApplicantSkillsFromChipList(
+                      applicantData.id,
+                      applicantData.user_id,
+                      skills
+                    );
+                    if (error) {
+                      toast.error(error);
+                      return;
+                    }
+                    toast.success("Key skills saved");
+                    setProfileReloadNonce((n) => n + 1);
+                  }}
                 />
               </ProfileSection>
             </div>
@@ -439,7 +552,7 @@ const EnterpriseApplicantProfile = ({ viewMode = 'admin', applicantId: propAppli
               <ProfileSection
                 id="experience-section"
                 title="Employment"
-                icon={<Briefcase className="h-5 w-5" />}
+                icon={<Briefcase className="h-4 w-4" />}
                 canAdd={canEdit}
                 isEmpty={experiences.length === 0}
                 emptyMessage="No employment history added yet"
@@ -447,8 +560,20 @@ const EnterpriseApplicantProfile = ({ viewMode = 'admin', applicantId: propAppli
                 <ExperienceSection
                   experiences={experiences}
                   viewMode={viewMode}
-                  onEdit={(id) => toast.info(`Edit experience ${id}`)}
-                  onDelete={(id) => toast.error(`Delete experience ${id}`)}
+                  onEdit={(expId) => toast.info(`Edit experience ${expId}`)}
+                  onDelete={async (expId) => {
+                    if (!isRowUuid(expId)) {
+                      toast.error("This line comes from your registration summary, not a separate employment record.");
+                      return;
+                    }
+                    const { error } = await deleteApplicantExperienceRow(expId);
+                    if (error) {
+                      toast.error(error);
+                      return;
+                    }
+                    toast.success("Employment removed");
+                    setProfileReloadNonce((n) => n + 1);
+                  }}
                 />
               </ProfileSection>
             </div>
@@ -458,14 +583,28 @@ const EnterpriseApplicantProfile = ({ viewMode = 'admin', applicantId: propAppli
               <ProfileSection
                 id="education-section"
                 title="Education"
-                icon={<GraduationCap className="h-5 w-5" />}
+                icon={<GraduationCap className="h-4 w-4" />}
                 canAdd={canEdit}
+                isEmpty={mappedEducationData.length === 0}
+                emptyMessage="No education added yet"
               >
                 <EducationSection
                   education={mappedEducationData}
                   viewMode={viewMode}
-                  onEdit={(id) => toast.info(`Edit education ${id}`)}
-                  onDelete={(id) => toast.error(`Delete education ${id}`)}
+                  onEdit={(eduId) => toast.info(`Edit education ${eduId}`)}
+                  onDelete={async (eduId) => {
+                    if (!isRowUuid(eduId)) {
+                      toast.error("This line comes from your registration summary, not a separate education record.");
+                      return;
+                    }
+                    const { error } = await deleteApplicantEducationRow(eduId);
+                    if (error) {
+                      toast.error(error);
+                      return;
+                    }
+                    toast.success("Education removed");
+                    setProfileReloadNonce((n) => n + 1);
+                  }}
                 />
               </ProfileSection>
             </div>
@@ -475,14 +614,34 @@ const EnterpriseApplicantProfile = ({ viewMode = 'admin', applicantId: propAppli
               <ProfileSection
                 id="itskills-section"
                 title="IT Skills"
-                icon={<Settings className="h-5 w-5" />}
+                icon={<Settings className="h-4 w-4" />}
                 canAdd={canEdit}
               >
                 <ITSkillsSection
                   skills={itSkills}
                   viewMode={viewMode}
-                  onEdit={(id) => toast.info(`Edit IT skill ${id}`)}
-                  onDelete={(id) => toast.error(`Delete IT skill ${id}`)}
+                  onEdit={(skillId) => toast.info(`Edit IT skill ${skillId}`)}
+                  onDelete={async (skillId) => {
+                    if (!isRowUuid(skillId)) {
+                      toast.info("Change key skills in the section above, or add IT skills as detailed rows after registration.");
+                      return;
+                    }
+                    const { error } = await deleteApplicantSkillRow(skillId);
+                    if (error) {
+                      toast.error(error);
+                      return;
+                    }
+                    const { error: syncErr } = await resyncApplicantKeySkillsFromTable(
+                      applicantData.id,
+                      applicantData.user_id
+                    );
+                    if (syncErr) {
+                      toast.error(syncErr);
+                      return;
+                    }
+                    toast.success("Skill removed");
+                    setProfileReloadNonce((n) => n + 1);
+                  }}
                 />
               </ProfileSection>
             </div>
@@ -492,7 +651,7 @@ const EnterpriseApplicantProfile = ({ viewMode = 'admin', applicantId: propAppli
               <ProfileSection
                 id="projects-section"
                 title="Projects"
-                icon={<FolderKanban className="h-5 w-5" />}
+                icon={<FolderKanban className="h-4 w-4" />}
                 canAdd={canEdit}
               >
                 <ProjectsSection
@@ -509,21 +668,46 @@ const EnterpriseApplicantProfile = ({ viewMode = 'admin', applicantId: propAppli
               <ProfileSection
                 id="summary-section"
                 title="Profile Summary"
-                icon={<UserCircle className="h-5 w-5" />}
+                icon={<UserCircle className="h-4 w-4" />}
                 canEdit={canEdit}
               >
                 {canEdit ? (
-                  <Textarea
-                    value={profileSummary}
-                    onChange={(e) => setProfileSummary(e.target.value)}
-                    rows={5}
-                    placeholder="Write a brief summary about yourself..."
-                    className="resize-none"
-                  />
+                  <div className="space-y-2">
+                    <Textarea
+                      value={profileSummary}
+                      onChange={(e) => setProfileSummary(e.target.value)}
+                      rows={4}
+                      placeholder="Write a brief summary about yourself..."
+                      className="resize-none text-sm"
+                    />
+                    {applicantData?.user_id && (
+                      <Button
+                        size="sm"
+                        disabled={savingSummary}
+                        onClick={async () => {
+                          setSavingSummary(true);
+                          const { success, error } = await updateProfileSummary(applicantData.user_id, profileSummary);
+                          setSavingSummary(false);
+                          if (success) {
+                            toast.success("Profile summary saved.");
+                            if (profileData) setProfileData({ ...profileData, summary: profileSummary });
+                          } else {
+                            toast.error(error || "Failed to save summary.");
+                          }
+                        }}
+                      >
+                        {savingSummary ? "Saving..." : "Save summary"}
+                      </Button>
+                    )}
+                  </div>
                 ) : (
-                  <p className="text-sm leading-relaxed text-muted-foreground">
-                    {profileSummary}
-                  </p>
+                  profileSummary ? (
+                    <p className="text-sm leading-relaxed text-muted-foreground">
+                      {profileSummary}
+                    </p>
+                  ) : (
+                    <p className="text-sm text-muted-foreground italic">No profile summary added yet.</p>
+                  )
                 )}
               </ProfileSection>
             </div>
@@ -533,12 +717,48 @@ const EnterpriseApplicantProfile = ({ viewMode = 'admin', applicantId: propAppli
               <ProfileSection
                 id="links-section"
                 title="Online Profiles"
-                icon={<Globe className="h-5 w-5" />}
+                icon={<Globe className="h-4 w-4" />}
                 canEdit={canEdit}
               >
                 <OnlineProfilesSection
                   profiles={onlineProfiles}
                   viewMode={viewMode}
+                  onSave={async (profiles) => {
+                    const patch = {
+                      linkedin_url: profiles.linkedin?.trim() || null,
+                      github_url: profiles.github?.trim() || null,
+                      portfolio_url: profiles.portfolio?.trim() || null,
+                      updated_at: new Date().toISOString(),
+                    };
+                    const { error: appErr } = await supabase.from("applicants").update(patch).eq("id", applicantData.id);
+                    if (appErr) {
+                      throw new Error(appErr.message);
+                    }
+                    if (applicantData.user_id) {
+                      const { error: profErr } = await supabase
+                        .from("profiles")
+                        .update(patch)
+                        .eq("id", applicantData.user_id);
+                      if (profErr) {
+                        throw new Error(profErr.message);
+                      }
+                      if (profileData) {
+                        setProfileData({
+                          ...profileData,
+                          linkedin_url: patch.linkedin_url,
+                          github_url: patch.github_url,
+                          portfolio_url: patch.portfolio_url,
+                        });
+                      }
+                    }
+                    setApplicantData({
+                      ...applicantData,
+                      linkedin_url: patch.linkedin_url,
+                      github_url: patch.github_url,
+                      portfolio_url: patch.portfolio_url,
+                    });
+                    setProfileReloadNonce((n) => n + 1);
+                  }}
                 />
               </ProfileSection>
             </div>
@@ -548,7 +768,7 @@ const EnterpriseApplicantProfile = ({ viewMode = 'admin', applicantId: propAppli
               <ProfileSection
                 id="accomplishments-section"
                 title="Accomplishments"
-                icon={<Award className="h-5 w-5" />}
+                icon={<Award className="h-4 w-4" />}
                 canAdd={canEdit}
               >
                 <AccomplishmentsSection
@@ -565,7 +785,7 @@ const EnterpriseApplicantProfile = ({ viewMode = 'admin', applicantId: propAppli
               <ProfileSection
                 id="career-section"
                 title="Career Profile"
-                icon={<Target className="h-5 w-5" />}
+                icon={<Target className="h-4 w-4" />}
                 canEdit={canEdit}
                 badge="Matching"
               >
@@ -581,7 +801,7 @@ const EnterpriseApplicantProfile = ({ viewMode = 'admin', applicantId: propAppli
               <ProfileSection
                 id="personal-section"
                 title="Personal Details"
-                icon={<User className="h-5 w-5" />}
+                icon={<User className="h-4 w-4" />}
                 canEdit={canEdit}
               >
                 <PersonalDetailsSection
@@ -596,7 +816,7 @@ const EnterpriseApplicantProfile = ({ viewMode = 'admin', applicantId: propAppli
               <ProfileSection
                 id="analytics-section"
                 title="Profile Analytics"
-                icon={<Activity className="h-5 w-5" />}
+                icon={<Activity className="h-4 w-4" />}
                 defaultExpanded={viewMode === 'applicant'}
               >
                 <ProfileAnalytics viewMode={viewMode} />
@@ -616,48 +836,42 @@ const EnterpriseApplicantProfile = ({ viewMode = 'admin', applicantId: propAppli
 
             {(viewMode === 'admin' || viewMode === 'client') && (
               <div className="sticky top-24 space-y-6">
-                {/* Quick Stats Card */}
                 <div className="bg-card rounded-xl border p-4 space-y-4">
-                  <h3 className="font-semibold">Quick Stats</h3>
+                  <h3 className="text-sm font-semibold">Quick Info</h3>
                   <div className="space-y-3">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Profile Views</span>
-                      <span className="font-medium">127</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Resume Downloads</span>
-                      <span className="font-medium">34</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Shortlisted</span>
-                      <span className="font-medium">8 times</span>
-                    </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Profile Score</span>
                       <span className="font-medium text-green-600">{completionPercentage}%</span>
                     </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Status</span>
+                      <span className="font-medium">{applicantData.status || 'Active'}</span>
+                    </div>
+                    {applicantData.created_at && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Registered</span>
+                        <span className="font-medium text-xs">{new Date(applicantData.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+                      </div>
+                    )}
+                    {applicantData.updated_at && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Last Updated</span>
+                        <span className="font-medium text-xs">{new Date(applicantData.updated_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
 
-                {/* Admin Notes (Admin only) */}
                 {viewMode === 'admin' && (
-                  <div className="bg-card rounded-xl border p-4 space-y-4">
-                    <h3 className="font-semibold">Admin Notes</h3>
-                    <Textarea 
+                  <div className="bg-card rounded-xl border p-4 space-y-3">
+                    <h3 className="text-sm font-semibold">Admin Notes</h3>
+                    <Textarea
                       placeholder="Add a note about this candidate..."
                       rows={3}
+                      className="text-sm"
                     />
-                    <Button size="sm" className="w-full">Add Note</Button>
-                    <div className="space-y-2 pt-2 border-t max-h-[200px] overflow-y-auto">
-                      <div className="p-2 bg-muted/50 rounded text-sm">
-                        <p>Strong technical skills, recommended for senior position</p>
-                        <p className="text-xs text-muted-foreground mt-1">Admin • Jan 15</p>
-                      </div>
-                      <div className="p-2 bg-muted/50 rounded text-sm">
-                        <p>Completed first round interview - excellent communication</p>
-                        <p className="text-xs text-muted-foreground mt-1">HR Manager • Jan 18</p>
-                      </div>
-                    </div>
+                    <Button size="sm" className="w-full h-8 text-xs">Add Note</Button>
+                    <p className="text-[11px] text-muted-foreground text-center">No notes yet</p>
                   </div>
                 )}
               </div>

@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { motion } from "framer-motion";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import MarketingLayout from "@/components/marketing/MarketingLayout";
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -26,7 +27,7 @@ const Contact = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-subtle">
+    <MarketingLayout showGeometry>
       <Navbar />
 
       {/* Hero Section */}
@@ -236,12 +237,12 @@ const Contact = () => {
                       rel="noopener noreferrer"
                       className={`h-12 w-12 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-lg ${
                         item.isWhatsApp 
-                          ? "bg-green-500/10 hover:bg-green-500 hover:text-white" 
+                          ? "bg-secondary/10 hover:bg-secondary hover:text-secondary-foreground" 
                           : "bg-primary/10 hover:bg-primary hover:text-primary-foreground"
                       }`}
                       aria-label={item.label}
                     >
-                      <item.icon className={`h-6 w-6 ${item.isWhatsApp ? "text-green-600" : "text-primary"}`} />
+                      <item.icon className={`h-6 w-6 ${item.isWhatsApp ? "text-secondary" : "text-primary"}`} />
                     </a>
                   ))}
                 </div>
@@ -291,7 +292,7 @@ const Contact = () => {
       </section>
 
       <Footer />
-    </div>
+    </MarketingLayout>
   );
 };
 

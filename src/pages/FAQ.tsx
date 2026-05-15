@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import MarketingLayout from "@/components/marketing/MarketingLayout";
 
 const mainFAQs = [
   {
@@ -36,7 +37,7 @@ const FAQ = () => {
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
 
   return (
-    <div className="min-h-screen bg-gradient-subtle">
+    <MarketingLayout showGeometry>
       <Navbar />
 
       {/* Hero Section */}
@@ -101,7 +102,7 @@ const FAQ = () => {
       </section>
 
       <Footer />
-    </div>
+    </MarketingLayout>
   );
 };
 

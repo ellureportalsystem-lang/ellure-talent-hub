@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 60" fill="none">
+  <rect x="0" y="8" width="44" height="44" rx="10" fill="url(#grad)"/>
+  <text x="22" y="38" font-family="Poppins, sans-serif" font-size="22" font-weight="700" fill="white" text-anchor="middle">EN</text>
+  <text x="54" y="28" font-family="Poppins, sans-serif" font-size="18" font-weight="700" fill="#3d4853">Ellure</text>
+  <text x="54" y="48" font-family="Poppins, sans-serif" font-size="18" font-weight="700" fill="#0566cd">NexHire</text>
+  <defs>
+    <linearGradient id="grad" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0566cd"/>
+      <stop offset="1" stop-color="#1a9eb0"/>
+    </linearGradient>
+  </defs>
+</svg>

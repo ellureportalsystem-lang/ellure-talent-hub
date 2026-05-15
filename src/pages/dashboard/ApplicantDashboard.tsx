@@ -2,11 +2,14 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "react-router-dom";
-import { User, FileText, Award, Clock, Download, LogOut, Edit, CheckCircle2 } from "lucide-react";
+import { User, FileText, Award, Clock, Download, LogOut, Edit, CheckCircle2, HelpCircle } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
+import { openResumePreview } from "@/lib/resumePreview";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import { CandidateFAQs } from "@/components/CandidateFAQs";
 
 const ApplicantDashboard = () => {
   const { profile, user, signOut } = useAuth();
@@ -16,10 +19,17 @@ const ApplicantDashboard = () => {
 
   useEffect(() => {
     const fetchApplicantData = async () => {
-      if (!profile?.applicant_id && !user?.id) {
+      // Don't wait for profile - if user is logged in, proceed
+      if (!user?.id) {
         setLoading(false);
         return;
       }
+
+      // Set a timeout to stop loading even if fetch fails
+      const loadingTimeout = setTimeout(() => {
+        console.warn('⏱️ Loading timeout - proceeding without applicant data');
+        setLoading(false);
+      }, 5000); // 5 second max loading time
 
       const fetchWithRetry = async (retries = 2) => {
         for (let attempt = 0; attempt <= retries; attempt++) {
@@ -62,6 +72,7 @@ const ApplicantDashboard = () => {
             if (data) {
               setApplicantData(data);
             }
+            clearTimeout(loadingTimeout);
             setLoading(false);
             return;
           } catch (error: any) {
@@ -77,14 +88,20 @@ const ApplicantDashboard = () => {
             
             console.error('Error fetching applicant data:', error);
             if (attempt === retries) {
+              clearTimeout(loadingTimeout);
               setLoading(false);
             }
           }
         }
+        clearTimeout(loadingTimeout);
         setLoading(false);
       };
 
       fetchWithRetry();
+      
+      return () => {
+        clearTimeout(loadingTimeout);
+      };
     };
 
     fetchApplicantData();
@@ -161,15 +178,24 @@ const ApplicantDashboard = () => {
 
   const profileCompletion = profile?.profile_complete_percent || applicantData?.profile_complete_percent || 0;
 
-  if (loading) {
+  // Show loading only if we have a user but no profile/applicant data yet
+  // Don't block if user is logged in - show dashboard with available data
+  if (loading && user && !profile && !applicantData) {
     return (
       <div className="min-h-screen bg-gradient-subtle flex items-center justify-center">
         <div className="text-center space-y-4">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto" />
           <p className="text-muted-foreground">Loading profile...</p>
+          <p className="text-xs text-muted-foreground">This may take a few seconds</p>
         </div>
       </div>
     );
+  }
+  
+  // If no user, redirect to login
+  if (!user) {
+    navigate("/auth/applicant");
+    return null;
   }
 
   return (
@@ -230,7 +256,19 @@ const ApplicantDashboard = () => {
                   <Edit className="mr-2 h-4 w-4" />
                   View Full Profile
                 </Button>
-                <Button size="sm" variant="outline">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={async () => {
+                    const u = getResumeFile();
+                    if (!u) return;
+                    try {
+                      await openResumePreview(u);
+                    } catch (e) {
+                      toast.error(e instanceof Error ? e.message : "Could not open resume");
+                    }
+                  }}
+                >
                   <Download className="mr-2 h-4 w-4" />
                   Download Resume
                 </Button>
@@ -449,7 +487,15 @@ const ApplicantDashboard = () => {
                     <Button 
                       size="sm" 
                       variant="outline"
-                      onClick={() => window.open(getResumeFile(), '_blank')}
+                      onClick={async () => {
+                        const u = getResumeFile();
+                        if (!u) return;
+                        try {
+                          await openResumePreview(u);
+                        } catch (e) {
+                          toast.error(e instanceof Error ? e.message : "Could not open resume");
+                        }
+                      }}
                     >
                       <Download className="h-4 w-4" />
                     </Button>
@@ -512,6 +558,18 @@ const ApplicantDashboard = () => {
                     Complete profile
                   </Button>
                 </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <HelpCircle className="h-5 w-5" />
+                  Help & Support
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CandidateFAQs />
               </CardContent>
             </Card>
           </div>

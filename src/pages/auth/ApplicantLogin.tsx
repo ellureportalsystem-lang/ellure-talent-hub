@@ -5,10 +5,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Link, useNavigate } from "react-router-dom";
-import { Sparkles, Mail, Phone, ArrowLeft, Eye, EyeOff, Shield, Building2, UserPlus, User, FileText } from "lucide-react";
+import { Mail, Phone, ArrowLeft, Eye, EyeOff, Shield, Building2, UserPlus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/lib/supabase";
 
 const ApplicantLogin = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -19,7 +18,7 @@ const ApplicantLogin = () => {
   const [activeTab, setActiveTab] = useState<"email" | "phone">("email");
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { signIn, signInWithPhone, profile, refreshProfile } = useAuth();
+  const { signIn, signInWithPhone } = useAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,22 +28,14 @@ const ApplicantLogin = () => {
       let result;
       if (activeTab === "email") {
         if (!email || !password) {
-          toast({
-            title: "Missing fields",
-            description: "Please enter both email and password",
-            variant: "destructive",
-          });
+          toast({ title: "Missing fields", description: "Please enter both email and password", variant: "destructive" });
           setIsLoading(false);
           return;
         }
         result = await signIn(email, password);
       } else {
         if (!phone || !password) {
-          toast({
-            title: "Missing fields",
-            description: "Please enter both phone and password",
-            variant: "destructive",
-          });
+          toast({ title: "Missing fields", description: "Please enter both phone and password", variant: "destructive" });
           setIsLoading(false);
           return;
         }
@@ -52,11 +43,7 @@ const ApplicantLogin = () => {
       }
 
       if (result.error) {
-        console.error('Login error details:', result.error);
-        
-        // Provide more helpful error messages
         let errorMessage = result.error.message || "Invalid credentials";
-        
         if (result.error.message?.includes('Invalid login credentials')) {
           errorMessage = "Invalid email or password. For old applicants, use default password: applicant@123";
         } else if (result.error.message?.includes('Email not confirmed')) {
@@ -64,73 +51,56 @@ const ApplicantLogin = () => {
         } else if (result.error.message?.includes('User not found')) {
           errorMessage = "No account found with this email. Please check your email or register first.";
         }
-        
-        toast({
-          title: "Login failed",
-          description: errorMessage,
-          variant: "destructive",
-        });
+        toast({ title: "Login failed", description: errorMessage, variant: "destructive" });
         setIsLoading(false);
         return;
       }
 
-      // Login successful - navigate immediately without waiting for profile
-      // Profile will be fetched by AuthContext automatically
-      console.log('✅ Login successful, navigating to dashboard...');
-      
-      toast({
-        title: "Success",
-        description: "Login successful!",
-      });
-      
-      // Navigate immediately - don't wait for profile fetch
-      navigate("/dashboard/applicant");
+      toast({ title: "Welcome back!", description: "Redirecting to your profile..." });
       setIsLoading(false);
+      setTimeout(() => navigate("/dashboard/applicant/profile"), 100);
     } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message || "An error occurred",
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: error.message || "An error occurred", variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-subtle flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        {/* Back Button */}
-        <Button variant="ghost" asChild className="mb-4">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <div className="w-full max-w-[420px]">
+        <Button variant="ghost" size="sm" asChild className="mb-6 text-muted-foreground">
           <Link to="/">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Home
           </Link>
         </Button>
 
-        <Card className="shadow-xl">
-          <CardHeader className="space-y-1 text-center">
-            <div className="flex flex-col items-center justify-center mb-4 gap-1">
+        <Card className="border shadow-lg">
+          <CardHeader className="space-y-4 text-center pb-2">
+            <div className="flex flex-col items-center gap-2">
               <img src="/ellure-logo.png" alt="Ellure NexHire" className="h-14 w-auto object-contain" />
-              <div className="flex flex-col items-center leading-none">
-                <span className="text-base font-bold" style={{ color: '#3d4853' }}>Ellure</span>
-                <span className="text-base font-bold -mt-2" style={{ color: '#0566cd' }}>NexHire</span>
+              <div className="flex flex-col items-center leading-tight">
+                <span className="text-base font-bold text-foreground">Ellure</span>
+                <span className="text-base font-bold text-primary -mt-0.5">NexHire</span>
               </div>
             </div>
-            <CardTitle className="text-2xl">Applicant Portal</CardTitle>
-            <CardDescription>
-              Login with your email or phone number
-            </CardDescription>
+            <div>
+              <CardTitle className="text-xl">Applicant Portal</CardTitle>
+              <CardDescription className="mt-1">
+                Sign in with your email or phone number
+              </CardDescription>
+            </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-2">
             <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "email" | "phone")} className="w-full">
-              <TabsList className="grid w-full grid-cols-2 mb-4">
-                <TabsTrigger value="email">
-                  <Mail className="mr-2 h-4 w-4" />
+              <TabsList className="grid w-full grid-cols-2 mb-5 h-10">
+                <TabsTrigger value="email" className="text-sm">
+                  <Mail className="mr-2 h-3.5 w-3.5" />
                   Email
                 </TabsTrigger>
-                <TabsTrigger value="phone">
-                  <Phone className="mr-2 h-4 w-4" />
+                <TabsTrigger value="phone" className="text-sm">
+                  <Phone className="mr-2 h-3.5 w-3.5" />
                   Phone
                 </TabsTrigger>
               </TabsList>
@@ -138,23 +108,21 @@ const ApplicantLogin = () => {
               <TabsContent value="email">
                 <form onSubmit={handleLogin} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="email">Email Address</Label>
+                    <Label htmlFor="email" className="text-sm">Email Address</Label>
                     <Input
                       id="email"
                       type="email"
                       placeholder="you@example.com"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
+                      className="h-10"
                       required
                     />
                   </div>
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <Label htmlFor="password-email">Password</Label>
-                      <Link
-                        to="/auth/forgot-password"
-                        className="text-xs text-primary hover:underline"
-                      >
+                      <Label htmlFor="password-email" className="text-sm">Password</Label>
+                      <Link to="/auth/forgot-password" className="text-xs text-primary hover:underline">
                         Forgot password?
                       </Link>
                     </div>
@@ -162,9 +130,10 @@ const ApplicantLogin = () => {
                       <Input
                         id="password-email"
                         type={showPassword ? "text" : "password"}
-                        placeholder="••••••••"
+                        placeholder="Enter your password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
+                        className="h-10 pr-10"
                         required
                       />
                       <Button
@@ -174,18 +143,14 @@ const ApplicantLogin = () => {
                         className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
                         onClick={() => setShowPassword(!showPassword)}
                       >
-                        {showPassword ? (
-                          <EyeOff className="h-4 w-4 text-muted-foreground" />
-                        ) : (
-                          <Eye className="h-4 w-4 text-muted-foreground" />
-                        )}
+                        {showPassword ? <EyeOff className="h-4 w-4 text-muted-foreground" /> : <Eye className="h-4 w-4 text-muted-foreground" />}
                       </Button>
                     </div>
-                    <p className="text-xs text-muted-foreground">
-                      Default password for old applicants: applicant@123
+                    <p className="text-[11px] text-muted-foreground">
+                      Default password for imported applicants: <code className="bg-muted px-1 py-0.5 rounded text-foreground font-medium">applicant@123</code>
                     </p>
                   </div>
-                  <Button type="submit" className="w-full" disabled={isLoading}>
+                  <Button type="submit" className="w-full h-10" disabled={isLoading}>
                     {isLoading ? "Signing in..." : "Sign In"}
                   </Button>
                 </form>
@@ -194,23 +159,21 @@ const ApplicantLogin = () => {
               <TabsContent value="phone">
                 <form onSubmit={handleLogin} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="phone">Phone Number</Label>
+                    <Label htmlFor="phone" className="text-sm">Phone Number</Label>
                     <Input
                       id="phone"
                       type="tel"
                       placeholder="+91 98765 43210"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
+                      className="h-10"
                       required
                     />
                   </div>
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <Label htmlFor="password-phone">Password</Label>
-                      <Link
-                        to="/auth/forgot-password"
-                        className="text-xs text-primary hover:underline"
-                      >
+                      <Label htmlFor="password-phone" className="text-sm">Password</Label>
+                      <Link to="/auth/forgot-password" className="text-xs text-primary hover:underline">
                         Forgot password?
                       </Link>
                     </div>
@@ -218,9 +181,10 @@ const ApplicantLogin = () => {
                       <Input
                         id="password-phone"
                         type={showPassword ? "text" : "password"}
-                        placeholder="••••••••"
+                        placeholder="Enter your password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
+                        className="h-10 pr-10"
                         required
                       />
                       <Button
@@ -230,83 +194,51 @@ const ApplicantLogin = () => {
                         className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
                         onClick={() => setShowPassword(!showPassword)}
                       >
-                        {showPassword ? (
-                          <EyeOff className="h-4 w-4 text-muted-foreground" />
-                        ) : (
-                          <Eye className="h-4 w-4 text-muted-foreground" />
-                        )}
+                        {showPassword ? <EyeOff className="h-4 w-4 text-muted-foreground" /> : <Eye className="h-4 w-4 text-muted-foreground" />}
                       </Button>
                     </div>
-                    <p className="text-xs text-muted-foreground">
-                      Default password for old applicants: applicant@123
+                    <p className="text-[11px] text-muted-foreground">
+                      Default password for imported applicants: <code className="bg-muted px-1 py-0.5 rounded text-foreground font-medium">applicant@123</code>
                     </p>
                   </div>
-                  <Button type="submit" className="w-full" disabled={isLoading}>
+                  <Button type="submit" className="w-full h-10" disabled={isLoading}>
                     {isLoading ? "Signing in..." : "Sign In"}
                   </Button>
                 </form>
               </TabsContent>
             </Tabs>
 
-            <div className="mt-6 text-center text-sm">
-              <span className="text-muted-foreground">
-                New user?{" "}
-              </span>
-              <Link to="/auth/applicant-register/step-1" className="text-primary hover:underline font-semibold">
+            <div className="mt-5 pt-5 border-t text-center">
+              <span className="text-sm text-muted-foreground">New user? </span>
+              <Link to="/auth/applicant-register/step-1" className="text-sm text-primary hover:underline font-medium">
                 Register Now
               </Link>
             </div>
           </CardContent>
         </Card>
 
-        {/* Navigation Buttons */}
         <div className="mt-6 space-y-2">
-          <div className="text-center text-sm font-medium text-muted-foreground mb-3">
-            Quick Access
-          </div>
-          <div className="grid grid-cols-1 gap-2">
-            <Button variant="outline" className="w-full justify-start" asChild>
-              <Link to="/dashboard/applicant">
-                <User className="mr-2 h-4 w-4" />
-                Applicant Dashboard
+          <p className="text-center text-xs font-medium text-muted-foreground mb-3">Other Portals</p>
+          <div className="grid grid-cols-2 gap-2">
+            <Button variant="outline" size="sm" className="w-full justify-start h-9 text-xs" asChild>
+              <Link to="/admin/auth/login">
+                <Shield className="mr-2 h-3.5 w-3.5" />
+                Admin Login
               </Link>
             </Button>
-            <Button variant="outline" className="w-full justify-start" asChild>
-              <Link to="/dashboard/applicant/profile">
-                <FileText className="mr-2 h-4 w-4" />
-                Applicant Profile
-              </Link>
-            </Button>
-            <Button variant="outline" className="w-full justify-start" asChild>
-              <Link to="/dashboard/admin">
-                <Shield className="mr-2 h-4 w-4" />
-                Admin Dashboard
-              </Link>
-            </Button>
-            <Button variant="outline" className="w-full justify-start" asChild>
-              <Link to="/dashboard/client">
-                <Building2 className="mr-2 h-4 w-4" />
-                Client Dashboard
-              </Link>
-            </Button>
-            <Button variant="outline" className="w-full justify-start" asChild>
-              <Link to="/auth/applicant-register/step-1">
-                <UserPlus className="mr-2 h-4 w-4" />
-                User Registration
+            <Button variant="outline" size="sm" className="w-full justify-start h-9 text-xs" asChild>
+              <Link to="/client/auth/login">
+                <Building2 className="mr-2 h-3.5 w-3.5" />
+                Client Login
               </Link>
             </Button>
           </div>
         </div>
 
-        <p className="mt-4 text-center text-xs text-muted-foreground">
+        <p className="mt-4 text-center text-[11px] text-muted-foreground">
           By continuing, you agree to our{" "}
-          <Link to="/terms" className="underline hover:text-foreground">
-            Terms
-          </Link>{" "}
-          and{" "}
-          <Link to="/privacy" className="underline hover:text-foreground">
-            Privacy Policy
-          </Link>
+          <Link to="/terms" className="underline hover:text-foreground">Terms</Link>{" "}and{" "}
+          <Link to="/privacy" className="underline hover:text-foreground">Privacy Policy</Link>
         </p>
       </div>
     </div>

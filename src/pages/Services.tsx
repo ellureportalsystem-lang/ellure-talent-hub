@@ -6,6 +6,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import MarketingLayout from "@/components/marketing/MarketingLayout";
 
 const services = [
   {
@@ -57,7 +58,7 @@ const Services = () => {
   const [expandedService, setExpandedService] = useState<number | null>(null);
 
   return (
-    <div className="min-h-screen bg-gradient-subtle">
+    <MarketingLayout showGeometry>
       <Navbar />
 
       {/* Hero Section */}
@@ -273,7 +274,7 @@ const Services = () => {
       </section>
 
       <Footer />
-    </div>
+    </MarketingLayout>
   );
 };
 

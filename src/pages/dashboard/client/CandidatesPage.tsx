@@ -48,10 +48,13 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { toast } from "sonner";
-import { mockApplicants, Applicant } from "@/data/mockApplicants";
+import { useApplicants, Applicant } from "@/hooks/useApplicants";
+import { useAuth } from "@/contexts/AuthContext";
+import { Loader2 } from "lucide-react";
 
 const CandidatesPage = () => {
   const navigate = useNavigate();
+  const { profile } = useAuth();
   const [searchParams] = useSearchParams();
   
   // Initialize search from URL params
@@ -59,9 +62,9 @@ const CandidatesPage = () => {
   const initialLocation = searchParams.get('location') || '';
   
   const [searchQuery, setSearchQuery] = useState(initialSearch);
-  const [selectedCandidates, setSelectedCandidates] = useState<number[]>([]);
-  const [sortField, setSortField] = useState<keyof Applicant>('name');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  const [selectedCandidates, setSelectedCandidates] = useState<string[]>([]);
+  const [sortField, setSortField] = useState<string>('created_at');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [currentPage, setCurrentPage] = useState(1);
   const [filtersOpen, setFiltersOpen] = useState(false);
   
@@ -76,88 +79,42 @@ const CandidatesPage = () => {
   
   const itemsPerPage = 15;
 
-  // Get unique values for filters
-  const cities = [...new Set(mockApplicants.map(a => a.currentCity))].sort();
-  const skills = [...new Set(mockApplicants.flatMap(a => a.skills))].sort();
-  const educationLevels = [...new Set(mockApplicants.map(a => a.education.highest))].sort();
-  const noticePeriods = [...new Set(mockApplicants.map(a => a.noticePeriod))];
-  const statuses = ['Active', 'Shortlisted', 'Interview', 'Hired', 'On Hold'];
+  // Fetch real candidates from database
+  // Only pass clientId if profile is loaded and has client_id
+  const { applicants: filteredCandidates, loading, totalCount, error } = useApplicants({
+    searchQuery,
+    filters: {
+      experience: experienceRange as [number, number],
+      salary: salaryRange as [number, number],
+      cities: selectedCities,
+      skills: selectedSkills,
+      education: selectedEducation,
+      noticePeriod: selectedNotice,
+      status: selectedStatus,
+    },
+    sortField,
+    sortOrder,
+    page: currentPage,
+    pageSize: itemsPerPage,
+    clientId: profile?.client_id || undefined,
+  });
 
-  // Filter and sort candidates
-  const filteredCandidates = useMemo(() => {
-    let result = [...mockApplicants];
-    
-    // Text search
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      result = result.filter(a => 
-        a.name.toLowerCase().includes(query) ||
-        a.skills.some(s => s.toLowerCase().includes(query)) ||
-        a.designation.toLowerCase().includes(query) ||
-        a.currentCompany.toLowerCase().includes(query) ||
-        a.currentCity.toLowerCase().includes(query)
-      );
-    }
-    
-    // Experience filter
-    result = result.filter(a => 
-      a.experience >= experienceRange[0] && a.experience <= experienceRange[1]
-    );
-    
-    // Salary filter
-    result = result.filter(a => 
-      a.currentCTC >= salaryRange[0] && a.currentCTC <= salaryRange[1]
-    );
-    
-    // City filter
-    if (selectedCities.length > 0) {
-      result = result.filter(a => selectedCities.includes(a.currentCity));
-    }
-    
-    // Skills filter
-    if (selectedSkills.length > 0) {
-      result = result.filter(a => 
-        selectedSkills.some(skill => a.skills.includes(skill))
-      );
-    }
-    
-    // Education filter
-    if (selectedEducation.length > 0) {
-      result = result.filter(a => selectedEducation.includes(a.education.highest));
-    }
-    
-    // Notice period filter
-    if (selectedNotice.length > 0) {
-      result = result.filter(a => selectedNotice.includes(a.noticePeriod));
-    }
-    
-    // Status filter
-    if (selectedStatus.length > 0) {
-      result = result.filter(a => selectedStatus.includes(a.status));
-    }
-    
-    // Sort
-    result.sort((a, b) => {
-      const aVal = a[sortField];
-      const bVal = b[sortField];
-      if (typeof aVal === 'string' && typeof bVal === 'string') {
-        return sortOrder === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
-      }
-      if (typeof aVal === 'number' && typeof bVal === 'number') {
-        return sortOrder === 'asc' ? aVal - bVal : bVal - aVal;
-      }
-      return 0;
-    });
-    
-    return result;
-  }, [searchQuery, experienceRange, salaryRange, selectedCities, selectedSkills, selectedEducation, selectedNotice, selectedStatus, sortField, sortOrder]);
+  // Show error if query fails
+  if (error) {
+    console.error('Error loading candidates:', error);
+  }
 
+  // Get unique values for filters (from all candidates, not just current page)
+  // TODO: Fetch these separately for better performance
+  const cities = [...new Set(filteredCandidates.map(a => a.city || a.city_current_location).filter(Boolean))].sort();
+  const skills = [...new Set(filteredCandidates.flatMap(a => (a.key_skills || '').split(/[,;|]/).map(s => s.trim()).filter(Boolean)))].sort();
+  const educationLevels = [...new Set(filteredCandidates.map(a => a.highest_qualification || a.education_level).filter(Boolean))].sort();
+  const noticePeriods = [...new Set(filteredCandidates.map(a => a.notice_period).filter(Boolean))];
+  const statuses = ['submitted', 'shortlisted', 'interviewed', 'hired', 'rejected'];
+  
   // Pagination
-  const totalPages = Math.ceil(filteredCandidates.length / itemsPerPage);
-  const paginatedCandidates = filteredCandidates.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+  const totalPages = Math.ceil(totalCount / itemsPerPage);
+  const paginatedCandidates = filteredCandidates;
 
   const handleSort = (field: keyof Applicant) => {
     if (sortField === field) {
@@ -584,7 +541,20 @@ const CandidatesPage = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {paginatedCandidates.map((candidate) => (
+                {loading ? (
+                  <TableRow>
+                    <TableCell colSpan={9} className="text-center py-12">
+                      <Loader2 className="h-6 w-6 animate-spin text-primary mx-auto" />
+                    </TableCell>
+                  </TableRow>
+                ) : paginatedCandidates.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={9} className="text-center py-12 text-muted-foreground">
+                      No candidates found
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  paginatedCandidates.map((candidate) => (
                   <TableRow 
                     key={candidate.id} 
                     className="hover:bg-muted/50 cursor-pointer"
@@ -604,36 +574,36 @@ const CandidatesPage = () => {
                           </AvatarFallback>
                         </Avatar>
                         <div>
-                          <p className="font-medium hover:text-primary">{candidate.name}</p>
-                          <p className="text-sm text-muted-foreground">{candidate.designation}</p>
+                          <p className="font-medium hover:text-primary">{candidate.name || 'Unknown'}</p>
+                          <p className="text-sm text-muted-foreground">{candidate.current_designation || candidate.job_role || 'N/A'}</p>
                         </div>
                       </div>
                     </TableCell>
                     <TableCell>
                       <div className="flex flex-wrap gap-1">
-                        {candidate.skills.slice(0, 3).map((skill, i) => (
+                        {(candidate.key_skills || '').split(/[,;|]/).slice(0, 3).map((skill: string, i: number) => (
                           <Badge key={i} variant="secondary" className="text-xs">
                             {skill}
                           </Badge>
                         ))}
-                        {candidate.skills.length > 3 && (
+                        {(candidate.key_skills || '').split(/[,;|]/).filter((s: string) => s.trim()).length > 3 && (
                           <Badge variant="outline" className="text-xs">
-                            +{candidate.skills.length - 3}
+                            +{(candidate.key_skills || '').split(/[,;|]/).filter((s: string) => s.trim()).length - 3}
                           </Badge>
                         )}
                       </div>
                     </TableCell>
-                    <TableCell>{candidate.currentCity}</TableCell>
-                    <TableCell>{candidate.experience} yrs</TableCell>
+                    <TableCell>{candidate.city || candidate.city_current_location || 'N/A'}</TableCell>
+                    <TableCell>{candidate.total_experience_numbers || candidate.total_experience || '0'} yrs</TableCell>
                     <TableCell>
-                      <Badge variant="outline">₹{candidate.currentCTC} LPA</Badge>
+                      <Badge variant="outline">₹{candidate.current_ctc || 'N/A'} LPA</Badge>
                     </TableCell>
                     <TableCell>
                       <Badge 
-                        variant={candidate.noticePeriod === 'Immediate' ? 'default' : 'secondary'}
+                        variant={candidate.notice_period === 'Immediate' ? 'default' : 'secondary'}
                         className="text-xs"
                       >
-                        {candidate.noticePeriod}
+                        {candidate.notice_period || 'N/A'}
                       </Badge>
                     </TableCell>
                     <TableCell onClick={(e) => e.stopPropagation()}>
@@ -665,7 +635,8 @@ const CandidatesPage = () => {
                       </DropdownMenu>
                     </TableCell>
                   </TableRow>
-                ))}
+                  ))
+                )}
               </TableBody>
             </Table>
           </div>

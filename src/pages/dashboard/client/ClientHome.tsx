@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -8,9 +8,12 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { 
   Users, Star, Download, Search, Folder, Eye, 
   TrendingUp, Clock, FileText, ArrowRight, Briefcase,
-  Calendar, BarChart3, Target
+  Calendar, BarChart3, Target, Loader2
 } from "lucide-react";
-import { mockApplicants } from "@/data/mockApplicants";
+import { useApplicants } from "@/hooks/useApplicants";
+import { getClientDashboardStats } from "@/services/dashboardService";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/lib/supabase";
 import {
   AreaChart,
   Area,
@@ -26,21 +29,43 @@ import {
 
 const ClientHome = () => {
   const navigate = useNavigate();
+  const { profile } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [locationQuery, setLocationQuery] = useState("");
+  const [stats, setStats] = useState({ totalCandidates: 0, shortlisted: 0, favorites: 0, availableCandidates: 0 });
+  const [loading, setLoading] = useState(true);
 
-  // Calculate real stats from mock data
-  const totalCandidates = mockApplicants.length;
-  const shortlistedCount = mockApplicants.filter(a => a.status === 'Shortlisted').length;
-  const favoritesCount = mockApplicants.filter(a => a.isFavorite).length;
-  
-  // Recent candidates
-  const recentCandidates = mockApplicants.slice(0, 5);
+  // Fetch recent candidates (limited to 5)
+  // Only pass clientId if profile is loaded
+  const { applicants: recentCandidates, loading: candidatesLoading } = useApplicants({
+    page: 1,
+    pageSize: 5,
+    clientId: profile?.client_id || undefined,
+  });
 
-  // Skills distribution
+  // Fetch stats
+  useEffect(() => {
+    async function fetchStats() {
+      try {
+        setLoading(true);
+        const clientStats = await getClientDashboardStats(profile?.client_id);
+        setStats(clientStats);
+      } catch (error) {
+        console.error('Error fetching client stats:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    if (profile?.client_id) {
+      fetchStats();
+    }
+  }, [profile?.client_id]);
+
+  // Skills distribution from recent candidates
   const skillsCount: Record<string, number> = {};
-  mockApplicants.forEach(a => {
-    a.skills.forEach(skill => {
+  recentCandidates.forEach(a => {
+    const skills = (a.key_skills || '').split(/[,;|]/).map(s => s.trim()).filter(s => s.length > 0);
+    skills.forEach(skill => {
       skillsCount[skill] = (skillsCount[skill] || 0) + 1;
     });
   });
@@ -48,14 +73,14 @@ const ClientHome = () => {
     .sort((a, b) => b[1] - a[1])
     .slice(0, 5);
 
-  // Chart data
+  // Chart data - simplified for now
   const trendData = [
-    { month: 'Jan', candidates: 120 },
-    { month: 'Feb', candidates: 145 },
-    { month: 'Mar', candidates: 178 },
-    { month: 'Apr', candidates: 210 },
-    { month: 'May', candidates: 245 },
-    { month: 'Jun', candidates: 289 },
+    { month: 'Jan', candidates: 0 },
+    { month: 'Feb', candidates: 0 },
+    { month: 'Mar', candidates: 0 },
+    { month: 'Apr', candidates: 0 },
+    { month: 'May', candidates: 0 },
+    { month: 'Jun', candidates: stats.totalCandidates },
   ];
 
   const skillsPieData = topSkills.map(([skill, count]) => ({
@@ -72,7 +97,7 @@ const ClientHome = () => {
     navigate(`/dashboard/client/candidates?${params.toString()}`);
   };
 
-  const handleViewProfile = (id: number) => {
+  const handleViewProfile = (id: string) => {
     navigate(`/dashboard/client/candidates/${id}`);
   };
 
@@ -91,13 +116,18 @@ const ClientHome = () => {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="shadow-sm hover:shadow-md transition-shadow cursor-pointer" onClick={() => navigate('/dashboard/client/candidates')}>
+      {loading ? (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Card className="shadow-sm hover:shadow-md transition-shadow cursor-pointer" onClick={() => navigate('/dashboard/client/candidates')}>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Available Candidates</p>
-                <p className="text-3xl font-bold mt-1">{totalCandidates}</p>
+                <p className="text-3xl font-bold mt-1">{stats.totalCandidates}</p>
                 <div className="flex items-center gap-1 mt-1">
                   <TrendingUp className="h-3 w-3 text-success" />
                   <span className="text-xs text-success">+12% this month</span>
@@ -115,8 +145,8 @@ const ClientHome = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">My Shortlists</p>
-                <p className="text-3xl font-bold mt-1">3</p>
-                <p className="text-xs text-muted-foreground mt-1">{shortlistedCount} candidates total</p>
+                <p className="text-3xl font-bold mt-1">{stats.shortlisted}</p>
+                <p className="text-xs text-muted-foreground mt-1">{stats.shortlisted} candidates total</p>
               </div>
               <div className="h-12 w-12 rounded-lg bg-info/10 flex items-center justify-center">
                 <Folder className="h-6 w-6 text-info" />
@@ -130,7 +160,7 @@ const ClientHome = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">My Favorites</p>
-                <p className="text-3xl font-bold mt-1">{favoritesCount}</p>
+                <p className="text-3xl font-bold mt-1">{stats.favorites}</p>
                 <p className="text-xs text-muted-foreground mt-1">Saved for review</p>
               </div>
               <div className="h-12 w-12 rounded-lg bg-warning/10 flex items-center justify-center">
@@ -154,7 +184,8 @@ const ClientHome = () => {
             </div>
           </CardContent>
         </Card>
-      </div>
+        </div>
+      )}
 
       {/* Quick Search */}
       <Card className="shadow-sm">
@@ -314,24 +345,30 @@ const ClientHome = () => {
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <p className="font-medium">{candidate.name}</p>
+                    <p className="font-medium">{candidate.name || 'Unknown'}</p>
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <span>{candidate.designation}</span>
-                      <span>•</span>
-                      <span>{candidate.currentCity}</span>
-                      <span>•</span>
-                      <span>{candidate.experience} yrs exp</span>
+                      {candidate.current_designation && <span>{candidate.current_designation}</span>}
+                      {candidate.current_designation && candidate.city && <span>•</span>}
+                      {candidate.city && <span>{candidate.city}</span>}
+                      {candidate.total_experience_numbers && (
+                        <>
+                          {(candidate.current_designation || candidate.city) && <span>•</span>}
+                          <span>{candidate.total_experience_numbers} yrs exp</span>
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="flex gap-1">
-                    {candidate.skills.slice(0, 3).map((skill, i) => (
-                      <Badge key={i} variant="secondary" className="text-xs">
-                        {skill}
-                      </Badge>
-                    ))}
-                  </div>
+                  {candidate.key_skills && (
+                    <div className="flex gap-1">
+                      {candidate.key_skills.split(/[,;|]/).slice(0, 3).map((skill: string, i: number) => (
+                        <Badge key={i} variant="secondary" className="text-xs">
+                          {skill.trim()}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
                   <Button variant="ghost" size="icon">
                     <Eye className="h-4 w-4" />
                   </Button>

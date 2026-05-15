@@ -38,54 +38,56 @@ const ProfileSection = ({
 
   return (
     <Card id={id} className="overflow-hidden scroll-mt-6">
-      <CardHeader 
-        className="cursor-pointer hover:bg-muted/50 transition-colors"
+      <CardHeader
+        className="cursor-pointer hover:bg-muted/50 transition-colors py-3 px-4"
         onClick={() => setIsExpanded(!isExpanded)}
       >
         <div className="flex items-center justify-between">
-          <CardTitle className="text-lg flex items-center gap-3">
-            <span className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+          <CardTitle className="text-sm font-semibold flex items-center gap-2.5">
+            <span className="h-7 w-7 rounded-md bg-primary/10 flex items-center justify-center text-primary flex-shrink-0">
               {icon}
             </span>
             <span>{title}</span>
             {badge && (
-              <span className="text-xs px-2 py-0.5 bg-primary/10 text-primary rounded-full">
+              <span className="text-[10px] px-1.5 py-0.5 bg-primary/10 text-primary rounded-full font-normal">
                 {badge}
               </span>
             )}
           </CardTitle>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             {canAdd && (
-              <Button 
-                variant="ghost" 
+              <Button
+                variant="ghost"
                 size="sm"
+                className="h-7 text-xs"
                 onClick={(e) => { e.stopPropagation(); onAdd?.(); }}
               >
-                <Plus className="h-4 w-4 mr-1" />
+                <Plus className="h-3.5 w-3.5 mr-1" />
                 Add
               </Button>
             )}
             {canEdit && !isEmpty && (
-              <Button 
-                variant="ghost" 
+              <Button
+                variant="ghost"
                 size="sm"
+                className="h-7 text-xs"
                 onClick={(e) => { e.stopPropagation(); onEdit?.(); }}
               >
-                <Edit className="h-4 w-4 mr-1" />
+                <Edit className="h-3.5 w-3.5 mr-1" />
                 Edit
               </Button>
             )}
-            <Button variant="ghost" size="icon" className="h-8 w-8">
+            <Button variant="ghost" size="icon" className="h-7 w-7">
               {isExpanded ? (
-                <ChevronUp className="h-4 w-4" />
+                <ChevronUp className="h-3.5 w-3.5" />
               ) : (
-                <ChevronDown className="h-4 w-4" />
+                <ChevronDown className="h-3.5 w-3.5" />
               )}
             </Button>
           </div>
         </div>
       </CardHeader>
-      
+
       <AnimatePresence initial={false}>
         {isExpanded && (
           <motion.div
@@ -94,13 +96,13 @@ const ProfileSection = ({
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
           >
-            <CardContent className="pt-0">
+            <CardContent className="pt-0 px-4 pb-4">
               {isEmpty ? (
-                <div className="py-8 text-center text-muted-foreground">
-                  <p>{emptyMessage}</p>
+                <div className="py-6 text-center text-muted-foreground">
+                  <p className="text-sm">{emptyMessage}</p>
                   {canAdd && (
-                    <Button variant="outline" className="mt-4" onClick={onAdd}>
-                      <Plus className="h-4 w-4 mr-2" />
+                    <Button variant="outline" size="sm" className="mt-3 h-8 text-xs" onClick={onAdd}>
+                      <Plus className="h-3.5 w-3.5 mr-1.5" />
                       Add {title}
                     </Button>
                   )}

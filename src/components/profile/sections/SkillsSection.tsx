@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -22,7 +22,11 @@ const SkillsSection = ({ skills, viewMode, onUpdateSkills }: SkillsSectionProps)
   const [newSkill, setNewSkill] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
   const maxSkillsLength = 250;
-  
+
+  useEffect(() => {
+    setCurrentSkills(skills);
+  }, [skills]);
+
   const totalChars = currentSkills.join(", ").length;
   const canEdit = viewMode !== 'client';
 
@@ -57,31 +61,37 @@ const SkillsSection = ({ skills, viewMode, onUpdateSkills }: SkillsSectionProps)
 
   const availableSuggestions = suggestedSkills.filter(s => !currentSkills.includes(s));
 
+  if (currentSkills.length === 0 && !canEdit) {
+    return (
+      <div className="text-center py-4 text-sm text-muted-foreground">
+        No skills added yet
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-4">
-      {/* Character Counter */}
+    <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">
-          Add your key skills to help recruiters find you
+        <p className="text-xs text-muted-foreground">
+          {currentSkills.length > 0 ? `${currentSkills.length} skills added` : 'Add your key skills to help recruiters find you'}
         </p>
-        <span className={`text-xs px-2 py-1 rounded ${
+        <span className={`text-[10px] px-1.5 py-0.5 rounded ${
           totalChars >= maxSkillsLength ? 'bg-destructive/10 text-destructive' : 'bg-muted'
         }`}>
-          {totalChars}/{maxSkillsLength} characters
+          {totalChars}/{maxSkillsLength}
         </span>
       </div>
 
-      {/* Skills Tags */}
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-1.5">
         {currentSkills.map((skill, index) => (
-          <Badge 
-            key={index} 
-            variant="secondary" 
-            className="px-3 py-1.5 text-sm flex items-center gap-2 group"
+          <Badge
+            key={index}
+            variant="secondary"
+            className="px-2 py-1 text-xs flex items-center gap-1.5 group"
           >
             {skill}
             {canEdit && (
-              <button 
+              <button
                 onClick={() => handleRemoveSkill(skill)}
                 className="opacity-0 group-hover:opacity-100 transition-opacity"
               >
@@ -92,9 +102,8 @@ const SkillsSection = ({ skills, viewMode, onUpdateSkills }: SkillsSectionProps)
         ))}
       </div>
 
-      {/* Add Skill Input */}
       {canEdit && (
-        <div className="flex gap-2">
+        <div className="flex gap-1.5">
           <Input
             placeholder="Type a skill and press Enter..."
             value={newSkill}
@@ -105,35 +114,34 @@ const SkillsSection = ({ skills, viewMode, onUpdateSkills }: SkillsSectionProps)
                 handleAddSkill(newSkill);
               }
             }}
-            className="flex-1"
+            className="flex-1 h-8 text-sm"
           />
-          <Button variant="outline" onClick={() => handleAddSkill(newSkill)}>
-            <Plus className="h-4 w-4 mr-2" />
+          <Button variant="outline" size="sm" className="h-8 text-xs" onClick={() => handleAddSkill(newSkill)}>
+            <Plus className="h-3.5 w-3.5 mr-1" />
             Add
           </Button>
-          <Button variant="outline" onClick={handleAISuggest}>
-            <Sparkles className="h-4 w-4 mr-2" />
+          <Button variant="outline" size="sm" className="h-8 text-xs" onClick={handleAISuggest}>
+            <Sparkles className="h-3.5 w-3.5 mr-1" />
             AI Suggest
           </Button>
         </div>
       )}
 
-      {/* Skill Suggestions */}
       {showSuggestions && canEdit && availableSuggestions.length > 0 && (
-        <div className="p-4 bg-primary/5 rounded-lg border border-primary/10">
-          <div className="flex items-center gap-2 mb-3">
-            <Lightbulb className="h-4 w-4 text-primary" />
-            <span className="text-sm font-medium">Suggested Skills</span>
+        <div className="p-3 bg-primary/5 rounded-lg border border-primary/10">
+          <div className="flex items-center gap-1.5 mb-2">
+            <Lightbulb className="h-3.5 w-3.5 text-primary" />
+            <span className="text-xs font-medium">Suggested Skills</span>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-1.5">
             {availableSuggestions.slice(0, 8).map((skill, index) => (
-              <Badge 
+              <Badge
                 key={index}
                 variant="outline"
-                className="px-3 py-1.5 cursor-pointer hover:bg-primary/10 transition-colors"
+                className="px-2 py-1 text-xs cursor-pointer hover:bg-primary/10 transition-colors"
                 onClick={() => handleAddSkill(skill)}
               >
-                <Plus className="h-3 w-3 mr-1" />
+                <Plus className="h-3 w-3 mr-0.5" />
                 {skill}
               </Badge>
             ))}

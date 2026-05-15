@@ -4,10 +4,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Link, useNavigate } from "react-router-dom";
-import { Building2, ArrowLeft, Eye, EyeOff, Shield, UserPlus, User, FileText } from "lucide-react";
+import { Building2, ArrowLeft, Eye, EyeOff, Shield, UserPlus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/lib/supabase";
 
 const ClientLogin = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -16,7 +15,7 @@ const ClientLogin = () => {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { signIn, profile, refreshProfile, signOut } = useAuth();
+  const { signIn, refreshProfile } = useAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,111 +25,84 @@ const ClientLogin = () => {
       const result = await signIn(email, password);
 
       if (result.error) {
-        toast({
-          title: "Login failed",
-          description: result.error.message || "Invalid credentials",
-          variant: "destructive",
-        });
+        toast({ title: "Login failed", description: result.error.message || "Invalid credentials", variant: "destructive" });
         setIsLoading(false);
         return;
       }
 
-      // Login successful - wait for profile and verify role
-      toast({
-        title: "Success",
-        description: "Login successful!",
-      });
-      
-      // Wait for profile to load
       let updatedProfile = await refreshProfile();
-      
-      // If profile not loaded, wait a bit and try again
       if (!updatedProfile) {
         await new Promise(resolve => setTimeout(resolve, 1000));
         updatedProfile = await refreshProfile();
       }
-      
-      // Verify role before navigation
+
       if (!updatedProfile) {
-        toast({
-          title: "Error",
-          description: "Profile not found. Please contact support.",
-          variant: "destructive",
-        });
+        toast({ title: "Error", description: "Profile not found. Please contact support.", variant: "destructive" });
         setIsLoading(false);
         return;
       }
-      
+
       if (updatedProfile.role !== 'client') {
-        toast({
-          title: "Access Denied",
-          description: `This account has role "${updatedProfile.role}" but client access is required. Please use the correct login page.`,
-          variant: "destructive",
-        });
+        toast({ title: "Access Denied", description: `This account has role "${updatedProfile.role}" but client access is required.`, variant: "destructive" });
         setIsLoading(false);
         return;
       }
-      
-      // Role verified, navigate to client dashboard
+
+      toast({ title: "Welcome back!", description: "Redirecting to client dashboard..." });
       navigate("/dashboard/client");
       setIsLoading(false);
     } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message || "An error occurred",
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: error.message || "An error occurred", variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-subtle flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        {/* Back Button */}
-        <Button variant="ghost" asChild className="mb-4">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <div className="w-full max-w-[420px]">
+        <Button variant="ghost" size="sm" asChild className="mb-6 text-muted-foreground">
           <Link to="/">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Home
           </Link>
         </Button>
 
-        <Card className="shadow-xl">
-          <CardHeader className="space-y-1 text-center">
-            <div className="flex flex-col items-center justify-center mb-4 gap-1">
+        <Card className="border shadow-lg">
+          <CardHeader className="space-y-4 text-center pb-2">
+            <div className="flex flex-col items-center gap-2">
               <img src="/ellure-logo.png" alt="Ellure NexHire" className="h-14 w-auto object-contain" />
-              <div className="flex flex-col items-center leading-none">
-                <span className="text-base font-bold" style={{ color: '#3d4853' }}>Ellure</span>
-                <span className="text-base font-bold -mt-2" style={{ color: '#0566cd' }}>NexHire</span>
+              <div className="flex flex-col items-center leading-tight">
+                <span className="text-base font-bold text-foreground">Ellure</span>
+                <span className="text-base font-bold text-primary -mt-0.5">NexHire</span>
               </div>
             </div>
-            <CardTitle className="text-2xl">Client Portal</CardTitle>
-            <CardDescription>
-              Access your talent pool and manage shortlists
-            </CardDescription>
+            <div>
+              <CardTitle className="text-xl">Client Portal</CardTitle>
+              <CardDescription className="mt-1">
+                Access your talent pool and manage shortlists
+              </CardDescription>
+            </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-2">
             <form onSubmit={handleLogin} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="client-email">Client Email</Label>
+                <Label htmlFor="client-email" className="text-sm">Client Email</Label>
                 <Input
                   id="client-email"
                   type="email"
-                  placeholder="client+company@ellureconsulting.com"
+                  placeholder="you@company.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  className="h-10"
                   required
                 />
               </div>
-              
+
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="client-password">Password</Label>
-                  <Link
-                    to="/auth/forgot-password"
-                    className="text-xs text-primary hover:underline"
-                  >
+                  <Label htmlFor="client-password" className="text-sm">Password</Label>
+                  <Link to="/auth/forgot-password" className="text-xs text-primary hover:underline">
                     Forgot password?
                   </Link>
                 </div>
@@ -138,9 +110,10 @@ const ClientLogin = () => {
                   <Input
                     id="client-password"
                     type={showPassword ? "text" : "password"}
-                    placeholder="••••••••"
+                    placeholder="Enter your password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    className="h-10 pr-10"
                     required
                   />
                   <Button
@@ -150,77 +123,52 @@ const ClientLogin = () => {
                     className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
                     onClick={() => setShowPassword(!showPassword)}
                   >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4 text-muted-foreground" />
-                    ) : (
-                      <Eye className="h-4 w-4 text-muted-foreground" />
-                    )}
+                    {showPassword ? <EyeOff className="h-4 w-4 text-muted-foreground" /> : <Eye className="h-4 w-4 text-muted-foreground" />}
                   </Button>
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  Demo: client.infosys@ellureconsulting.com / client@123
-                </p>
               </div>
 
-              <Button type="submit" className="w-full" disabled={isLoading}>
+              <Button type="submit" className="w-full h-10" disabled={isLoading}>
                 {isLoading ? "Signing in..." : "Sign In"}
               </Button>
             </form>
 
-            <div className="mt-6 p-4 bg-info/5 border border-info/20 rounded-lg">
-              <div className="flex items-start gap-3">
-                <Building2 className="h-5 w-5 text-info mt-0.5" />
-                <div className="space-y-1">
-                  <p className="text-sm font-medium">Client Access</p>
-                  <ul className="text-xs text-muted-foreground space-y-1">
-                    <li>• View and search applicants</li>
-                    <li>• Create and manage shortlists</li>
-                    <li>• Export candidate data</li>
-                    <li>• Track recruitment progress</li>
+            <div className="mt-5 p-3 bg-muted/50 rounded-lg">
+              <div className="flex items-start gap-2.5">
+                <Building2 className="h-4 w-4 text-info mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="text-xs font-medium">Client Access Includes</p>
+                  <ul className="text-[11px] text-muted-foreground mt-1 space-y-0.5">
+                    <li>Search and view candidate profiles</li>
+                    <li>Create and manage shortlists</li>
+                    <li>Export candidate data</li>
                   </ul>
                 </div>
               </div>
             </div>
 
-            <div className="mt-6 text-center text-sm">
-              <span className="text-muted-foreground">
-                Don't have a client account?{" "}
-              </span>
-              <Link to="/contact" className="text-primary hover:underline">
-                Contact sales
+            <div className="mt-5 pt-5 border-t text-center">
+              <span className="text-sm text-muted-foreground">Don't have a client account? </span>
+              <Link to="/client/auth/signup" className="text-sm text-primary hover:underline font-medium">
+                Sign up here
               </Link>
             </div>
           </CardContent>
         </Card>
 
-        {/* Navigation Buttons */}
         <div className="mt-6 space-y-2">
-          <div className="text-center text-sm font-medium text-muted-foreground mb-3">
-            Quick Access
-          </div>
-          <div className="grid grid-cols-1 gap-2">
-            <Button variant="outline" className="w-full justify-start" asChild>
-              <Link to="/dashboard/applicant">
-                <User className="mr-2 h-4 w-4" />
-                Applicant Dashboard
+          <p className="text-center text-xs font-medium text-muted-foreground mb-3">Other Portals</p>
+          <div className="grid grid-cols-2 gap-2">
+            <Button variant="outline" size="sm" className="w-full justify-start h-9 text-xs" asChild>
+              <Link to="/auth/applicant">
+                <UserPlus className="mr-2 h-3.5 w-3.5" />
+                Applicant Login
               </Link>
             </Button>
-            <Button variant="outline" className="w-full justify-start" asChild>
-              <Link to="/dashboard/applicant/profile">
-                <FileText className="mr-2 h-4 w-4" />
-                Applicant Profile
-              </Link>
-            </Button>
-            <Button variant="outline" className="w-full justify-start" asChild>
-              <Link to="/dashboard/admin">
-                <Shield className="mr-2 h-4 w-4" />
-                Admin Dashboard
-              </Link>
-            </Button>
-            <Button variant="outline" className="w-full justify-start" asChild>
-              <Link to="/auth/applicant-register/step-1">
-                <UserPlus className="mr-2 h-4 w-4" />
-                User Registration
+            <Button variant="outline" size="sm" className="w-full justify-start h-9 text-xs" asChild>
+              <Link to="/admin/auth/login">
+                <Shield className="mr-2 h-3.5 w-3.5" />
+                Admin Login
               </Link>
             </Button>
           </div>

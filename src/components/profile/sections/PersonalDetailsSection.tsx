@@ -15,72 +15,86 @@ interface PersonalDetailsSectionProps {
   viewMode: 'applicant' | 'admin' | 'client';
 }
 
-const PersonalDetailsSection = ({ details, viewMode }: PersonalDetailsSectionProps) => {
+const PersonalDetailsSection = ({ details }: PersonalDetailsSectionProps) => {
+  const hasAnyData = details.dateOfBirth || details.gender || details.maritalStatus ||
+    (details.languages && details.languages.length > 0) || details.address || details.homeTown;
+
+  if (!hasAnyData) {
+    return (
+      <div className="text-center py-4 text-sm text-muted-foreground">
+        No personal details added yet.
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-4">
-      {/* Privacy Notice */}
-      <div className="flex items-center gap-2 p-3 bg-yellow-500/10 rounded-lg text-sm text-yellow-700">
-        <ShieldAlert className="h-4 w-4 flex-shrink-0" />
+    <div className="space-y-3">
+      <div className="flex items-center gap-1.5 p-2 bg-yellow-500/10 rounded-md text-xs text-yellow-700">
+        <ShieldAlert className="h-3.5 w-3.5 flex-shrink-0" />
         <span>This information is private and only visible to authorized personnel.</span>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-6">
-        <div className="space-y-3">
-          <div className="flex items-center gap-3 py-2 border-b">
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-            <div className="flex-1">
-              <span className="text-muted-foreground text-sm">Date of Birth</span>
+      <div className="grid md:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          {details.dateOfBirth && (
+            <div className="flex items-center gap-2.5 py-1.5 border-b">
+              <Calendar className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+              <span className="text-xs text-muted-foreground flex-1">Date of Birth</span>
+              <span className="font-medium text-xs">{details.dateOfBirth}</span>
             </div>
-            <span className="font-medium text-sm">{details.dateOfBirth || '—'}</span>
-          </div>
-          
-          <div className="flex items-center gap-3 py-2 border-b">
-            <User className="h-4 w-4 text-muted-foreground" />
-            <div className="flex-1">
-              <span className="text-muted-foreground text-sm">Gender</span>
+          )}
+
+          {details.gender && (
+            <div className="flex items-center gap-2.5 py-1.5 border-b">
+              <User className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+              <span className="text-xs text-muted-foreground flex-1">Gender</span>
+              <span className="font-medium text-xs">{details.gender}</span>
             </div>
-            <span className="font-medium text-sm">{details.gender || '—'}</span>
-          </div>
-          
-          <div className="flex items-center gap-3 py-2 border-b">
-            <Heart className="h-4 w-4 text-muted-foreground" />
-            <div className="flex-1">
-              <span className="text-muted-foreground text-sm">Marital Status</span>
+          )}
+
+          {details.maritalStatus && (
+            <div className="flex items-center gap-2.5 py-1.5 border-b">
+              <Heart className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+              <span className="text-xs text-muted-foreground flex-1">Marital Status</span>
+              <span className="font-medium text-xs">{details.maritalStatus}</span>
             </div>
-            <span className="font-medium text-sm">{details.maritalStatus || '—'}</span>
-          </div>
+          )}
         </div>
 
-        <div className="space-y-3">
-          <div className="py-2 border-b">
-            <div className="flex items-center gap-3 mb-2">
-              <Globe className="h-4 w-4 text-muted-foreground" />
-              <span className="text-muted-foreground text-sm">Languages Known</span>
+        <div className="space-y-2">
+          {details.languages && details.languages.length > 0 && (
+            <div className="py-1.5 border-b">
+              <div className="flex items-center gap-2.5 mb-1.5">
+                <Globe className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+                <span className="text-xs text-muted-foreground">Languages Known</span>
+              </div>
+              <div className="flex flex-wrap gap-1 pl-6">
+                {details.languages.map((lang, index) => (
+                  <Badge key={index} variant="secondary" className="text-[10px]">
+                    {lang}
+                  </Badge>
+                ))}
+              </div>
             </div>
-            <div className="flex flex-wrap gap-1 pl-7">
-              {details.languages?.map((lang, index) => (
-                <Badge key={index} variant="secondary" className="text-xs">
-                  {lang}
-                </Badge>
-              )) || <span className="text-sm">—</span>}
+          )}
+
+          {details.homeTown && (
+            <div className="flex items-center gap-2.5 py-1.5 border-b">
+              <Home className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+              <span className="text-xs text-muted-foreground flex-1">Home Town</span>
+              <span className="font-medium text-xs">{details.homeTown}</span>
             </div>
-          </div>
-          
-          <div className="flex items-center gap-3 py-2 border-b">
-            <Home className="h-4 w-4 text-muted-foreground" />
-            <div className="flex-1">
-              <span className="text-muted-foreground text-sm">Home Town</span>
+          )}
+
+          {details.address && (
+            <div className="py-1.5 border-b">
+              <div className="flex items-center gap-2.5 mb-1.5">
+                <MapPin className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+                <span className="text-xs text-muted-foreground">Address</span>
+              </div>
+              <p className="text-xs pl-6">{details.address}</p>
             </div>
-            <span className="font-medium text-sm">{details.homeTown || '—'}</span>
-          </div>
-          
-          <div className="py-2 border-b">
-            <div className="flex items-center gap-3 mb-2">
-              <MapPin className="h-4 w-4 text-muted-foreground" />
-              <span className="text-muted-foreground text-sm">Address</span>
-            </div>
-            <p className="text-sm pl-7">{details.address || '—'}</p>
-          </div>
+          )}
         </div>
       </div>
     </div>

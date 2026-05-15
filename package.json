@@ -9,6 +9,7 @@
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
+    "analyze-excel": "node scripts/analyzeExcelFiles.js",
     "data:inspect": "node scripts/inspectExcelFiles.js",
     "data:compare": "node scripts/compareWithDatabase.js",
     "data:import": "node scripts/importApplicantData.js",

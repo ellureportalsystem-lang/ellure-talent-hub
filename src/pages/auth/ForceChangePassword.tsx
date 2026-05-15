@@ -118,7 +118,7 @@ const ForceChangePassword = () => {
       } else if (role === 'client') {
         navigate("/dashboard/client");
       } else {
-        navigate("/dashboard/applicant");
+        navigate("/dashboard/applicant/profile");
       }
     } catch (error: any) {
       toast({

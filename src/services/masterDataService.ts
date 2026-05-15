@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase';
+import indianStatesCities from '@/data/indianStatesCities.json';
 
 // Master Data Types
 export interface State {
@@ -52,7 +53,30 @@ export interface Course {
   is_verified?: boolean;
 }
 
-// Fetch all states
+// Fallback when states table is empty: use Indian states/cities JSON
+const statesFallback = (): State[] =>
+  (indianStatesCities as { states: { name: string; cities: string[] }[] }).states.map((s, i) => ({
+    id: s.name,
+    name: s.name,
+    code: undefined,
+    is_verified: undefined,
+  }));
+
+const citiesFallback = (stateId: string): City[] => {
+  const states = (indianStatesCities as { states: { name: string; cities: string[] }[] }).states;
+  const state = states.find((s) => s.name === stateId);
+  if (!state) return [];
+  return state.cities.map((name) => ({
+    id: name,
+    name,
+    state_id: stateId,
+    district_id: undefined,
+    is_verified: undefined,
+    city_type: undefined,
+  }));
+};
+
+// Fetch all states (with fallback to JSON when table is empty)
 export const fetchStates = async (): Promise<State[]> => {
   try {
     const { data, error } = await supabase
@@ -61,10 +85,11 @@ export const fetchStates = async (): Promise<State[]> => {
       .order('name');
 
     if (error) throw error;
-    return data || [];
+    if (data && data.length > 0) return data;
+    return statesFallback();
   } catch (error) {
     console.error('Error fetching states:', error);
-    return [];
+    return statesFallback();
   }
 };
 
@@ -85,7 +110,7 @@ export const fetchDistricts = async (stateId: string): Promise<District[]> => {
   }
 };
 
-// Fetch cities by state or district
+// Fetch cities by state or district (with fallback to JSON when table is empty)
 export const fetchCities = async (stateId?: string, districtId?: string): Promise<City[]> => {
   try {
     let query = supabase
@@ -102,9 +127,12 @@ export const fetchCities = async (stateId?: string, districtId?: string): Promis
     const { data, error } = await query;
 
     if (error) throw error;
-    return data || [];
+    if (data && data.length > 0) return data;
+    if (stateId) return citiesFallback(stateId);
+    return [];
   } catch (error) {
     console.error('Error fetching cities:', error);
+    if (stateId) return citiesFallback(stateId);
     return [];
   }
 };

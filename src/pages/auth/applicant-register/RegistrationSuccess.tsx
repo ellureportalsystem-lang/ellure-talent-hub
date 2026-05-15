@@ -32,7 +32,7 @@ const RegistrationSuccess = () => {
           setIsLoading(false);
           // Redirect to profile after 2 seconds
           setTimeout(() => {
-            navigate("/dashboard/profile");
+            navigate("/dashboard/applicant/profile");
           }, 2000);
           return;
         }
@@ -163,7 +163,7 @@ const RegistrationSuccess = () => {
           {/* Action Buttons */}
           {!isLoading && (
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Link to="/dashboard/profile">
+              <Link to="/dashboard/applicant/profile">
                 <Button size="lg" className="w-full sm:w-auto">
                   <User className="mr-2 h-4 w-4" />
                   View My Profile

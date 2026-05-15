@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import { Building, MapPin, IndianRupee, Briefcase, Target, Globe } from "lucide-react";
+import { Building, MapPin, IndianRupee, Target } from "lucide-react";
 
 interface CareerProfile {
   currentIndustry?: string;
@@ -17,96 +17,123 @@ interface CareerProfileSectionProps {
   viewMode: 'applicant' | 'admin' | 'client';
 }
 
-const CareerProfileSection = ({ career, viewMode }: CareerProfileSectionProps) => {
+const CareerProfileSection = ({ career }: CareerProfileSectionProps) => {
+  const hasIndustryData = career.currentIndustry || career.preferredIndustry || career.functionalArea;
+  const hasRoleData = career.preferredRole || (career.desiredJobType && career.desiredJobType.length > 0);
+  const hasLocationData = (career.preferredLocations && career.preferredLocations.length > 0);
+  const hasSalaryData = career.expectedSalary && career.expectedSalary > 0;
+
+  if (!hasIndustryData && !hasRoleData && !hasLocationData && !hasSalaryData) {
+    return (
+      <div className="text-center py-4 text-sm text-muted-foreground">
+        No career preferences added yet. Complete this section to help us match you better.
+      </div>
+    );
+  }
+
   return (
-    <div className="grid md:grid-cols-2 gap-6">
-      {/* Industry Preferences */}
-      <div className="space-y-4">
-        <h4 className="font-semibold flex items-center gap-2">
-          <Building className="h-4 w-4 text-primary" />
-          Industry Preferences
-        </h4>
+    <div className="grid md:grid-cols-2 gap-5">
+      {hasIndustryData && (
         <div className="space-y-3">
-          <div className="flex justify-between py-2 border-b">
-            <span className="text-muted-foreground text-sm">Current Industry</span>
-            <span className="font-medium text-sm">{career.currentIndustry || '—'}</span>
-          </div>
-          <div className="flex justify-between py-2 border-b">
-            <span className="text-muted-foreground text-sm">Preferred Industry</span>
-            <span className="font-medium text-sm">{career.preferredIndustry || '—'}</span>
-          </div>
-          <div className="flex justify-between py-2 border-b">
-            <span className="text-muted-foreground text-sm">Functional Area</span>
-            <span className="font-medium text-sm">{career.functionalArea || '—'}</span>
+          <h4 className="text-xs font-semibold flex items-center gap-1.5 text-muted-foreground uppercase tracking-wide">
+            <Building className="h-3.5 w-3.5 text-primary" />
+            Industry Preferences
+          </h4>
+          <div className="space-y-2">
+            {career.currentIndustry && (
+              <div className="flex justify-between py-1.5 border-b text-sm">
+                <span className="text-muted-foreground">Current Industry</span>
+                <span className="font-medium">{career.currentIndustry}</span>
+              </div>
+            )}
+            {career.preferredIndustry && (
+              <div className="flex justify-between py-1.5 border-b text-sm">
+                <span className="text-muted-foreground">Preferred Industry</span>
+                <span className="font-medium">{career.preferredIndustry}</span>
+              </div>
+            )}
+            {career.functionalArea && (
+              <div className="flex justify-between py-1.5 border-b text-sm">
+                <span className="text-muted-foreground">Functional Area</span>
+                <span className="font-medium text-right max-w-[60%]">{career.functionalArea}</span>
+              </div>
+            )}
           </div>
         </div>
-      </div>
+      )}
 
-      {/* Role Preferences */}
-      <div className="space-y-4">
-        <h4 className="font-semibold flex items-center gap-2">
-          <Target className="h-4 w-4 text-primary" />
-          Role Preferences
-        </h4>
+      {hasRoleData && (
         <div className="space-y-3">
-          <div className="flex justify-between py-2 border-b">
-            <span className="text-muted-foreground text-sm">Preferred Role</span>
-            <span className="font-medium text-sm">{career.preferredRole || '—'}</span>
+          <h4 className="text-xs font-semibold flex items-center gap-1.5 text-muted-foreground uppercase tracking-wide">
+            <Target className="h-3.5 w-3.5 text-primary" />
+            Role Preferences
+          </h4>
+          <div className="space-y-2">
+            {career.preferredRole && (
+              <div className="flex justify-between py-1.5 border-b text-sm">
+                <span className="text-muted-foreground">Preferred Role</span>
+                <span className="font-medium">{career.preferredRole}</span>
+              </div>
+            )}
+            {career.desiredJobType && career.desiredJobType.length > 0 && (
+              <div className="py-1.5 border-b">
+                <span className="text-muted-foreground text-sm block mb-1.5">Job Type</span>
+                <div className="flex flex-wrap gap-1">
+                  {career.desiredJobType.map((type, index) => (
+                    <Badge key={index} variant="secondary" className="text-[10px]">
+                      {type}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
-          <div className="py-2 border-b">
-            <span className="text-muted-foreground text-sm block mb-2">Desired Job Type</span>
-            <div className="flex flex-wrap gap-1">
-              {career.desiredJobType?.map((type, index) => (
-                <Badge key={index} variant="secondary" className="text-xs">
-                  {type}
+        </div>
+      )}
+
+      {hasLocationData && (
+        <div className="space-y-3">
+          <h4 className="text-xs font-semibold flex items-center gap-1.5 text-muted-foreground uppercase tracking-wide">
+            <MapPin className="h-3.5 w-3.5 text-primary" />
+            Location Preferences
+          </h4>
+          <div className="space-y-2">
+            <div className="py-1.5 border-b">
+              <span className="text-muted-foreground text-sm block mb-1.5">Preferred Locations</span>
+              <div className="flex flex-wrap gap-1">
+                {career.preferredLocations?.map((loc, index) => (
+                  <Badge key={index} variant="outline" className="text-[10px]">
+                    {loc}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+            {career.openToRelocation !== undefined && (
+              <div className="flex justify-between py-1.5 border-b text-sm">
+                <span className="text-muted-foreground">Open to Relocation</span>
+                <Badge variant={career.openToRelocation ? "default" : "secondary"} className="text-[10px]">
+                  {career.openToRelocation ? 'Yes' : 'No'}
                 </Badge>
-              )) || <span className="text-sm">—</span>}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {hasSalaryData && (
+        <div className="space-y-3">
+          <h4 className="text-xs font-semibold flex items-center gap-1.5 text-muted-foreground uppercase tracking-wide">
+            <IndianRupee className="h-3.5 w-3.5 text-primary" />
+            Salary Expectations
+          </h4>
+          <div className="space-y-2">
+            <div className="flex justify-between py-1.5 border-b text-sm">
+              <span className="text-muted-foreground">Expected Salary</span>
+              <span className="font-medium">₹{career.expectedSalary} LPA</span>
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Location Preferences */}
-      <div className="space-y-4">
-        <h4 className="font-semibold flex items-center gap-2">
-          <MapPin className="h-4 w-4 text-primary" />
-          Location Preferences
-        </h4>
-        <div className="space-y-3">
-          <div className="py-2 border-b">
-            <span className="text-muted-foreground text-sm block mb-2">Preferred Locations</span>
-            <div className="flex flex-wrap gap-1">
-              {career.preferredLocations?.map((loc, index) => (
-                <Badge key={index} variant="outline" className="text-xs">
-                  {loc}
-                </Badge>
-              )) || <span className="text-sm">—</span>}
-            </div>
-          </div>
-          <div className="flex justify-between py-2 border-b">
-            <span className="text-muted-foreground text-sm">Open to Relocation</span>
-            <Badge variant={career.openToRelocation ? "default" : "secondary"} className="text-xs">
-              {career.openToRelocation ? 'Yes' : 'No'}
-            </Badge>
-          </div>
-        </div>
-      </div>
-
-      {/* Salary Expectations */}
-      <div className="space-y-4">
-        <h4 className="font-semibold flex items-center gap-2">
-          <IndianRupee className="h-4 w-4 text-primary" />
-          Salary Expectations
-        </h4>
-        <div className="space-y-3">
-          <div className="flex justify-between py-2 border-b">
-            <span className="text-muted-foreground text-sm">Expected Salary</span>
-            <span className="font-medium text-sm">
-              {career.expectedSalary ? `₹${career.expectedSalary} LPA` : 'Negotiable'}
-            </span>
-          </div>
-        </div>
-      </div>
+      )}
     </div>
   );
 };

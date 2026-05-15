@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase';
+import { uploadApplicantProfileImage, uploadApplicantResume } from '@/lib/applicantMediaUpload';
 
 export interface ApplicantFormData {
   // Step 1
@@ -87,7 +88,6 @@ export const saveApplicantToDatabase = async (
       
       // Skills
       key_skills: formData.keySkills.join(', '),
-      key_skill: formData.keySkills.join(', '),
       
       // Status
       status: 'submitted',
@@ -100,17 +100,23 @@ export const saveApplicantToDatabase = async (
 
     // Upload files if provided
     if (formData.resumeFile) {
-      const resumeUrl = await uploadFile(formData.resumeFile, userId, 'resume');
-      if (resumeUrl) {
+      try {
+        const resumeUrl = await uploadApplicantResume(formData.resumeFile, { authUserId: userId });
         applicantData.resume_file = resumeUrl;
         applicantData.upload_cv_any_format = resumeUrl;
+      } catch (e) {
+        console.error('Resume upload failed:', e);
       }
     }
 
     if (formData.profilePicture) {
-      const profileImageUrl = await uploadFile(formData.profilePicture, userId, 'profile');
-      if (profileImageUrl) {
+      try {
+        const profileImageUrl = await uploadApplicantProfileImage(formData.profilePicture, {
+          authUserId: userId,
+        });
         applicantData.profile_image = profileImageUrl;
+      } catch (e) {
+        console.error('Profile image upload failed:', e);
       }
     }
 
@@ -133,45 +139,47 @@ export const saveApplicantToDatabase = async (
   }
 };
 
-const uploadFile = async (
-  file: File,
+/** Update profile summary (stored in profiles.summary). */
+export const updateProfileSummary = async (
   userId: string,
-  type: 'resume' | 'profile'
-): Promise<string | null> => {
+  summary: string
+): Promise<{ success: boolean; error?: string }> => {
   try {
-    const fileExt = file.name.split('.').pop();
-    const timestamp = Date.now();
-    const fileName = `${type}_${timestamp}.${fileExt}`;
-    // New folder structure: resumes/applicants/{user_id}/resume_timestamp.pdf
-    const filePath = `applicants/${userId}/${fileName}`;
-
-    // Upload to resumes bucket
-    const { data, error } = await supabase.storage
-      .from('resumes')
-      .upload(filePath, file, {
-        cacheControl: '3600',
-        upsert: false,
-      });
+    const { error } = await supabase
+      .from('profiles')
+      .update({ summary: summary.trim() || null, updated_at: new Date().toISOString() })
+      .eq('id', userId);
 
     if (error) {
-      console.error('Error uploading file:', error);
-      // Return placeholder URL as fallback
-      return `placeholder://${fileName}`;
+      console.error('Error updating profile summary:', error);
+      return { success: false, error: error.message };
     }
+    return { success: true };
+  } catch (error: any) {
+    console.error('Error in updateProfileSummary:', error);
+    return { success: false, error: error?.message || 'Failed to update summary' };
+  }
+};
 
-    // Get public URL
-    const { data: urlData } = supabase.storage
-      .from('resumes')
-      .getPublicUrl(filePath);
+/** Update applicant row (flat fields). Use for profile edit from applicants table. */
+export const updateApplicantProfile = async (
+  applicantId: string,
+  updates: Record<string, unknown>
+): Promise<{ success: boolean; error?: string }> => {
+  try {
+    const { error } = await supabase
+      .from('applicants')
+      .update({ ...updates, updated_at: new Date().toISOString() })
+      .eq('id', applicantId);
 
-    return urlData.publicUrl;
-  } catch (error) {
-    console.error('Error in uploadFile:', error);
-    // Return placeholder URL as fallback
-    const fileExt = file.name.split('.').pop();
-    const timestamp = Date.now();
-    const fileName = `${type}_${timestamp}.${fileExt}`;
-    return `placeholder://${fileName}`;
+    if (error) {
+      console.error('Error updating applicant profile:', error);
+      return { success: false, error: error.message };
+    }
+    return { success: true };
+  } catch (error: any) {
+    console.error('Error in updateApplicantProfile:', error);
+    return { success: false, error: error?.message || 'Failed to update profile' };
   }
 };
 
@@ -250,6 +258,23 @@ export const saveApplicantPhase2 = async (
     }
     // DO NOT modify existing profile role - database trigger handles this correctly
 
+    // 0.5. Check if applicant already exists for this user
+    const { data: existingApplicant } = await supabase
+      .from('applicants')
+      .select('id, applicant_number')
+      .eq('user_id', userId)
+      .maybeSingle();
+
+    if (existingApplicant) {
+      // Applicant already exists, return existing record
+      console.log('Applicant record already exists for this user, returning existing record');
+      return {
+        success: true,
+        applicantId: existingApplicant.id,
+        applicantNumber: existingApplicant.applicant_number
+      };
+    }
+
     // 1. Insert applicant record (return id and applicant_number)
     // Normalize email: lowercase and trim
     const normalizedEmail = formData.personal.email?.trim().toLowerCase() || '';
@@ -257,11 +282,36 @@ export const saveApplicantPhase2 = async (
     const phone = formData.personal.mobileNumber?.trim() || '';
     const normalizedPhone = phone.startsWith('+91') ? phone : `+91${phone}`;
 
+    // Fetch city name if cityId is provided
+    let cityName = '';
+    if (formData.address?.cityId) {
+      const { data: cityData } = await supabase
+        .from('cities')
+        .select('name')
+        .eq('id', formData.address.cityId)
+        .single();
+      
+      if (cityData?.name) {
+        cityName = cityData.name;
+      }
+    }
+    
+    // Fallback: use city from personal info if available, or empty string
+    if (!cityName && formData.personal?.city) {
+      cityName = formData.personal.city;
+    }
+    
+    // If still no city, use a default or throw error
+    if (!cityName) {
+      throw new Error('City is required. Please select a city in the address step.');
+    }
+
     const applicantPayload = {
       user_id: userId,
       name: formData.personal.fullName?.trim() || '',
       phone: normalizedPhone,
       email: normalizedEmail,
+      city: cityName, // Required field
       job_role: formData.personal.jobRole || '',
       communication: formData.personal.communicationSkill || '',
       status: 'submitted'
@@ -274,6 +324,148 @@ export const saveApplicantPhase2 = async (
       .single();
 
     if (appErr) {
+      // Handle duplicate key error (race condition or double submission)
+      const errorMessage = appErr.message || String(appErr);
+      const errorCode = appErr.code || (appErr as any).code;
+      
+      console.log('Insert error details:', { code: errorCode, message: errorMessage, fullError: appErr });
+      
+      if (errorCode === '23505' || errorMessage?.includes('duplicate key') || errorMessage?.includes('unique constraint')) {
+        // It's a duplicate key error - try to find existing record with retries
+        console.log('Duplicate key error detected, attempting to find existing record...');
+        console.log('Error details:', { errorCode, errorMessage, userId, normalizedEmail, normalizedPhone });
+        
+        // Retry logic with exponential backoff (up to 5 attempts with longer delays)
+        // Increased retries because transaction isolation might delay visibility
+        const maxRetries = 5;
+        const baseDelay = 500; // Start with 500ms (longer initial delay)
+        
+        for (let attempt = 0; attempt <= maxRetries; attempt++) {
+          const delay = baseDelay * Math.pow(2, attempt); // Exponential backoff: 500ms, 1000ms, 2000ms, 4000ms, 8000ms
+          
+          if (attempt > 0) {
+            console.log(`Retry attempt ${attempt}/${maxRetries} after ${delay}ms delay...`);
+            await new Promise(resolve => setTimeout(resolve, delay));
+          }
+          
+          // Strategy 1: Try to fetch by user_id (most reliable)
+          const { data: existingByUserId, error: userIdErr } = await supabase
+            .from('applicants')
+            .select('id, applicant_number, created_at')
+            .eq('user_id', userId)
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .maybeSingle();
+          
+          if (existingByUserId && !userIdErr) {
+            console.log(`✅ Found existing applicant record by user_id (attempt ${attempt + 1}):`, existingByUserId);
+            return {
+              success: true,
+              applicantId: existingByUserId.id,
+              applicantNumber: existingByUserId.applicant_number
+            };
+          }
+          
+          // Strategy 2: Try to fetch by email (fallback)
+          if (normalizedEmail) {
+            const { data: existingByEmail, error: emailErr } = await supabase
+              .from('applicants')
+              .select('id, applicant_number, created_at')
+              .eq('email', normalizedEmail)
+              .order('created_at', { ascending: false })
+              .limit(1)
+              .maybeSingle();
+            
+            if (existingByEmail && !emailErr) {
+              console.log(`✅ Found existing applicant record by email (attempt ${attempt + 1}):`, existingByEmail);
+              return {
+                success: true,
+                applicantId: existingByEmail.id,
+                applicantNumber: existingByEmail.applicant_number
+              };
+            }
+          }
+          
+          // Strategy 3: Try to fetch by phone (another fallback)
+          if (normalizedPhone) {
+            const { data: existingByPhone, error: phoneErr } = await supabase
+              .from('applicants')
+              .select('id, applicant_number, created_at')
+              .eq('phone', normalizedPhone)
+              .order('created_at', { ascending: false })
+              .limit(1)
+              .maybeSingle();
+            
+            if (existingByPhone && !phoneErr) {
+              console.log(`✅ Found existing applicant record by phone (attempt ${attempt + 1}):`, existingByPhone);
+              return {
+                success: true,
+                applicantId: existingByPhone.id,
+                applicantNumber: existingByPhone.applicant_number
+              };
+            }
+          }
+          
+          // Strategy 4: Try to get ALL applicants for this user (in case maybeSingle() is the issue)
+          if (attempt >= 2) {
+            const { data: allApplicants, error: allErr } = await supabase
+              .from('applicants')
+              .select('id, applicant_number, created_at')
+              .eq('user_id', userId)
+              .order('created_at', { ascending: false })
+              .limit(5);
+            
+            if (allApplicants && allApplicants.length > 0 && !allErr) {
+              const latest = allApplicants[0];
+              console.log(`✅ Found existing applicant record via list query (attempt ${attempt + 1}):`, latest);
+              return {
+                success: true,
+                applicantId: latest.id,
+                applicantNumber: latest.applicant_number
+              };
+            }
+          }
+          
+          // Log progress for debugging
+          if (attempt < maxRetries) {
+            console.log(`⏳ No record found yet (attempt ${attempt + 1}/${maxRetries + 1}), will retry...`);
+          }
+        }
+        
+        // Final attempt: One more query after a longer delay
+        console.log('Performing final query after extended delay...');
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        const { data: finalAttempt } = await supabase
+          .from('applicants')
+          .select('id, applicant_number')
+          .eq('user_id', userId)
+          .maybeSingle();
+        
+        if (finalAttempt) {
+          console.log('✅ Found existing applicant record on final attempt:', finalAttempt);
+          return {
+            success: true,
+            applicantId: finalAttempt.id,
+            applicantNumber: finalAttempt.applicant_number
+          };
+        }
+        
+        // If we still can't find it after all retries, return a helpful error
+        console.error('❌ Could not find existing applicant record after all retries and strategies.');
+        console.error('This might indicate:', {
+          'Transaction isolation delay': 'Record might not be visible yet',
+          'Database trigger issue': 'The database trigger fix may not be applied',
+          'RLS policy issue': 'Row Level Security might be blocking the query',
+          'User ID mismatch': `Expected user_id: ${userId}`
+        });
+        
+        return {
+          success: false,
+          error: 'A duplicate application was detected, but we could not retrieve the existing record. This usually resolves itself within a few seconds. Please refresh the page and check your dashboard. If the issue persists, contact support.'
+        };
+      }
+      
       console.error('Error saving applicant:', appErr);
       throw appErr;
     }

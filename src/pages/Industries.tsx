@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import MarketingLayout from "@/components/marketing/MarketingLayout";
 
 const industries = [
   {
@@ -70,7 +71,7 @@ const Industries = () => {
   const [selectedIndustry, setSelectedIndustry] = useState<number | null>(null);
 
   return (
-    <div className="min-h-screen bg-gradient-subtle">
+    <MarketingLayout showGeometry>
       <Navbar />
 
       {/* Hero Section */}
@@ -298,7 +299,7 @@ const Industries = () => {
       </Dialog>
 
       <Footer />
-    </div>
+    </MarketingLayout>
   );
 };
 
