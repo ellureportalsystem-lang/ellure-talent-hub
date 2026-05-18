@@ -25,7 +25,12 @@ const MarketingPageHero = ({
   >
     {imageSrc ? (
       <div
-        className="absolute inset-0 marketing-hero-banner bg-cover bg-no-repeat"
+        className={cn(
+          "absolute inset-0 marketing-hero-banner bg-cover bg-no-repeat",
+          align === "center"
+            ? "marketing-hero-banner--page-center"
+            : "marketing-hero-banner--page-left"
+        )}
         style={{ backgroundImage: `url(${imageSrc})` }}
         aria-hidden
       />
@@ -33,8 +38,8 @@ const MarketingPageHero = ({
     <div className="absolute inset-0 marketing-hero-overlay" aria-hidden />
     <div
       className={cn(
-        "container relative px-4 sm:px-6 marketing-page-hero-inner",
-        align === "center" && "text-center"
+        "container relative px-4 sm:px-6 marketing-page-hero-inner min-h-full",
+        align === "center" && "text-center items-center"
       )}
     >
       <motion.div
@@ -42,13 +47,20 @@ const MarketingPageHero = ({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.45 }}
         className={cn(
-          "max-w-2xl space-y-3 sm:space-y-4 md:space-y-6 z-10",
-          align === "center" ? "mx-auto" : ""
+          "max-w-3xl space-y-3 sm:space-y-4 md:space-y-5 z-10 w-full",
+          align === "center" ? "mx-auto text-center" : "text-left"
         )}
       >
-        <h1 className="marketing-hero-title text-white">{title}</h1>
+        <h1 className="hero-title marketing-hero-title text-white text-balance">{title}</h1>
         {subtitle ? (
-          <p className="marketing-hero-subtitle text-white/90">{subtitle}</p>
+          <p
+            className={cn(
+              "marketing-hero-subtitle text-white/90 text-balance md:text-lg max-w-2xl",
+              align === "center" && "mx-auto"
+            )}
+          >
+            {subtitle}
+          </p>
         ) : null}
       </motion.div>
     </div>

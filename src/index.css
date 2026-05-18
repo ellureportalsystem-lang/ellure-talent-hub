@@ -411,6 +411,27 @@ All colors MUST be HSL.
     }
   }
 
+  /* Inner marketing page heroes — match centered vs left-aligned layouts */
+  .marketing-page-hero .marketing-hero-banner.marketing-hero-banner--page-center {
+    background-position: center center;
+  }
+
+  @media (min-width: 768px) {
+    .marketing-page-hero .marketing-hero-banner.marketing-hero-banner--page-center {
+      background-position: center center;
+    }
+  }
+
+  .marketing-page-hero .marketing-hero-banner.marketing-hero-banner--page-left {
+    background-position: center center;
+  }
+
+  @media (min-width: 768px) {
+    .marketing-page-hero .marketing-hero-banner.marketing-hero-banner--page-left {
+      background-position: center right;
+    }
+  }
+
   /* Homepage hero slides — same 1600×896 assets, identical fit as banner-1 */
   .marketing-hero-banner-img {
     object-fit: cover;
@@ -443,41 +464,131 @@ All colors MUST be HSL.
     }
   }
 
+  /* Inner pages only — ~5.5cm shorter than previous hero height */
   .marketing-page-hero {
-    min-height: min(52vh, 420px);
+    --marketing-page-hero-trim: 5.5cm;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: stretch;
+    min-height: min(50vh, calc(460px - var(--marketing-page-hero-trim)));
     padding-top: 0;
     padding-bottom: 0;
   }
 
+  @media (min-width: 640px) {
+    .marketing-page-hero {
+      min-height: min(46vh, calc(500px - var(--marketing-page-hero-trim)));
+    }
+  }
+
   @media (min-width: 768px) {
     .marketing-page-hero {
-      min-height: auto;
+      min-height: min(42vh, calc(540px - var(--marketing-page-hero-trim)));
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .marketing-page-hero {
+      min-height: calc(560px - var(--marketing-page-hero-trim));
     }
   }
 
   .marketing-page-hero-inner {
-    padding-top: 2.5rem;
-    padding-bottom: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: stretch;
+    flex: 1;
+    width: 100%;
+    min-height: inherit;
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
   }
 
   @media (min-width: 768px) {
     .marketing-page-hero-inner {
-      padding-top: 2rem;
-      padding-bottom: 2rem;
+      padding-top: 1.75rem;
+      padding-bottom: 1.75rem;
     }
   }
 
+  /* Inner marketing pages (Services, About, …) — block title, wraps naturally, centers with parent */
   .marketing-hero-title {
+    margin: 0;
     font-family: "Poppins", sans-serif;
     font-weight: 700;
-    font-size: clamp(1.75rem, 5.5vw, 3.75rem);
-    line-height: 1.15;
+    font-size: clamp(1.75rem, 5.2vw, 3.5rem);
+    line-height: 1.18;
     letter-spacing: -0.02em;
+  }
+
+  @media (min-width: 768px) {
+    .marketing-hero-title {
+      font-size: clamp(2rem, 4.2vw, 3.85rem);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .marketing-hero-title {
+      font-size: clamp(2.125rem, 3.8vw, 4rem);
+    }
+  }
+
+  /* Homepage hero only — stacked lines, optional nowrap from sm+ */
+  .marketing-landing-hero-title {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.12em;
+    margin: 0;
+    max-width: 100%;
+    font-family: "Poppins", sans-serif;
+    font-weight: 700;
+    font-size: clamp(1.45rem, 4.2vw, 3.25rem);
+    line-height: 1.14;
+    letter-spacing: -0.025em;
+  }
+
+  @media (min-width: 640px) {
+    .marketing-landing-hero-title {
+      font-size: clamp(1.6rem, 3.9vw, 3.5rem);
+    }
+  }
+
+  @media (min-width: 768px) {
+    .marketing-landing-hero-title {
+      font-size: clamp(1.85rem, 3.4vw, 4rem);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .marketing-landing-hero-title {
+      font-size: clamp(2rem, 3.5vw, 4.25rem);
+    }
+  }
+
+  .marketing-landing-hero-title .marketing-hero-title-line {
+    display: block;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    line-height: 1.14;
+  }
+
+  @media (min-width: 640px) {
+    .marketing-landing-hero-title .marketing-hero-title-line {
+      white-space: nowrap;
+    }
+  }
+
+  .marketing-landing-hero-title .marketing-hero-title-line--accent {
+    font-size: inherit;
   }
 
   .marketing-hero-subtitle {
     font-family: "Poppins", sans-serif;
-    font-size: clamp(0.95rem, 2.8vw, 1.25rem);
+    font-size: clamp(1rem, 2.5vw, 1.375rem);
     line-height: 1.55;
     max-width: 36rem;
   }

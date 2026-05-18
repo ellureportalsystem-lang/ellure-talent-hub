@@ -9,22 +9,28 @@ import Footer from "@/components/layout/Footer";
 import { FAQPreview } from "@/components/FAQPreview";
 import MarketingLayout from "@/components/marketing/MarketingLayout";
 import StatsStrip from "@/components/marketing/StatsStrip";
-import HeroDashboardMockup from "@/components/marketing/HeroDashboardMockup";
 import { FadeInSection } from "@/components/marketing/FadeInSection";
 
 const heroSlides = [
   {
-    title: "Empowering Organizations With Exceptional Talent",
+    titleLine1: "Empowering Organizations",
+    titleLine2: "With",
+    titleLine2Gold: "Exceptional Talent",
     subtitle: "We connect businesses with highly skilled professionals through precision-driven recruitment and industry expertise.",
   },
   {
-    title: "Your Trusted Partner in End-to-End Recruitment Excellence",
+    titleLine1: "Your Trusted Partner in",
+    titleLine2: "End-to-End",
+    titleLine2IsAccent: true,
+    titleLine2Gold: "Recruitment Excellence",
     subtitle: "Delivering the right talent for every role, every time — with speed, accuracy, and integrity.",
   },
   {
-    title: "Transforming Hiring for a Better, Smarter Workforce",
+    titleLine1: "Transforming Hiring for",
+    titleLine2: "a Better,",
+    titleLine2Gold: "Smarter Workforce",
     subtitle: "Structured hiring solutions tailored for IT, Non-IT, Telecom, E-Commerce, BFSI, Engineering, and more.",
-  }
+  },
 ];
 
 const features = [
@@ -100,8 +106,7 @@ const Landing = () => {
         <div className="absolute inset-0 marketing-hero-overlay" />
         
         <div className="container relative w-full py-8 md:py-10 px-4 sm:px-6">
-          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-            <div className="flex flex-col justify-center order-2 lg:order-1 z-10">
+          <motion.div className="flex flex-col justify-center z-10 w-full max-w-3xl">
             <AnimatePresence mode="wait">
               <motion.div 
                 key={currentSlide} 
@@ -109,27 +114,28 @@ const Landing = () => {
                 animate={{ opacity: 1, x: 0 }} 
                 exit={{ opacity: 0, x: 20 }}
                 transition={{ duration: 0.6, ease: "easeInOut" }}
-                className="max-w-2xl space-y-3 sm:space-y-6 z-10 pt-2 sm:pt-6 lg:pt-0"
+                className="space-y-3 sm:space-y-6 z-10 pt-2 sm:pt-6 lg:pt-0"
               >
-                <h1 className="hero-title marketing-hero-title leading-tight sm:leading-relaxed">
-                  {currentSlide === 0 ? (
-                    <>
-                      <div className="mb-2">Empowering Organizations With</div>
-                      <div className="gold-text">Exceptional Talent</div>
-                    </>
-                  ) : currentSlide === 1 ? (
-                    <>
-                      <div className="mb-2">Your Trusted Partner in</div>
-                      <div className="gold-text">End-to-End Recruitment Excellence</div>
-                    </>
-                  ) : (
-                    <>
-                      <div className="mb-2">Transforming Hiring for a</div>
-                      <div className="gold-text">Better, Smarter Workforce</div>
-                    </>
-                  )}
+                <h1 className="hero-title marketing-landing-hero-title">
+                  <span className="marketing-hero-title-line">
+                    {heroSlides[currentSlide].titleLine1}
+                  </span>
+                  {heroSlides[currentSlide].titleLine2 ? (
+                    <span
+                      className={
+                        heroSlides[currentSlide].titleLine2IsAccent
+                          ? "marketing-hero-title-line marketing-hero-title-line--accent gold-text"
+                          : "marketing-hero-title-line"
+                      }
+                    >
+                      {heroSlides[currentSlide].titleLine2}
+                    </span>
+                  ) : null}
+                  <span className="marketing-hero-title-line marketing-hero-title-line--accent gold-text">
+                    {heroSlides[currentSlide].titleLine2Gold}
+                  </span>
                 </h1>
-                <p className="hero-subtitle text-base md:text-lg text-primary-foreground/90">
+                <p className="hero-subtitle text-lg md:text-xl text-primary-foreground/90 text-pretty max-w-2xl">
                   {heroSlides[currentSlide].subtitle}
                 </p>
               </motion.div>
@@ -165,12 +171,7 @@ const Landing = () => {
                 />
               ))}
             </div>
-            </div>
-
-            <div className="order-1 lg:order-2 flex justify-center pt-4 pb-2 sm:pt-12 lg:pt-0 z-10 w-full">
-              <HeroDashboardMockup />
-            </div>
-          </div>
+          </motion.div>
         </div>
       </section>
 

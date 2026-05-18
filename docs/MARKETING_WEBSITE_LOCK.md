@@ -36,10 +36,18 @@ npm run build
 
 ## Homepage hero height (intentional)
 
-Current locked heights in `src/index.css`:
+Current locked heights in `src/index.css` (`.marketing-landing-hero`):
 
 - Mobile: `480px`
 - `640px+`: `520px`
 - `1024px+`: `560px`
 
 Do not revert to `min(88svh, 640px)` without product approval — that made the banner too tall.
+
+Homepage headlines use `.marketing-landing-hero-title` with per-slide `titleLine1` / `titleLine2` / `titleLine2Gold` in `Landing.tsx`. Do not reuse that class on inner pages.
+
+## Inner page hero height (intentional)
+
+`.marketing-page-hero` uses `calc(... - 5.5cm)` from the previous min-heights. Text is vertically centered via flex on the section and `.marketing-page-hero-inner`.
+
+Do not use full-page screenshots as banner JPGs (they duplicate navbar and headline text).

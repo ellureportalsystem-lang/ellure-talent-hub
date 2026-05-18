@@ -25,6 +25,6 @@ When the user task is about **dashboards**, **auth**, **Supabase**, **admin**, o
 - **Do not run** scripts under `scripts/_archive_DO_NOT_RUN/`.
 - **Do not** add Pricing routes, live Supabase stats on the homepage, or Navbar CTA experiments unless the user explicitly requests marketing changes.
 
-The canonical marketing UI is the version on `main` (commit `64a3122` family). Homepage hero height is controlled only via `.marketing-landing-hero` in `src/index.css` (fixed px, not `88svh`).
+The canonical marketing UI is locked on `main` after the marketing hero/banner pass. Do not edit marketing files unless the user explicitly asks. Homepage hero: `.marketing-landing-hero` + `.marketing-landing-hero-title`. Inner pages: `.marketing-page-hero` + `MarketingPageHero.tsx`. Never edit dashboards when fixing marketing.
 
 If marketing must change: read `docs/MARKETING_WEBSITE_LOCK.md`, run `npm run build`, and run `.\scripts\verify-marketing-lock.ps1`.

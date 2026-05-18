@@ -38,6 +38,16 @@ if ($landing -notmatch "marketing-landing-hero") {
   $errors++
 }
 
+if ($landing -notmatch "marketing-landing-hero-title") {
+  Write-Host "[ERROR] Landing.tsx missing marketing-landing-hero-title (homepage headline stack)." -ForegroundColor Red
+  $errors++
+}
+
+if ($landing -match "HeroDashboardMockup") {
+  Write-Host "[ERROR] Landing.tsx must not include HeroDashboardMockup in the hero." -ForegroundColor Red
+  $errors++
+}
+
 $cssPath = Join-Path $root "src\index.css"
 $css = Get-Content $cssPath -Raw
 if ($css -match "88svh") {
