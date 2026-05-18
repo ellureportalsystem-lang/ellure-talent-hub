@@ -1,7 +1,17 @@
 # Pre-Push Banner Check
 # Run this before pushing to ensure banners are committed
 
-Write-Host "Pre-Push Banner Verification..." -ForegroundColor Cyan
+Write-Host "Pre-Push Verification..." -ForegroundColor Cyan
+Write-Host ""
+
+$lockScript = Join-Path $PSScriptRoot "verify-marketing-lock.ps1"
+if (Test-Path $lockScript) {
+  & $lockScript
+  if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+  Write-Host ""
+}
+
+Write-Host "Banner verification..." -ForegroundColor Cyan
 Write-Host ""
 
 $banners = @(

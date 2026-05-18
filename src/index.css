@@ -67,6 +67,23 @@ All colors MUST be HSL.
     --sidebar-accent-foreground: 215 25% 15%;
     --sidebar-border: 216 15% 88%;
     --sidebar-ring: 212 94% 38%;
+
+    --surface-1: #ffffff;
+    --surface-2: #f8fafc;
+    --surface-3: #f1f5f9;
+    --surface-border: #e2e8f0;
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #94a3b8;
+    --success-bg: #f0fdf4;
+    --success-text: #16a34a;
+    --warning-bg: #fffbeb;
+    --warning-text: #d97706;
+    --danger-bg: #fef2f2;
+    --danger-text: #dc2626;
+    --info-bg: #eff6ff;
+    --info-text: #2563eb;
+    --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
   }
 
   .dark {
@@ -126,6 +143,23 @@ All colors MUST be HSL.
     --sidebar-accent-foreground: 210 20% 95%;
     --sidebar-border: 220 16% 16%;
     --sidebar-ring: 212 90% 55%;
+
+    --surface-1: #0f172a;
+    --surface-2: #1e293b;
+    --surface-3: #334155;
+    --surface-border: #334155;
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+    --success-bg: #052e16;
+    --success-text: #4ade80;
+    --warning-bg: #422006;
+    --warning-text: #fbbf24;
+    --danger-bg: #450a0a;
+    --danger-text: #f87171;
+    --info-bg: #172554;
+    --info-text: #60a5fa;
+    --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
   }
 }
 
@@ -136,6 +170,18 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground antialiased;
+  }
+
+  .font-stat {
+    font-family: Poppins, system-ui, sans-serif;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .dashboard-card {
+    background: var(--surface-1);
+    border: 1px solid var(--surface-border);
+    border-radius: 12px;
+    box-shadow: var(--card-shadow);
   }
 }
 
@@ -457,12 +503,18 @@ All colors MUST be HSL.
   }
 
   .marketing-landing-hero {
-    min-height: min(88svh, 640px);
+    min-height: 480px;
+  }
+
+  @media (min-width: 640px) {
+    .marketing-landing-hero {
+      min-height: 520px;
+    }
   }
 
   @media (min-width: 1024px) {
     .marketing-landing-hero {
-      min-height: 600px;
+      min-height: 560px;
     }
   }
 

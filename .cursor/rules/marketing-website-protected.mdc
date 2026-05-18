@@ -1,0 +1,30 @@
+---
+description: Protect public marketing website from accidental edits during dashboard or backend work
+globs:
+  - src/pages/Landing.tsx
+  - src/pages/About.tsx
+  - src/pages/Features.tsx
+  - src/pages/Services.tsx
+  - src/pages/Industries.tsx
+  - src/pages/Contact.tsx
+  - src/pages/FAQ.tsx
+  - src/pages/Privacy.tsx
+  - src/pages/Terms.tsx
+  - src/components/layout/Navbar.tsx
+  - src/components/layout/Footer.tsx
+  - src/components/marketing/**
+  - src/components/FAQPreview.tsx
+alwaysApply: false
+---
+
+# Marketing website — do not change unless asked
+
+When the user task is about **dashboards**, **auth**, **Supabase**, **admin**, or **applicants**:
+
+- **Do not edit** the files matched by this rule.
+- **Do not run** scripts under `scripts/_archive_DO_NOT_RUN/`.
+- **Do not** add Pricing routes, live Supabase stats on the homepage, or Navbar CTA experiments unless the user explicitly requests marketing changes.
+
+The canonical marketing UI is the version on `main` (commit `64a3122` family). Homepage hero height is controlled only via `.marketing-landing-hero` in `src/index.css` (fixed px, not `88svh`).
+
+If marketing must change: read `docs/MARKETING_WEBSITE_LOCK.md`, run `npm run build`, and run `.\scripts\verify-marketing-lock.ps1`.
