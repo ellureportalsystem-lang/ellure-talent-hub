@@ -1,701 +1,217 @@
-import { useState, useMemo } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useState, useMemo, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
+import BooleanSearchBar from "@/components/dashboard/admin/BooleanSearchBar";
+import { ClientSearchFilters } from "@/components/search/ClientSearchFilters";
+import { CandidateCard } from "@/components/client/CandidateCard";
+import { CVLimitModal } from "@/components/client/CVLimitModal";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Slider } from "@/components/ui/slider";
-import { 
-  Search, Filter, Download, Star, FolderPlus, Eye, MoreHorizontal,
-  ChevronDown, ChevronUp, MapPin, Briefcase, GraduationCap,
-  Clock, X, SlidersHorizontal, RefreshCw
-} from "lucide-react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
-} from "@/components/ui/dropdown-menu";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import { toast } from "sonner";
-import { useApplicants, Applicant } from "@/hooks/useApplicants";
+import { LayoutGrid, List, Bookmark } from "lucide-react";
+import { useClientContext } from "@/hooks/useClientContext";
+import { useClientApplicantSearch } from "@/hooks/useClientApplicantSearch";
+import { checkAndLogCvDownload, fetchSavedSearches, saveClientSearch, deleteSavedSearch } from "@/services/clientService";
+import { defaultSearchFilters, type SearchFilters } from "@/types/searchFilters";
 import { useAuth } from "@/contexts/AuthContext";
-import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Users } from "lucide-react";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 const CandidatesPage = () => {
-  const navigate = useNavigate();
-  const { profile } = useAuth();
-  const [searchParams] = useSearchParams();
-  
-  // Initialize search from URL params
-  const initialSearch = searchParams.get('q') || '';
-  const initialLocation = searchParams.get('location') || '';
-  
-  const [searchQuery, setSearchQuery] = useState(initialSearch);
-  const [selectedCandidates, setSelectedCandidates] = useState<string[]>([]);
-  const [sortField, setSortField] = useState<string>('created_at');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [filtersOpen, setFiltersOpen] = useState(false);
-  
-  // Filter states
-  const [experienceRange, setExperienceRange] = useState([0, 15]);
-  const [salaryRange, setSalaryRange] = useState([0, 50]);
-  const [selectedCities, setSelectedCities] = useState<string[]>(initialLocation ? [initialLocation] : []);
-  const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
-  const [selectedEducation, setSelectedEducation] = useState<string[]>([]);
-  const [selectedNotice, setSelectedNotice] = useState<string[]>([]);
-  const [selectedStatus, setSelectedStatus] = useState<string[]>([]);
-  
-  const itemsPerPage = 15;
+  const { user } = useAuth();
+  const { data: ctx, refetch: refetchClientCtx } = useClientContext();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
+  const [filters, setFilters] = useState<SearchFilters>(defaultSearchFilters);
+  const [filtersOpen, setFiltersOpen] = useState(true);
+  const [view, setView] = useState<"cards" | "table">("cards");
+  const [page, setPage] = useState(1);
+  const [cvLimitOpen, setCvLimitOpen] = useState(false);
+  const [saveSearchOpen, setSaveSearchOpen] = useState(false);
+  const [searchName, setSearchName] = useState("");
+  const [savedSearches, setSavedSearches] = useState<any[]>([]);
 
-  // Fetch real candidates from database
-  // Only pass clientId if profile is loaded and has client_id
-  const { applicants: filteredCandidates, loading, totalCount, error } = useApplicants({
+  const clientId = ctx?.client?.id;
+  const plan = ctx?.client?.subscription_plans;
+  const canSeeContact = plan?.can_see_contact_details !== false;
+
+  const { applicants, loading, totalCount, refetch } = useClientApplicantSearch(clientId, {
     searchQuery,
-    filters: {
-      experience: experienceRange as [number, number],
-      salary: salaryRange as [number, number],
-      cities: selectedCities,
-      skills: selectedSkills,
-      education: selectedEducation,
-      noticePeriod: selectedNotice,
-      status: selectedStatus,
-    },
-    sortField,
-    sortOrder,
-    page: currentPage,
-    pageSize: itemsPerPage,
-    clientId: profile?.client_id || undefined,
+    filters,
+    page,
+    pageSize: 24,
+    sortField: "relevance",
+    sortOrder: "desc",
   });
 
-  // Show error if query fails
-  if (error) {
-    console.error('Error loading candidates:', error);
-  }
+  const cvUsed = ctx?.client?.cv_downloads_used_this_month ?? 0;
+  const cvLimit = plan?.cv_downloads_per_month ?? 100;
 
-  // Get unique values for filters (from all candidates, not just current page)
-  // TODO: Fetch these separately for better performance
-  const cities = [...new Set(filteredCandidates.map(a => a.city || a.city_current_location).filter(Boolean))].sort();
-  const skills = [...new Set(filteredCandidates.flatMap(a => (a.key_skills || '').split(/[,;|]/).map(s => s.trim()).filter(Boolean)))].sort();
-  const educationLevels = [...new Set(filteredCandidates.map(a => a.highest_qualification || a.education_level).filter(Boolean))].sort();
-  const noticePeriods = [...new Set(filteredCandidates.map(a => a.notice_period).filter(Boolean))];
-  const statuses = ['submitted', 'shortlisted', 'interviewed', 'hired', 'rejected'];
-  
-  // Pagination
-  const totalPages = Math.ceil(totalCount / itemsPerPage);
-  const paginatedCandidates = filteredCandidates;
+  const loadSaved = () => {
+    if (clientId) fetchSavedSearches(clientId).then(setSavedSearches);
+  };
 
-  const handleSort = (field: keyof Applicant) => {
-    if (sortField === field) {
-      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortField(field);
-      setSortOrder('asc');
+  useEffect(() => { loadSaved(); }, [clientId]);
+
+  const handleSearch = (q: string) => {
+    setSearchQuery(q);
+    setPage(1);
+    setSearchParams(q ? { q } : {});
+  };
+
+  const handleDownloadCv = async (applicantId: string) => {
+    if (!clientId || !user?.id) return;
+    try {
+      const result = await checkAndLogCvDownload(clientId, applicantId, user.id);
+      if (!result.allowed) {
+        setCvLimitOpen(true);
+        return;
+      }
+      const app = applicants.find((a) => a.id === applicantId);
+      const url = app?.resume_file || app?.resumeUrl;
+      if (url) window.open(url, "_blank");
+      toast.success(`Downloaded. ${result.remaining} downloads left this month.`);
+      refetchClientCtx();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Download failed");
     }
   };
 
-  const handleSelectAll = () => {
-    if (selectedCandidates.length === paginatedCandidates.length) {
-      setSelectedCandidates([]);
-    } else {
-      setSelectedCandidates(paginatedCandidates.map(c => c.id));
-    }
-  };
+  const resetDate = useMemo(() => {
+    const d = new Date();
+    d.setMonth(d.getMonth() + 1, 1);
+    return d.toLocaleDateString("en-IN", { day: "numeric", month: "long" });
+  }, []);
 
-  const handleSelectCandidate = (id: number) => {
-    setSelectedCandidates(prev => 
-      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
-    );
-  };
-
-  const handleViewProfile = (candidateId: number) => {
-    navigate(`/dashboard/client/candidates/${candidateId}`);
-  };
-
-  const handleAddToFolder = () => {
-    toast.success(`${selectedCandidates.length} candidates added to folder`);
-    setSelectedCandidates([]);
-  };
-
-  const handleDownloadResumes = () => {
-    toast.success(`Downloading ${selectedCandidates.length} resumes...`);
-  };
-
-  const handleMarkFavorite = () => {
-    toast.success(`${selectedCandidates.length} candidates marked as favorite`);
-    setSelectedCandidates([]);
-  };
-
-  const clearFilters = () => {
-    setExperienceRange([0, 15]);
-    setSalaryRange([0, 50]);
-    setSelectedCities([]);
-    setSelectedSkills([]);
-    setSelectedEducation([]);
-    setSelectedNotice([]);
-    setSelectedStatus([]);
-    setSearchQuery('');
-  };
-
-  const activeFiltersCount = [
-    experienceRange[0] !== 0 || experienceRange[1] !== 15,
-    salaryRange[0] !== 0 || salaryRange[1] !== 50,
-    selectedCities.length > 0,
-    selectedSkills.length > 0,
-    selectedEducation.length > 0,
-    selectedNotice.length > 0,
-    selectedStatus.length > 0,
-  ].filter(Boolean).length;
-
-  const FilterSection = ({ 
-    title, 
-    icon: Icon, 
-    children,
-    defaultOpen = false 
-  }: { 
-    title: string; 
-    icon: React.ElementType; 
-    children: React.ReactNode;
-    defaultOpen?: boolean;
-  }) => {
-    const [isOpen, setIsOpen] = useState(defaultOpen);
-    
-    return (
-      <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-        <CollapsibleTrigger className="flex items-center justify-between w-full py-3 text-sm font-medium hover:text-primary transition-colors">
-          <div className="flex items-center gap-2">
-            <Icon className="h-4 w-4" />
-            {title}
-          </div>
-          {isOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-        </CollapsibleTrigger>
-        <CollapsibleContent className="pb-4 space-y-2">
-          {children}
-        </CollapsibleContent>
-      </Collapsible>
-    );
-  };
+  const activeFilterChips = useMemo(() => {
+    const chips: { key: string; label: string }[] = [];
+    if (filters.skills.length) chips.push(...filters.skills.map((s) => ({ key: `skill-${s}`, label: s })));
+    if (filters.currentCity.length) chips.push(...filters.currentCity.map((c) => ({ key: `city-${c}`, label: c })));
+    return chips;
+  }, [filters]);
 
   return (
-    <div className="p-6 space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+    <div className="p-6 space-y-4">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold">Candidate Search</h1>
-          <p className="text-muted-foreground">Browse and shortlist candidates for your requirements</p>
+          <h1 className="text-lg font-semibold">Candidates</h1>
+          <p className="text-sm text-muted-foreground">
+            {loading ? "Searching..." : `Showing ${totalCount} candidates`}
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={() => setSaveSearchOpen(true)}>Save This Search</Button>
+          <Button variant={view === "cards" ? "default" : "outline"} size="icon" onClick={() => setView("cards")}><LayoutGrid className="h-4 w-4" /></Button>
+          <Button variant={view === "table" ? "default" : "outline"} size="icon" onClick={() => setView("table")}><List className="h-4 w-4" /></Button>
         </div>
       </div>
 
-      {/* Search Bar */}
-      <Card className="shadow-sm">
-        <CardContent className="p-4">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                placeholder="Search by name, skills, designation, company, location..."
-                className="pl-9"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-            
-            <div className="flex gap-2">
-              <Sheet open={filtersOpen} onOpenChange={setFiltersOpen}>
-                <SheetTrigger asChild>
-                  <Button variant="outline" className="relative">
-                    <SlidersHorizontal className="mr-2 h-4 w-4" />
-                    Filters
-                    {activeFiltersCount > 0 && (
-                      <Badge className="ml-2 h-5 w-5 p-0 flex items-center justify-center text-xs">
-                        {activeFiltersCount}
-                      </Badge>
-                    )}
-                  </Button>
-                </SheetTrigger>
-                <SheetContent className="w-[400px] overflow-y-auto">
-                  <SheetHeader>
-                    <SheetTitle>Filter Candidates</SheetTitle>
-                    <SheetDescription>
-                      Refine your search with advanced filters
-                    </SheetDescription>
-                  </SheetHeader>
-                  
-                  <div className="mt-6 space-y-1 divide-y">
-                    {/* Experience Range */}
-                    <FilterSection title="Experience" icon={Briefcase} defaultOpen>
-                      <div className="px-2">
-                        <Slider
-                          value={experienceRange}
-                          onValueChange={setExperienceRange}
-                          max={15}
-                          step={1}
-                          className="my-4"
-                        />
-                        <div className="flex justify-between text-sm text-muted-foreground">
-                          <span>{experienceRange[0]} years</span>
-                          <span>{experienceRange[1]}+ years</span>
-                        </div>
-                      </div>
-                    </FilterSection>
+      <BooleanSearchBar value={searchQuery} onChange={handleSearch} onSearch={() => refetch()} />
 
-                    {/* Salary Range */}
-                    <FilterSection title="Current CTC (LPA)" icon={Briefcase}>
-                      <div className="px-2">
-                        <Slider
-                          value={salaryRange}
-                          onValueChange={setSalaryRange}
-                          max={50}
-                          step={1}
-                          className="my-4"
-                        />
-                        <div className="flex justify-between text-sm text-muted-foreground">
-                          <span>₹{salaryRange[0]} LPA</span>
-                          <span>₹{salaryRange[1]}+ LPA</span>
-                        </div>
-                      </div>
-                    </FilterSection>
-
-                    {/* Location */}
-                    <FilterSection title="Location" icon={MapPin} defaultOpen>
-                      <div className="grid grid-cols-2 gap-2">
-                        {cities.map(city => (
-                          <label key={city} className="flex items-center gap-2 text-sm cursor-pointer">
-                            <Checkbox
-                              checked={selectedCities.includes(city)}
-                              onCheckedChange={(checked) => {
-                                if (checked) {
-                                  setSelectedCities([...selectedCities, city]);
-                                } else {
-                                  setSelectedCities(selectedCities.filter(c => c !== city));
-                                }
-                              }}
-                            />
-                            {city}
-                          </label>
-                        ))}
-                      </div>
-                    </FilterSection>
-
-                    {/* Skills */}
-                    <FilterSection title="Skills" icon={Briefcase}>
-                      <div className="max-h-48 overflow-y-auto space-y-2">
-                        {skills.slice(0, 20).map(skill => (
-                          <label key={skill} className="flex items-center gap-2 text-sm cursor-pointer">
-                            <Checkbox
-                              checked={selectedSkills.includes(skill)}
-                              onCheckedChange={(checked) => {
-                                if (checked) {
-                                  setSelectedSkills([...selectedSkills, skill]);
-                                } else {
-                                  setSelectedSkills(selectedSkills.filter(s => s !== skill));
-                                }
-                              }}
-                            />
-                            {skill}
-                          </label>
-                        ))}
-                      </div>
-                    </FilterSection>
-
-                    {/* Education */}
-                    <FilterSection title="Education" icon={GraduationCap}>
-                      <div className="space-y-2">
-                        {educationLevels.map(level => (
-                          <label key={level} className="flex items-center gap-2 text-sm cursor-pointer">
-                            <Checkbox
-                              checked={selectedEducation.includes(level)}
-                              onCheckedChange={(checked) => {
-                                if (checked) {
-                                  setSelectedEducation([...selectedEducation, level]);
-                                } else {
-                                  setSelectedEducation(selectedEducation.filter(e => e !== level));
-                                }
-                              }}
-                            />
-                            {level}
-                          </label>
-                        ))}
-                      </div>
-                    </FilterSection>
-
-                    {/* Notice Period */}
-                    <FilterSection title="Notice Period" icon={Clock}>
-                      <div className="space-y-2">
-                        {noticePeriods.map(period => (
-                          <label key={period} className="flex items-center gap-2 text-sm cursor-pointer">
-                            <Checkbox
-                              checked={selectedNotice.includes(period)}
-                              onCheckedChange={(checked) => {
-                                if (checked) {
-                                  setSelectedNotice([...selectedNotice, period]);
-                                } else {
-                                  setSelectedNotice(selectedNotice.filter(n => n !== period));
-                                }
-                              }}
-                            />
-                            {period}
-                          </label>
-                        ))}
-                      </div>
-                    </FilterSection>
-                  </div>
-
-                  <div className="mt-6 flex gap-2">
-                    <Button variant="outline" className="flex-1" onClick={clearFilters}>
-                      <RefreshCw className="mr-2 h-4 w-4" />
-                      Clear All
-                    </Button>
-                    <Button className="flex-1" onClick={() => setFiltersOpen(false)}>
-                      Apply Filters
-                    </Button>
-                  </div>
-                </SheetContent>
-              </Sheet>
-
-              <Select value={sortField} onValueChange={(v) => setSortField(v as keyof Applicant)}>
-                <SelectTrigger className="w-[160px]">
-                  <SelectValue placeholder="Sort by" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="name">Name</SelectItem>
-                  <SelectItem value="experience">Experience</SelectItem>
-                  <SelectItem value="currentCTC">Current CTC</SelectItem>
-                  <SelectItem value="currentCity">Location</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          {/* Active Filters */}
-          {(selectedCities.length > 0 || selectedSkills.length > 0 || selectedEducation.length > 0 || selectedNotice.length > 0) && (
-            <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t">
-              <span className="text-sm text-muted-foreground">Active filters:</span>
-              {selectedCities.map(city => (
-                <Badge key={city} variant="secondary" className="gap-1">
-                  {city}
-                  <X 
-                    className="h-3 w-3 cursor-pointer" 
-                    onClick={() => setSelectedCities(selectedCities.filter(c => c !== city))}
-                  />
-                </Badge>
-              ))}
-              {selectedSkills.map(skill => (
-                <Badge key={skill} variant="secondary" className="gap-1">
-                  {skill}
-                  <X 
-                    className="h-3 w-3 cursor-pointer" 
-                    onClick={() => setSelectedSkills(selectedSkills.filter(s => s !== skill))}
-                  />
-                </Badge>
-              ))}
-              {selectedEducation.map(edu => (
-                <Badge key={edu} variant="secondary" className="gap-1">
-                  {edu}
-                  <X 
-                    className="h-3 w-3 cursor-pointer" 
-                    onClick={() => setSelectedEducation(selectedEducation.filter(e => e !== edu))}
-                  />
-                </Badge>
-              ))}
-              {selectedNotice.map(notice => (
-                <Badge key={notice} variant="secondary" className="gap-1">
-                  {notice}
-                  <X 
-                    className="h-3 w-3 cursor-pointer" 
-                    onClick={() => setSelectedNotice(selectedNotice.filter(n => n !== notice))}
-                  />
-                </Badge>
-              ))}
-              <Button variant="ghost" size="sm" onClick={clearFilters}>
-                Clear all
-              </Button>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Bulk Actions Bar */}
-      {selectedCandidates.length > 0 && (
-        <Card className="shadow-lg border-primary/20 bg-primary/5">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">
-                {selectedCandidates.length} candidate{selectedCandidates.length > 1 ? 's' : ''} selected
-              </span>
-              <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm" onClick={handleAddToFolder}>
-                  <FolderPlus className="mr-2 h-4 w-4" />
-                  Add to Folder
-                </Button>
-                <Button variant="outline" size="sm" onClick={handleMarkFavorite}>
-                  <Star className="mr-2 h-4 w-4" />
-                  Mark Favorite
-                </Button>
-                <Button variant="outline" size="sm" onClick={handleDownloadResumes}>
-                  <Download className="mr-2 h-4 w-4" />
-                  Download Resumes
-                </Button>
-                <Button variant="ghost" size="sm" onClick={() => setSelectedCandidates([])}>
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      {activeFilterChips.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {activeFilterChips.map((c) => (
+            <Badge key={c.key} variant="secondary">{c.label}</Badge>
+          ))}
+          <Button variant="ghost" size="sm" onClick={() => setFilters(defaultSearchFilters)}>Clear all</Button>
+        </div>
       )}
 
-      {/* Candidates Table */}
-      <Card className="shadow-sm">
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-lg">
-              Talent Pool
-              <Badge variant="secondary" className="ml-2">
-                {filteredCandidates.length} candidates
-              </Badge>
-            </CardTitle>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-12">
-                    <Checkbox 
-                      checked={selectedCandidates.length === paginatedCandidates.length && paginatedCandidates.length > 0}
-                      onCheckedChange={handleSelectAll}
-                    />
-                  </TableHead>
-                  <TableHead 
-                    className="cursor-pointer hover:text-primary"
-                    onClick={() => handleSort('name')}
-                  >
-                    <div className="flex items-center gap-1">
-                      Candidate
-                      {sortField === 'name' && (sortOrder === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />)}
-                    </div>
-                  </TableHead>
-                  <TableHead>Skills</TableHead>
-                  <TableHead 
-                    className="cursor-pointer hover:text-primary"
-                    onClick={() => handleSort('currentCity')}
-                  >
-                    <div className="flex items-center gap-1">
-                      Location
-                      {sortField === 'currentCity' && (sortOrder === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />)}
-                    </div>
-                  </TableHead>
-                  <TableHead 
-                    className="cursor-pointer hover:text-primary"
-                    onClick={() => handleSort('experience')}
-                  >
-                    <div className="flex items-center gap-1">
-                      Experience
-                      {sortField === 'experience' && (sortOrder === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />)}
-                    </div>
-                  </TableHead>
-                  <TableHead 
-                    className="cursor-pointer hover:text-primary"
-                    onClick={() => handleSort('currentCTC')}
-                  >
-                    <div className="flex items-center gap-1">
-                      CTC
-                      {sortField === 'currentCTC' && (sortOrder === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />)}
-                    </div>
-                  </TableHead>
-                  <TableHead>Notice</TableHead>
-                  <TableHead className="w-12"></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {loading ? (
-                  <TableRow>
-                    <TableCell colSpan={9} className="text-center py-12">
-                      <Loader2 className="h-6 w-6 animate-spin text-primary mx-auto" />
-                    </TableCell>
-                  </TableRow>
-                ) : paginatedCandidates.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={9} className="text-center py-12 text-muted-foreground">
-                      No candidates found
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  paginatedCandidates.map((candidate) => (
-                  <TableRow 
-                    key={candidate.id} 
-                    className="hover:bg-muted/50 cursor-pointer"
-                    onClick={() => handleViewProfile(candidate.id)}
-                  >
-                    <TableCell onClick={(e) => e.stopPropagation()}>
-                      <Checkbox 
-                        checked={selectedCandidates.includes(candidate.id)}
-                        onCheckedChange={() => handleSelectCandidate(candidate.id)}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <Avatar className="h-9 w-9">
-                          <AvatarFallback className="bg-primary/10 text-primary text-sm">
-                            {candidate.name.split(" ").map(n => n[0]).join("")}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p className="font-medium hover:text-primary">{candidate.name || 'Unknown'}</p>
-                          <p className="text-sm text-muted-foreground">{candidate.current_designation || candidate.job_role || 'N/A'}</p>
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex flex-wrap gap-1">
-                        {(candidate.key_skills || '').split(/[,;|]/).slice(0, 3).map((skill: string, i: number) => (
-                          <Badge key={i} variant="secondary" className="text-xs">
-                            {skill}
-                          </Badge>
-                        ))}
-                        {(candidate.key_skills || '').split(/[,;|]/).filter((s: string) => s.trim()).length > 3 && (
-                          <Badge variant="outline" className="text-xs">
-                            +{(candidate.key_skills || '').split(/[,;|]/).filter((s: string) => s.trim()).length - 3}
-                          </Badge>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell>{candidate.city || candidate.city_current_location || 'N/A'}</TableCell>
-                    <TableCell>{candidate.total_experience_numbers || candidate.total_experience || '0'} yrs</TableCell>
-                    <TableCell>
-                      <Badge variant="outline">₹{candidate.current_ctc || 'N/A'} LPA</Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Badge 
-                        variant={candidate.notice_period === 'Immediate' ? 'default' : 'secondary'}
-                        className="text-xs"
-                      >
-                        {candidate.notice_period || 'N/A'}
-                      </Badge>
-                    </TableCell>
-                    <TableCell onClick={(e) => e.stopPropagation()}>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => handleViewProfile(candidate.id)}>
-                            <Eye className="mr-2 h-4 w-4" />
-                            View Profile
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <FolderPlus className="mr-2 h-4 w-4" />
-                            Add to Folder
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem>
-                            <Star className="mr-2 h-4 w-4" />
-                            Add to Favorites
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <Download className="mr-2 h-4 w-4" />
-                            Download Resume
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </div>
+      {savedSearches.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {savedSearches.slice(0, 10).map((s) => (
+            <Badge key={s.id} variant="outline" className="cursor-pointer" onClick={() => {
+              setSearchQuery(s.search_query || "");
+              setFilters({ ...defaultSearchFilters, ...(s.filters as SearchFilters) });
+            }}>
+              {s.name}
+              <button type="button" className="ml-1" onClick={(e) => { e.stopPropagation(); deleteSavedSearch(s.id).then(loadSaved); }}>×</button>
+            </Badge>
+          ))}
+        </div>
+      )}
 
-          {/* Pagination */}
-          <div className="flex items-center justify-between mt-4">
-            <p className="text-sm text-muted-foreground">
-              Showing {(currentPage - 1) * itemsPerPage + 1}-{Math.min(currentPage * itemsPerPage, filteredCandidates.length)} of {filteredCandidates.length} candidates
-            </p>
-            <div className="flex items-center gap-2">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                disabled={currentPage === 1}
-                onClick={() => setCurrentPage(p => p - 1)}
-              >
-                Previous
-              </Button>
-              <div className="flex items-center gap-1">
-                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                  const page = i + 1;
-                  return (
-                    <Button
-                      key={page}
-                      variant={currentPage === page ? "default" : "outline"}
-                      size="sm"
-                      className="w-8"
-                      onClick={() => setCurrentPage(page)}
-                    >
-                      {page}
-                    </Button>
-                  );
-                })}
-                {totalPages > 5 && (
-                  <>
-                    <span className="px-2">...</span>
-                    <Button
-                      variant={currentPage === totalPages ? "default" : "outline"}
-                      size="sm"
-                      className="w-8"
-                      onClick={() => setCurrentPage(totalPages)}
-                    >
-                      {totalPages}
-                    </Button>
-                  </>
-                )}
-              </div>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                disabled={currentPage === totalPages}
-                onClick={() => setCurrentPage(p => p + 1)}
-              >
-                Next
-              </Button>
+      <div className="flex gap-6">
+        {filtersOpen && (
+          <aside className="w-72 shrink-0 hidden lg:block sticky top-20 self-start max-h-[calc(100vh-6rem)] overflow-y-auto">
+            <ClientSearchFilters
+              filters={filters}
+              onFiltersChange={setFilters}
+              onReset={() => setFilters(defaultSearchFilters)}
+              isCollapsed={false}
+              onToggleCollapse={() => setFiltersOpen(false)}
+            />
+          </aside>
+        )}
+        <main className="flex-1 min-w-0">
+          {loading ? (
+            <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-4">
+              {Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-48 rounded-xl" />)}
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          ) : applicants.length === 0 ? (
+            <EmptyState icon={Users} title="No candidates found" description="Try adjusting your search or filters." actionLabel="Clear Filters" onAction={() => { setFilters(defaultSearchFilters); setSearchQuery(""); }} />
+          ) : view === "cards" ? (
+            <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-4">
+              {applicants.map((a) => (
+                <CandidateCard key={a.id} applicant={a} canSeeContact={canSeeContact} onDownloadCv={handleDownloadCv} />
+              ))}
+            </div>
+          ) : (
+            <div className="dashboard-card overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="bg-[var(--surface-2)] text-xs uppercase text-muted-foreground">
+                  <tr>
+                    <th className="text-left p-3">Name</th>
+                    <th className="text-left p-3">Experience</th>
+                    <th className="text-left p-3">Location</th>
+                    <th className="text-left p-3">Completion</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {applicants.map((a) => (
+                    <tr key={a.id} className="border-t hover:bg-[var(--surface-2)] h-[52px]">
+                      <td className="p-3 font-medium">{a.name}</td>
+                      <td className="p-3">{a.total_experience_years ?? "—"}y</td>
+                      <td className="p-3">{a.city}</td>
+                      <td className="p-3">{a.profile_complete_percent ?? 0}%</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+          {totalCount > 24 && (
+            <div className="flex justify-center gap-2 mt-6">
+              <Button variant="outline" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>Previous</Button>
+              <Button variant="outline" disabled={page * 24 >= totalCount} onClick={() => setPage((p) => p + 1)}>Next</Button>
+            </div>
+          )}
+        </main>
+      </div>
+
+      <CVLimitModal open={cvLimitOpen} onOpenChange={setCvLimitOpen} limit={cvLimit} resetDate={resetDate} />
+
+      <Dialog open={saveSearchOpen} onOpenChange={setSaveSearchOpen}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Save Search</DialogTitle></DialogHeader>
+          <Label>Name</Label>
+          <Input value={searchName} onChange={(e) => setSearchName(e.target.value)} />
+          <DialogFooter>
+            <Button onClick={async () => {
+              if (!clientId || !user?.id || !searchName) return;
+              await saveClientSearch(clientId, user.id, searchName, searchQuery, filters as unknown as Record<string, unknown>);
+              toast.success("Search saved");
+              setSaveSearchOpen(false);
+              loadSaved();
+            }}>Save</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

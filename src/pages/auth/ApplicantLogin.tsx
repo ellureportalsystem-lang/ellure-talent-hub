@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
+import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -17,8 +19,15 @@ const ApplicantLogin = () => {
   const [password, setPassword] = useState("");
   const [activeTab, setActiveTab] = useState<"email" | "phone">("email");
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const { signIn, signInWithPhone } = useAuth();
+
+  useEffect(() => {
+    if (searchParams.get("reason") === "timeout") {
+      toast({ title: "Session ended", description: "You were logged out due to inactivity." });
+    }
+  }, [searchParams, toast]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

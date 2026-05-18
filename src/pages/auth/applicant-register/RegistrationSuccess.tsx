@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import confetti from "canvas-confetti";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -15,6 +16,9 @@ const RegistrationSuccess = () => {
   const [isLoading, setIsLoading] = useState(!isDemo); // Skip loading in demo mode
 
   useEffect(() => {
+    if (!isDemo) {
+      confetti({ particleCount: 120, spread: 70, origin: { y: 0.6 } });
+    }
     // TEMPORARY: Skip profile check in demo mode
     if (isDemo) {
       setIsLoading(false);
@@ -32,7 +36,7 @@ const RegistrationSuccess = () => {
           setIsLoading(false);
           // Redirect to profile after 2 seconds
           setTimeout(() => {
-            navigate("/dashboard/applicant/profile");
+            navigate("/dashboard/applicant");
           }, 2000);
           return;
         }
@@ -163,10 +167,10 @@ const RegistrationSuccess = () => {
           {/* Action Buttons */}
           {!isLoading && (
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Link to="/dashboard/applicant/profile">
+              <Link to="/dashboard/applicant">
                 <Button size="lg" className="w-full sm:w-auto">
                   <User className="mr-2 h-4 w-4" />
-                  View My Profile
+                  Go to Dashboard
                 </Button>
               </Link>
               <Button variant="outline" size="lg" className="w-full sm:w-auto">

@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { fetchFilterCities, fetchFilterSkills } from "@/services/dashboardService";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -26,13 +27,7 @@ import {
   RotateCcw,
   Filter,
 } from "lucide-react";
-import {
-  skillOptions,
-  cityOptions,
-  companyOptions,
-  educationOptions,
-  noticePeriodOptions,
-} from "@/data/mockApplicants";
+import { companyOptions, educationOptions, noticePeriodOptions } from "@/data/masterFilterOptions";
 
 export interface SearchFilters {
   keywords: string;
@@ -50,6 +45,11 @@ export interface SearchFilters {
   activeDays: number | null;
   resumeUpdatedDays: number | null;
   yearOfPassing: [number, number];
+  isActivelyLooking: boolean | null;
+  isVerified: boolean | null;
+  hasResume: boolean | null;
+  profileCompleteRange: [number, number];
+  status: string[];
 }
 
 interface ResumeSearchFiltersProps {
@@ -154,6 +154,14 @@ const ResumeSearchFilters = ({
   isCollapsed,
   onToggleCollapse,
 }: ResumeSearchFiltersProps) => {
+  const [skillOptions, setSkillOptions] = useState<string[]>([]);
+  const [cityOptions, setCityOptions] = useState<string[]>([]);
+
+  useEffect(() => {
+    fetchFilterSkills().then(setSkillOptions);
+    fetchFilterCities().then(setCityOptions);
+  }, []);
+
   const updateFilter = <K extends keyof SearchFilters>(
     key: K,
     value: SearchFilters[K]
@@ -432,6 +440,72 @@ const ResumeSearchFilters = ({
                   <SelectItem value="60">Last 60 days</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+          </div>
+        </FilterSection>
+
+        <FilterSection title="Profile quality">
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <Label className="text-xs">Actively looking</Label>
+              <Select
+                value={filters.isActivelyLooking === null ? "any" : filters.isActivelyLooking ? "yes" : "no"}
+                onValueChange={(v) =>
+                  updateFilter("isActivelyLooking", v === "any" ? null : v === "yes")
+                }
+              >
+                <SelectTrigger className="h-8 w-24">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="any">Any</SelectItem>
+                  <SelectItem value="yes">Yes</SelectItem>
+                  <SelectItem value="no">No</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex items-center justify-between">
+              <Label className="text-xs">Verified</Label>
+              <Select
+                value={filters.isVerified === null ? "any" : filters.isVerified ? "yes" : "no"}
+                onValueChange={(v) => updateFilter("isVerified", v === "any" ? null : v === "yes")}
+              >
+                <SelectTrigger className="h-8 w-24"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="any">Any</SelectItem>
+                  <SelectItem value="yes">Yes</SelectItem>
+                  <SelectItem value="no">No</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex items-center justify-between">
+              <Label className="text-xs">Has resume</Label>
+              <Select
+                value={filters.hasResume === null ? "any" : filters.hasResume ? "yes" : "no"}
+                onValueChange={(v) => updateFilter("hasResume", v === "any" ? null : v === "yes")}
+              >
+                <SelectTrigger className="h-8 w-24"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="any">Any</SelectItem>
+                  <SelectItem value="yes">Yes</SelectItem>
+                  <SelectItem value="no">No</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="px-1">
+              <Label className="text-xs">Profile completion %</Label>
+              <Slider
+                value={filters.profileCompleteRange}
+                onValueChange={(value) => updateFilter("profileCompleteRange", value as [number, number])}
+                max={100}
+                min={0}
+                step={5}
+                className="mt-2"
+              />
+              <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                <span>{filters.profileCompleteRange[0]}%</span>
+                <span>{filters.profileCompleteRange[1]}%</span>
+              </div>
             </div>
           </div>
         </FilterSection>

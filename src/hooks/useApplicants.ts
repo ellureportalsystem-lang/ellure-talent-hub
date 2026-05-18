@@ -25,6 +25,12 @@ export interface Applicant {
   education_level?: string;
   city_current_location?: string;
   skill_job_role_applying_for?: string;
+  total_experience_years?: number;
+  profile_complete_percent?: number;
+  is_verified?: boolean;
+  verified?: boolean;
+  is_actively_looking?: boolean;
+  updated_at?: string;
 }
 
 export interface UseApplicantsOptions {

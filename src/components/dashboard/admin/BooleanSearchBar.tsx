@@ -15,6 +15,7 @@ import {
   History,
   Sparkles,
 } from "lucide-react";
+import DOMPurify from "dompurify";
 
 interface BooleanSearchBarProps {
   value: string;
@@ -67,7 +68,10 @@ const BooleanSearchBar = ({
       /"([^"]+)"/g,
       '<span class="text-secondary font-medium">"$1"</span>'
     );
-    return highlighted;
+    return DOMPurify.sanitize(highlighted, {
+      ALLOWED_TAGS: ["span"],
+      ALLOWED_ATTR: ["class"],
+    });
   };
 
   return (

@@ -10,6 +10,7 @@ import {
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { NotificationBell } from "@/components/notifications/NotificationBell";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,9 +28,13 @@ import UsersManagement from "./admin/UsersManagement";
 import AdminSettings from "./admin/AdminSettings";
 import EnterpriseApplicantProfile from "./admin/EnterpriseApplicantProfile";
 import BulkResumeUpload from "./admin/BulkResumeUpload";
+import AdminJobsPage from "./admin/AdminJobsPage";
+import AdminMessagesPage from "./admin/AdminMessagesPage";
+import { useUnreadMessageCount } from "@/hooks/useUnreadMessageCount";
 
 const AdminDashboard = () => {
   const { profile, signOut } = useAuth();
+  const { data: unreadTotal = 0 } = useUnreadMessageCount();
   const location = useLocation();
   const navigate = useNavigate();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -49,15 +54,29 @@ const AdminDashboard = () => {
     .toUpperCase()
     .slice(0, 2);
 
-  const navItems = [
-    { path: "/dashboard/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
-    { path: "/dashboard/admin/applicants", label: "Resume Search", icon: Search, badge: "AI" },
-    { path: "/dashboard/admin/applicants/bulk-resumes", label: "Bulk CV upload", icon: Upload },
-    { path: "/dashboard/admin/folders", label: "Folders", icon: FolderOpen },
-    { path: "/dashboard/admin/jobs", label: "Jobs", icon: Briefcase },
-    { path: "/dashboard/admin/reports", label: "Reports", icon: BarChart3 },
-    { path: "/dashboard/admin/users", label: "Users", icon: UserCog },
-    { path: "/dashboard/admin/settings", label: "Settings", icon: Settings },
+  const navSections = [
+    {
+      label: "MAIN MENU",
+      items: [
+        { path: "/dashboard/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
+        { path: "/dashboard/admin/applicants", label: "Resume Search", icon: Search, badge: "AI" },
+        { path: "/dashboard/admin/applicants/bulk-resumes", label: "Bulk CV upload", icon: Upload },
+        { path: "/dashboard/admin/folders", label: "Folders", icon: FolderOpen },
+      ],
+    },
+    {
+      label: "MANAGEMENT",
+      items: [
+        { path: "/dashboard/admin/jobs", label: "Jobs", icon: Briefcase },
+        { path: "/dashboard/admin/reports", label: "Reports", icon: BarChart3 },
+        { path: "/dashboard/admin/users", label: "Users", icon: UserCog },
+        { path: "/dashboard/admin/messages", label: "Messages", icon: Bell },
+      ],
+    },
+    {
+      label: "SETTINGS",
+      items: [{ path: "/dashboard/admin/settings", label: "Settings", icon: Settings }],
+    },
   ];
 
   const isActive = (path: string, exact?: boolean) => {
@@ -84,45 +103,52 @@ const AdminDashboard = () => {
       <Separator />
 
       {/* Navigation */}
-      <nav className="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          const active = isActive(item.path, item.exact);
-
-          return (
-            <Link
-              key={item.path}
-              to={item.path}
-              onClick={() => mobile && setMobileMenuOpen(false)}
-              title={sidebarCollapsed && !mobile ? item.label : undefined}
-              className={cn(
-                "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group",
-                sidebarCollapsed && !mobile && "justify-center px-2",
-                active
-                  ? "bg-primary text-primary-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
-              )}
-            >
-              <Icon className={cn("h-[18px] w-[18px] flex-shrink-0", active && "text-primary-foreground")} />
-              {(!sidebarCollapsed || mobile) && (
-                <>
-                  <span className="truncate">{item.label}</span>
-                  {item.badge && (
-                    <Badge
-                      variant={active ? "secondary" : "outline"}
-                      className={cn(
-                        "text-[10px] px-1.5 py-0 ml-auto",
-                        active && "bg-primary-foreground/20 text-primary-foreground border-0"
-                      )}
-                    >
-                      {item.badge}
-                    </Badge>
+      <nav className="flex-1 py-4 px-3 space-y-4 overflow-y-auto">
+        {navSections.map((section) => (
+          <div key={section.label} className="space-y-1">
+            {(!sidebarCollapsed || mobile) && (
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground px-3 mb-1">
+                {section.label}
+              </p>
+            )}
+            {section.items.map((item) => {
+              const Icon = item.icon;
+              const active = isActive(item.path, item.exact);
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  onClick={() => mobile && setMobileMenuOpen(false)}
+                  title={sidebarCollapsed && !mobile ? item.label : undefined}
+                  className={cn(
+                    "flex items-center gap-3 px-3 h-10 rounded-lg text-sm font-medium transition-all duration-200",
+                    sidebarCollapsed && !mobile && "justify-center px-2",
+                    active
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
                   )}
-                </>
-              )}
-            </Link>
-          );
-        })}
+                >
+                  <Icon className={cn("h-[18px] w-[18px] flex-shrink-0", active && "text-primary-foreground")} />
+                  {(!sidebarCollapsed || mobile) && (
+                    <>
+                      <span className="flex-1 truncate min-w-0">{item.label}</span>
+                      {item.badge && (
+                        <Badge variant={active ? "secondary" : "outline"} className="text-[10px] px-1.5 py-0 shrink-0">
+                          {item.badge}
+                        </Badge>
+                      )}
+                      {item.path.endsWith("/messages") && unreadTotal > 0 && (
+                        <Badge variant="destructive" className="h-5 min-w-5 px-1 justify-center text-[10px] shrink-0">
+                          {unreadTotal > 99 ? "99+" : unreadTotal}
+                        </Badge>
+                      )}
+                    </>
+                  )}
+                </Link>
+              );
+            })}
+          </div>
+        ))}
       </nav>
 
       {/* Bottom section */}
@@ -136,7 +162,7 @@ const AdminDashboard = () => {
           "flex items-center gap-3 p-2 rounded-lg",
           sidebarCollapsed && !mobile && "justify-center"
         )}>
-          <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 ring-2 ring-primary/20">
+          <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 ring-2 ring-primary/20">
             <span className="text-xs font-semibold text-primary">{initials}</span>
           </div>
           {(!sidebarCollapsed || mobile) && (
@@ -225,12 +251,7 @@ const AdminDashboard = () => {
           <div className="flex items-center gap-2">
             <ThemeToggle />
 
-            <Button variant="ghost" size="icon" className="relative h-9 w-9">
-              <Bell className="h-[18px] w-[18px] text-muted-foreground" />
-              <span className="absolute -top-0.5 -right-0.5 h-4 w-4 rounded-full bg-destructive text-[10px] font-medium text-destructive-foreground flex items-center justify-center">
-                3
-              </span>
-            </Button>
+            <NotificationBell />
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -276,9 +297,10 @@ const AdminDashboard = () => {
             <Route path="applicants/bulk-resumes" element={<BulkResumeUpload />} />
             <Route path="applicants/:id" element={<EnterpriseApplicantProfile viewMode="admin" />} />
             <Route path="folders" element={<FoldersManagement />} />
-            <Route path="jobs" element={<div className="p-6"><h1 className="text-2xl font-bold">Jobs Management</h1><p className="text-muted-foreground mt-2">Coming soon...</p></div>} />
+            <Route path="jobs/*" element={<AdminJobsPage />} />
             <Route path="reports" element={<ReportsPage />} />
             <Route path="users" element={<UsersManagement />} />
+            <Route path="messages" element={<AdminMessagesPage />} />
             <Route path="settings" element={<AdminSettings />} />
           </Routes>
         </main>

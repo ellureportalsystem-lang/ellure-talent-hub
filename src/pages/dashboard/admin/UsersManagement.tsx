@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -38,16 +40,79 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Switch } from "@/components/ui/switch";
 
+interface UserRow {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  status: string;
+  createdAt: string;
+}
+
 const UsersManagement = () => {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [userType, setUserType] = useState<"admin" | "client">("admin");
+  const [users, setUsers] = useState<UserRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
 
-  const mockUsers = [
-    { id: 1, name: "Admin User", email: "admin@ellureconsulting.com", role: "Admin", status: "Active", createdAt: "2024-01-10" },
-    { id: 2, name: "Infosys Recruiter", email: "client+infosys@ellureconsulting.com", role: "Client", status: "Active", createdAt: "2024-02-15" },
-    { id: 3, name: "TCS HR Manager", email: "client+tcs@ellureconsulting.com", role: "Client", status: "Active", createdAt: "2024-02-20" },
-    { id: 4, name: "Sub Admin", email: "admin+subadmin@ellureconsulting.com", role: "Admin", status: "Inactive", createdAt: "2024-03-01" },
-  ];
+  useEffect(() => {
+    const load = async () => {
+      setLoading(true);
+      const rows: UserRow[] = [];
+
+      const { data: admins } = await supabase
+        .from("admin_users")
+        .select("id, email, full_name, status, created_at")
+        .order("created_at", { ascending: false });
+
+      admins?.forEach((a) => {
+        rows.push({
+          id: a.id,
+          name: a.full_name || a.email,
+          email: a.email,
+          role: "Admin",
+          status: a.status === "approved" ? "Active" : a.status === "pending" ? "Pending" : "Inactive",
+          createdAt: a.created_at ? new Date(a.created_at).toLocaleDateString() : "—",
+        });
+      });
+
+      const { data: clients } = await supabase
+        .from("clients")
+        .select("id, company_name, email, is_active, subscription_status, created_at")
+        .order("created_at", { ascending: false });
+
+      clients?.forEach((c) => {
+        rows.push({
+          id: c.id,
+          name: c.company_name,
+          email: c.email,
+          role: "Client",
+          status: c.is_active ? (c.subscription_status ?? "Active") : "Inactive",
+          createdAt: c.created_at ? new Date(c.created_at).toLocaleDateString() : "—",
+        });
+      });
+
+      setUsers(rows);
+      setLoading(false);
+    };
+    void load();
+  }, []);
+
+  const filtered = users.filter(
+    (u) =>
+      u.name.toLowerCase().includes(search.toLowerCase()) ||
+      u.email.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const approveClient = async (clientId: string) => {
+    const { error } = await supabase
+      .from("clients")
+      .update({ is_active: true, approved_at: new Date().toISOString(), subscription_status: "trial" })
+      .eq("id", clientId);
+    if (error) toast.error(error.message);
+    else toast.success("Client approved");
+  };
 
   return (
     <div className="space-y-6">
@@ -195,6 +260,8 @@ const UsersManagement = () => {
               <Input
                 placeholder="Search users..."
                 className="pl-9"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
               />
             </div>
           </div>
@@ -213,7 +280,19 @@ const UsersManagement = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {mockUsers.map((user) => (
+                {loading ? (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                      Loading users...
+                    </TableCell>
+                  </TableRow>
+                ) : filtered.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                      No users found
+                    </TableCell>
+                  </TableRow>
+                ) : filtered.map((user) => (
                   <TableRow key={user.id} className="hover:bg-muted/50">
                     <TableCell className="font-medium">{user.name}</TableCell>
                     <TableCell className="text-muted-foreground">{user.email}</TableCell>
@@ -247,6 +326,11 @@ const UsersManagement = () => {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
+                          {user.role === "Client" && user.status === "Pending" && (
+                            <DropdownMenuItem onClick={() => void approveClient(user.id)}>
+                              Approve client
+                            </DropdownMenuItem>
+                          )}
                           <DropdownMenuItem>
                             <Key className="mr-2 h-4 w-4" />
                             Reset Password

@@ -13,6 +13,34 @@ export interface DashboardStats {
   importedApplicants: number;
   jobsPosted: number;
   resumesDownloaded: number;
+  cvDownloadsThisMonth: number;
+  pendingApprovals: number;
+  verifiedProfiles: number;
+  applicationsThisMonth: number;
+}
+
+export interface CityDistribution {
+  city: string;
+  count: number;
+}
+
+export interface PendingClient {
+  id: string;
+  company_name: string;
+  contact_email: string | null;
+  created_at: string;
+}
+
+export interface ClientHomeStats {
+  cvDownloadsRemaining: number;
+  cvDownloadsUsed: number;
+  cvDownloadsLimit: number;
+  activeJobs: number;
+  shortlistedCandidates: number;
+  teamMembers: number;
+  daysUntilRenewal: number | null;
+  subscriptionEndDate: string | null;
+  subscriptionStatus: string | null;
 }
 
 export interface RegistrationTrend {
@@ -175,6 +203,41 @@ export async function getAdminDashboardStats(dateRange: '7days' | '30days' | 'qu
       resumesDownloaded = 0;
     }
 
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+
+    let cvDownloadsThisMonth = 0;
+    try {
+      const { count } = await supabase
+        .from('cv_download_log')
+        .select('*', { count: 'exact', head: true })
+        .gte('created_at', monthStart);
+      cvDownloadsThisMonth = count || 0;
+    } catch {
+      cvDownloadsThisMonth = 0;
+    }
+
+    const { count: pendingApprovals } = await supabase
+      .from('clients')
+      .select('*', { count: 'exact', head: true })
+      .eq('is_active', false);
+
+    const { count: verifiedProfiles } = await supabase
+      .from('applicants')
+      .select('*', { count: 'exact', head: true })
+      .eq('is_deleted', false)
+      .eq('verified', true);
+
+    let applicationsThisMonth = 0;
+    try {
+      const { count } = await supabase
+        .from('job_applications')
+        .select('*', { count: 'exact', head: true })
+        .gte('applied_at', monthStart);
+      applicationsThisMonth = count || 0;
+    } catch {
+      applicationsThisMonth = 0;
+    }
+
     return {
       totalApplicants: totalApplicants || 0,
       newToday: newToday || 0,
@@ -185,6 +248,10 @@ export async function getAdminDashboardStats(dateRange: '7days' | '30days' | 'qu
       importedApplicants: importedApplicants || 0,
       jobsPosted: jobsPosted || 0,
       resumesDownloaded: resumesDownloaded || 0,
+      cvDownloadsThisMonth,
+      pendingApprovals: pendingApprovals || 0,
+      verifiedProfiles: verifiedProfiles || 0,
+      applicationsThisMonth,
     };
   } catch (error) {
     console.error('Error fetching dashboard stats:', error);
@@ -504,4 +571,270 @@ export async function getClientDashboardStats(clientId?: string): Promise<{
       availableCandidates: 0,
     };
   }
+}
+
+/** Registration trend from profiles.created_at (last 30 days) */
+export async function getProfileRegistrationTrend(days = 30): Promise<RegistrationTrend[]> {
+  try {
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - days);
+
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('created_at')
+      .gte('created_at', startDate.toISOString())
+      .order('created_at', { ascending: true });
+
+    if (error) throw error;
+
+    const grouped: Record<string, number> = {};
+    data?.forEach((row) => {
+      const dateKey = new Date(row.created_at).toISOString().split('T')[0];
+      grouped[dateKey] = (grouped[dateKey] || 0) + 1;
+    });
+
+    const result: RegistrationTrend[] = [];
+    for (let i = days - 1; i >= 0; i--) {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      const dateKey = date.toISOString().split('T')[0];
+      result.push({
+        date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        applicants: grouped[dateKey] || 0,
+      });
+    }
+    return result;
+  } catch (error) {
+    console.error('Error fetching profile registration trend:', error);
+    return [];
+  }
+}
+
+/** Top skills from applicant_search_index */
+export async function getTopSkillsFromSearchIndex(limit = 10): Promise<SkillDistribution[]> {
+  try {
+    const { data, error } = await supabase
+      .from('applicant_search_index')
+      .select('key_skills')
+      .not('key_skills', 'is', null);
+
+    if (error) throw error;
+
+    const skillCounts: Record<string, number> = {};
+    data?.forEach((row) => {
+      const raw = row.key_skills;
+      const skills: string[] = Array.isArray(raw)
+        ? raw.map(String)
+        : String(raw || '')
+            .split(/[,;|]/)
+            .map((s) => s.trim())
+            .filter(Boolean);
+      skills.forEach((skill) => {
+        const key = skill.charAt(0).toUpperCase() + skill.slice(1).toLowerCase();
+        if (key) skillCounts[key] = (skillCounts[key] || 0) + 1;
+      });
+    });
+
+    return Object.entries(skillCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, limit)
+      .map(([name, value]) => ({ name, value }));
+  } catch (error) {
+    console.error('Error fetching search index skills:', error);
+    return getSkillDistribution(limit);
+  }
+}
+
+export async function getCityDistribution(limit = 10): Promise<CityDistribution[]> {
+  try {
+    const { data, error } = await supabase
+      .from('applicant_search_index')
+      .select('current_city')
+      .not('current_city', 'is', null);
+
+    if (error) throw error;
+
+    const counts: Record<string, number> = {};
+    data?.forEach((row) => {
+      const city = String(row.current_city || '').trim();
+      if (city) counts[city] = (counts[city] || 0) + 1;
+    });
+
+    if (Object.keys(counts).length === 0) {
+      const { data: applicants } = await supabase
+        .from('applicants')
+        .select('city')
+        .eq('is_deleted', false)
+        .not('city', 'is', null);
+      applicants?.forEach((a) => {
+        const city = String(a.city || '').trim();
+        if (city) counts[city] = (counts[city] || 0) + 1;
+      });
+    }
+
+    return Object.entries(counts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, limit)
+      .map(([city, count]) => ({ city, count }));
+  } catch (error) {
+    console.error('Error fetching city distribution:', error);
+    return [];
+  }
+}
+
+export async function getPendingClients(limit = 10): Promise<PendingClient[]> {
+  try {
+    const { data, error } = await supabase
+      .from('clients')
+      .select('id, company_name, contact_email, created_at')
+      .eq('is_active', false)
+      .order('created_at', { ascending: false })
+      .limit(limit);
+
+    if (error) throw error;
+    return (data || []) as PendingClient[];
+  } catch (error) {
+    console.error('Error fetching pending clients:', error);
+    return [];
+  }
+}
+
+export async function approveClient(clientId: string): Promise<void> {
+  const { error } = await supabase
+    .from('clients')
+    .update({
+      is_active: true,
+      approved_at: new Date().toISOString(),
+      subscription_status: 'trial',
+    })
+    .eq('id', clientId);
+  if (error) throw new Error(error.message);
+}
+
+export async function getClientHomeStats(clientId: string): Promise<ClientHomeStats> {
+  try {
+    const { data: client } = await supabase
+      .from('clients')
+      .select('*, subscription_plans(*)')
+      .eq('id', clientId)
+      .single();
+
+    const plan = (client as { subscription_plans?: { cv_downloads_per_month?: number; max_team_members?: number; max_active_jobs?: number } })
+      ?.subscription_plans;
+    const cvLimit = plan?.cv_downloads_per_month ?? 0;
+    const cvUsed = (client as { cv_downloads_used_this_month?: number })?.cv_downloads_used_this_month ?? 0;
+
+    const { count: activeJobs } = await supabase
+      .from('jobs')
+      .select('*', { count: 'exact', head: true })
+      .eq('client_id', clientId)
+      .eq('status', 'active');
+
+    const { data: shortlists } = await supabase
+      .from('shortlists')
+      .select('id')
+      .eq('client_id', clientId);
+    const shortlistIds = (shortlists || []).map((s) => s.id);
+    let shortlistedCandidates = 0;
+    if (shortlistIds.length) {
+      const { count } = await supabase
+        .from('shortlist_items')
+        .select('*', { count: 'exact', head: true })
+        .in('shortlist_id', shortlistIds);
+      shortlistedCandidates = count || 0;
+    }
+
+    const { count: teamMembers } = await supabase
+      .from('client_team_members')
+      .select('*', { count: 'exact', head: true })
+      .eq('client_id', clientId)
+      .neq('status', 'inactive');
+
+    const endRaw = (client as { subscription_end_date?: string })?.subscription_end_date;
+    let daysUntilRenewal: number | null = null;
+    if (endRaw) {
+      const end = new Date(endRaw);
+      daysUntilRenewal = Math.ceil((end.getTime() - Date.now()) / 86400000);
+    }
+
+    return {
+      cvDownloadsRemaining: Math.max(0, cvLimit - cvUsed),
+      cvDownloadsUsed: cvUsed,
+      cvDownloadsLimit: cvLimit,
+      activeJobs: activeJobs || 0,
+      shortlistedCandidates,
+      teamMembers: teamMembers || 0,
+      daysUntilRenewal,
+      subscriptionEndDate: endRaw || null,
+      subscriptionStatus: (client as { subscription_status?: string })?.subscription_status || null,
+    };
+  } catch (error) {
+    console.error('Error fetching client home stats:', error);
+    return {
+      cvDownloadsRemaining: 0,
+      cvDownloadsUsed: 0,
+      cvDownloadsLimit: 0,
+      activeJobs: 0,
+      shortlistedCandidates: 0,
+      teamMembers: 0,
+      daysUntilRenewal: null,
+      subscriptionEndDate: null,
+      subscriptionStatus: null,
+    };
+  }
+}
+
+export async function getClientRecentProfileViews(clientId: string, limit = 5) {
+  try {
+    const { data, error } = await supabase
+      .from('profile_views')
+      .select('*, applicants(id, name, key_skills, total_experience_years, city)')
+      .eq('client_id', clientId)
+      .order('viewed_at', { ascending: false })
+      .limit(limit);
+    if (error) throw error;
+    return data || [];
+  } catch {
+    return [];
+  }
+}
+
+export async function getClientTopJobs(clientId: string, limit = 3) {
+  try {
+    const { data, error } = await supabase
+      .from('jobs')
+      .select('id, title, status, applications_count')
+      .eq('client_id', clientId)
+      .order('created_at', { ascending: false })
+      .limit(limit);
+    if (error) throw error;
+    return data || [];
+  } catch {
+    return [];
+  }
+}
+
+export async function fetchFilterCities(): Promise<string[]> {
+  const { data } = await supabase.from('cities').select('name').order('name').limit(500);
+  if (data?.length) return data.map((c) => c.name).filter(Boolean);
+  const { data: idx } = await supabase
+    .from('applicant_search_index')
+    .select('current_city')
+    .not('current_city', 'is', null)
+    .limit(500);
+  const set = new Set<string>();
+  idx?.forEach((r) => {
+    const c = String(r.current_city || '').trim();
+    if (c) set.add(c);
+  });
+  return [...set].sort();
+}
+
+export async function fetchFilterSkills(): Promise<string[]> {
+  const { data } = await supabase.from('applicant_skills').select('skill_name').limit(500);
+  if (data?.length) {
+    return [...new Set(data.map((s) => s.skill_name).filter(Boolean))].sort() as string[];
+  }
+  const dist = await getSkillDistribution(30);
+  return dist.map((d) => d.name).filter((n) => n !== 'Others');
 }

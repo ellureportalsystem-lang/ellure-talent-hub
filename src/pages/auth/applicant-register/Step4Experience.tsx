@@ -12,8 +12,12 @@ import {
 } from "@/components/ui/select";
 import RegistrationLayout from "@/components/registration/RegistrationLayout";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, X } from "lucide-react";
+import { Plus, X, Loader2 } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import { fetchCities, type City } from "@/services/masterDataService";
+import { useRegistrationApplicant } from "@/hooks/useRegistrationApplicant";
+import { saveRegistrationStep4 } from "@/services/registrationService";
+import { toast as sonnerToast } from "sonner";
 
 interface ExperienceEntry {
   companyName: string;
@@ -31,6 +35,9 @@ interface ExperienceEntry {
 const Step4Experience = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { applicantId } = useRegistrationApplicant();
+  const [isFresher, setIsFresher] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [entries, setEntries] = useState<ExperienceEntry[]>([]);
   const [cities, setCities] = useState<City[]>([]);
   const [stateId, setStateId] = useState<string>("");
@@ -83,7 +90,22 @@ const Step4Experience = () => {
     setEntries(updated);
   };
 
-  const onSubmit = () => {
+  const onSubmit = async () => {
+    if (isFresher) {
+      if (!applicantId) return;
+      setSaving(true);
+      try {
+        await saveRegistrationStep4(applicantId, true, []);
+        sonnerToast.success("Saved");
+        navigate("/auth/applicant-register/step-5");
+      } catch (err) {
+        sonnerToast.error(err instanceof Error ? err.message : "Save failed");
+      } finally {
+        setSaving(false);
+      }
+      return;
+    }
+
     // Validate entries
     for (let i = 0; i < entries.length; i++) {
       const entry = entries[i];
@@ -119,8 +141,33 @@ const Step4Experience = () => {
       }
     }
 
-    localStorage.setItem("applicant_step4", JSON.stringify({ entries }));
-    navigate("/auth/applicant-register/step-5");
+    if (!applicantId) return;
+    setSaving(true);
+    try {
+      const rows = entries.map((e) => {
+        const start = e.startDate ? new Date(e.startDate) : null;
+        const end = e.isCurrent ? null : e.endDate ? new Date(e.endDate) : null;
+        return {
+          companyName: e.companyName,
+          designation: e.designation,
+          employmentType: e.employmentType,
+          location: e.cityId,
+          startMonth: start ? start.getMonth() + 1 : undefined,
+          startYear: start ? start.getFullYear() : undefined,
+          endMonth: end ? end.getMonth() + 1 : undefined,
+          endYear: end ? end.getFullYear() : undefined,
+          isCurrent: e.isCurrent,
+          ctc: e.currentCtc ? parseFloat(e.currentCtc) : undefined,
+        };
+      });
+      await saveRegistrationStep4(applicantId, isFresher, rows);
+      sonnerToast.success("Saved");
+      navigate("/auth/applicant-register/step-5");
+    } catch (err) {
+      sonnerToast.error(err instanceof Error ? err.message : "Save failed");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handlePrevious = () => {
@@ -144,7 +191,7 @@ const Step4Experience = () => {
   return (
     <RegistrationLayout
       currentStep={4}
-      totalSteps={7}
+      totalSteps={8}
       stepTitle="Work Experience"
       stepSubtitle="Add your work experience (optional)"
       onNext={onSubmit}
@@ -152,18 +199,35 @@ const Step4Experience = () => {
       onSaveLater={handleSaveLater}
     >
       <div className="space-y-6">
+        <div className="flex items-center justify-between rounded-lg border border-[var(--surface-border)] bg-[var(--surface-1)] p-4">
+          <div>
+            <Label htmlFor="fresher-toggle" className="text-base font-medium">I am a Fresher</Label>
+            <p className="text-sm text-muted-foreground">No prior work experience</p>
+          </div>
+          <Switch
+            id="fresher-toggle"
+            checked={isFresher}
+            onCheckedChange={(checked) => {
+              setIsFresher(checked);
+              if (checked) setEntries([]);
+            }}
+          />
+        </div>
+
+        {isFresher ? (
+          <div className="text-center py-12 rounded-lg border border-dashed border-[var(--surface-border)] bg-[var(--surface-1)]">
+            <p className="text-muted-foreground font-medium">No work experience</p>
+            <p className="text-sm text-muted-foreground mt-1">You can continue to the next step.</p>
+          </div>
+        ) : (
+          <>
         {entries.length === 0 && (
           <div className="text-center py-8 border-2 border-dashed rounded-lg">
             <p className="text-muted-foreground mb-4">No experience entries yet</p>
-            <div className="flex gap-2 justify-center">
-              <Button type="button" onClick={addEntry}>
-                <Plus className="mr-2 h-4 w-4" />
-                Add Experience
-              </Button>
-              <Button type="button" variant="outline" onClick={handleSkip}>
-                Skip (Fresher)
-              </Button>
-            </div>
+            <Button type="button" onClick={addEntry}>
+              <Plus className="mr-2 h-4 w-4" />
+              Add Experience
+            </Button>
           </div>
         )}
 
@@ -322,6 +386,8 @@ const Step4Experience = () => {
             <Plus className="mr-2 h-4 w-4" />
             Add Another Experience Entry
           </Button>
+        )}
+          </>
         )}
       </div>
     </RegistrationLayout>

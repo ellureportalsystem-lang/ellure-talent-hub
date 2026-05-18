@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,10 +10,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
 import RegistrationLayout from "@/components/registration/RegistrationLayout";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, X } from "lucide-react";
+import { Plus, X, Loader2 } from "lucide-react";
+import { useRegistrationApplicant } from "@/hooks/useRegistrationApplicant";
+import { saveRegistrationStep5 } from "@/services/registrationService";
+import { toast as sonnerToast } from "sonner";
+import { TagInput } from "@/components/ui/tag-input";
+import { supabase } from "@/lib/supabase";
 
 interface SkillEntry {
   skillName: string;
@@ -24,6 +28,10 @@ interface SkillEntry {
 const Step5Skills = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { applicantId, user, data, loading } = useRegistrationApplicant();
+  const [keySkills, setKeySkills] = useState<string[]>([]);
+  const [skillSuggestions, setSkillSuggestions] = useState<string[]>([]);
+  const [saving, setSaving] = useState(false);
   const [entries, setEntries] = useState<SkillEntry[]>([
     {
       skillName: "",
@@ -32,7 +40,37 @@ const Step5Skills = () => {
     },
   ]);
 
-  const updateEntry = (index: number, field: keyof SkillEntry, value: any) => {
+  useEffect(() => {
+    supabase
+      .from("applicant_skills")
+      .select("skill_name")
+      .limit(200)
+      .then(({ data: rows }) => {
+        const names = [...new Set((rows || []).map((r) => r.skill_name).filter(Boolean))] as string[];
+        setSkillSuggestions(names);
+      });
+  }, []);
+
+  useEffect(() => {
+    if (!data?.applicant) return;
+    const ks = data.applicant.key_skills;
+    if (Array.isArray(ks)) setKeySkills(ks);
+    else if (typeof ks === "string" && ks) {
+      setKeySkills(ks.split(/[,;|]/).map((s) => s.trim()).filter(Boolean));
+    }
+    const it = (data.skills || []).filter((s: { skill_type?: string }) => s.skill_type !== "key");
+    if (it.length) {
+      setEntries(
+        it.map((s: { skill_name: string; skill_type?: string; proficiency?: string }) => ({
+          skillName: s.skill_name,
+          skillType: (s.skill_type as SkillEntry["skillType"]) || "technical",
+          skillLevel: (s.proficiency as SkillEntry["skillLevel"]) || "intermediate",
+        }))
+      );
+    }
+  }, [data]);
+
+  const updateEntry = (index: number, field: keyof SkillEntry, value: string) => {
     const updated = [...entries];
     updated[index] = { ...updated[index], [field]: value };
     setEntries(updated);
@@ -41,222 +79,141 @@ const Step5Skills = () => {
   const addEntry = () => {
     setEntries([
       ...entries,
-      {
-        skillName: "",
-        skillType: "technical",
-        skillLevel: "intermediate",
-      },
+      { skillName: "", skillType: "technical", skillLevel: "intermediate" },
     ]);
   };
 
   const removeEntry = (index: number) => {
     if (entries.length === 1) {
-      toast({
-        title: "Cannot Remove",
-        description: "At least one skill is required",
-        variant: "destructive",
-      });
+      toast({ title: "Cannot Remove", description: "At least one IT skill row is required", variant: "destructive" });
       return;
     }
     setEntries(entries.filter((_, i) => i !== index));
   };
 
-  const onSubmit = () => {
-    // Validate all entries have skill names
-    const invalidEntries = entries.filter((e) => !e.skillName.trim());
-    if (invalidEntries.length > 0) {
-      toast({
-        title: "Incomplete Skills",
-        description: "Please enter skill name for all entries",
-        variant: "destructive",
-      });
+  const onSubmit = async () => {
+    if (keySkills.length < 3) {
+      sonnerToast.error("Add at least 3 key skills");
       return;
     }
-
-    localStorage.setItem("applicant_step5", JSON.stringify({ entries }));
-    navigate("/auth/applicant-register/step-6");
-  };
-
-  const handlePrevious = () => {
-    navigate("/auth/applicant-register/step-4");
-  };
-
-  const handleSaveLater = () => {
-    localStorage.setItem("applicant_step5_draft", JSON.stringify({ entries }));
-    toast({
-      title: "Progress Saved",
-      description: "Your progress has been saved. You can continue later.",
-    });
-    navigate("/");
-  };
-
-  const suggestedSkills = [
-    "Communication",
-    "Excel",
-    "CRM",
-    "Word",
-    "English Speaking",
-    "Data Entry",
-    "Telecalling",
-    "Team Handling",
-    "MS Office",
-    "Customer Service",
-    "JavaScript",
-    "Python",
-    "React",
-    "Node.js",
-    "SQL",
-    "Git",
-  ];
-
-  const addSuggestedSkill = (skillName: string) => {
-    // Check if skill already exists
-    if (entries.some((e) => e.skillName.toLowerCase() === skillName.toLowerCase())) {
-      toast({
-        title: "Skill Already Added",
-        description: "This skill is already in your list",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Add to first empty entry or create new
-    const emptyIndex = entries.findIndex((e) => !e.skillName.trim());
-    if (emptyIndex >= 0) {
-      updateEntry(emptyIndex, "skillName", skillName);
-    } else {
-      setEntries([
-        ...entries,
-        {
-          skillName,
-          skillType: "technical",
-          skillLevel: "intermediate",
-        },
-      ]);
+    if (!applicantId || !user?.id) return;
+    setSaving(true);
+    try {
+      const itSkills = entries
+        .filter((e) => e.skillName.trim())
+        .map((e) => ({
+          name: e.skillName,
+          proficiency: e.skillLevel,
+          years: 1,
+        }));
+      await saveRegistrationStep5(applicantId, user.id, keySkills, itSkills, []);
+      sonnerToast.success("Saved");
+      navigate("/auth/applicant-register/step-6");
+    } catch (err) {
+      sonnerToast.error(err instanceof Error ? err.message : "Save failed");
+    } finally {
+      setSaving(false);
     }
   };
+
+  if (loading) {
+    return (
+      <RegistrationLayout currentStep={5} totalSteps={8} stepTitle="Loading" stepSubtitle="">
+        <Loader2 className="h-8 w-8 animate-spin mx-auto" />
+      </RegistrationLayout>
+    );
+  }
 
   return (
     <RegistrationLayout
       currentStep={5}
-      totalSteps={7}
+      totalSteps={8}
       stepTitle="Skills"
-      stepSubtitle="Add your skills and expertise"
+      stepSubtitle="Key skills and IT expertise"
       onNext={onSubmit}
-      onPrevious={handlePrevious}
-      onSaveLater={handleSaveLater}
+      onPrevious={() => navigate("/auth/applicant-register/step-4")}
+      onSaveLater={() => {
+        localStorage.setItem("applicant_step5_draft", JSON.stringify({ keySkills, entries }));
+        toast({ title: "Progress Saved", description: "You can continue later." });
+        navigate("/");
+      }}
+      nextLabel={saving ? "Saving..." : "Next"}
+      isNextDisabled={saving}
     >
       <div className="space-y-6">
-        {/* Suggested Skills */}
         <div className="space-y-2">
-          <Label>Suggested Skills (Click to add)</Label>
-          <div className="flex flex-wrap gap-2">
-            {suggestedSkills.map((skill) => (
-              <Badge
-                key={skill}
-                variant="outline"
-                className="cursor-pointer hover:bg-primary hover:text-primary-foreground"
-                onClick={() => addSuggestedSkill(skill)}
-              >
-                + {skill}
-              </Badge>
-            ))}
-          </div>
+          <Label>
+            Key Skills <span className="text-destructive">*</span>
+            <span className="text-muted-foreground font-normal ml-1">(minimum 3)</span>
+          </Label>
+          <TagInput
+            value={keySkills}
+            onChange={setKeySkills}
+            placeholder="Type a skill and press Enter"
+            suggestions={skillSuggestions}
+            maxTags={25}
+          />
         </div>
 
-        {/* Skill Entries */}
-        {entries.map((entry, index) => (
-          <div key={index} className="p-6 border rounded-lg space-y-4">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold">Skill {index + 1}</h3>
-              {entries.length > 1 && (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => removeEntry(index)}
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              )}
-            </div>
+        <div className="border-t border-[var(--surface-border)] pt-6">
+          <h3 className="font-semibold mb-1">IT Skills</h3>
+          <p className="text-sm text-muted-foreground mb-4">Technical tools and technologies</p>
 
-            <div className="grid md:grid-cols-3 gap-4">
-              <div className="space-y-2 md:col-span-1">
-                <Label>
-                  Skill Name <span className="text-destructive">*</span>
-                </Label>
-                <Input
-                  placeholder="e.g., JavaScript, Communication"
-                  value={entry.skillName}
-                  onChange={(e) => updateEntry(index, "skillName", e.target.value)}
-                />
+          {entries.map((entry, index) => (
+            <div key={index} className="p-6 border rounded-lg space-y-4 mb-4 bg-[var(--surface-1)]">
+              <div className="flex items-center justify-between">
+                <h4 className="font-medium">Skill {index + 1}</h4>
+                {entries.length > 1 && (
+                  <Button type="button" variant="ghost" size="sm" onClick={() => removeEntry(index)}>
+                    <X className="h-4 w-4" />
+                  </Button>
+                )}
               </div>
-
-              <div className="space-y-2">
-                <Label>Skill Type</Label>
-                <Select
-                  value={entry.skillType}
-                  onValueChange={(value) => updateEntry(index, "skillType", value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="technical">Technical</SelectItem>
-                    <SelectItem value="soft">Soft Skill</SelectItem>
-                    <SelectItem value="tool">Tool</SelectItem>
-                    <SelectItem value="language">Language</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Skill Level</Label>
-                <Select
-                  value={entry.skillLevel}
-                  onValueChange={(value) => updateEntry(index, "skillLevel", value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="beginner">Beginner</SelectItem>
-                    <SelectItem value="intermediate">Intermediate</SelectItem>
-                    <SelectItem value="advanced">Advanced</SelectItem>
-                    <SelectItem value="expert">Expert</SelectItem>
-                  </SelectContent>
-                </Select>
+              <div className="grid md:grid-cols-3 gap-4">
+                <div className="space-y-2 md:col-span-1">
+                  <Label>Skill Name</Label>
+                  <Input
+                    placeholder="e.g., React, SQL"
+                    value={entry.skillName}
+                    onChange={(e) => updateEntry(index, "skillName", e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Type</Label>
+                  <Select value={entry.skillType} onValueChange={(v) => updateEntry(index, "skillType", v)}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="technical">Technical</SelectItem>
+                      <SelectItem value="soft">Soft Skill</SelectItem>
+                      <SelectItem value="tool">Tool</SelectItem>
+                      <SelectItem value="language">Language</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Level</Label>
+                  <Select value={entry.skillLevel} onValueChange={(v) => updateEntry(index, "skillLevel", v)}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="beginner">Beginner</SelectItem>
+                      <SelectItem value="intermediate">Intermediate</SelectItem>
+                      <SelectItem value="advanced">Advanced</SelectItem>
+                      <SelectItem value="expert">Expert</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
 
-        <Button type="button" variant="outline" onClick={addEntry} className="w-full">
-          <Plus className="mr-2 h-4 w-4" />
-          Add Another Skill
-        </Button>
+          <Button type="button" variant="outline" onClick={addEntry} className="w-full">
+            <Plus className="mr-2 h-4 w-4" />
+            Add Another IT Skill
+          </Button>
+        </div>
       </div>
     </RegistrationLayout>
   );
 };
 
 export default Step5Skills;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

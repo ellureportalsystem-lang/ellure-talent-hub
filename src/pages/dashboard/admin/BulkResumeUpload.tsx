@@ -5,9 +5,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/lib/supabase";
 import { uploadApplicantResume } from "@/lib/applicantMediaUpload";
-import { isCloudinaryRawConfigured } from "@/lib/cloudinaryUpload";
 import { matchApplicantByFileName, type ApplicantMatchRow } from "@/lib/bulkResumeMatcher";
 import { ArrowLeft, Loader2, Upload, CheckCircle2, AlertCircle, HelpCircle } from "lucide-react";
 import { toast } from "sonner";
@@ -63,8 +63,11 @@ const BulkResumeUpload = () => {
   const [running, setRunning] = useState(false);
   const [matchMode, setMatchMode] = useState<"auto" | "name" | "email">("auto");
   const [applicantIndex, setApplicantIndex] = useState<ApplicantMatchRow[] | null>(null);
-
-  const cloudinaryResume = isCloudinaryRawConfigured();
+  const [lastRunSummary, setLastRunSummary] = useState<{
+    ok: number;
+    fail: number;
+    skippedPresetError: number;
+  } | null>(null);
 
   const hint = useMemo(
     () =>
@@ -120,10 +123,12 @@ const BulkResumeUpload = () => {
     setRunning(true);
     let ok = 0;
     let fail = 0;
+    let skippedPresetError = 0;
 
     for (let i = 0; i < rows.length; i++) {
       const fr = rows[i];
       if (fr.status === "error") {
+        skippedPresetError++;
         fail++;
         continue;
       }
@@ -150,7 +155,10 @@ const BulkResumeUpload = () => {
       }
 
       try {
-        const url = await uploadApplicantResume(fr.file, { applicantId: match.applicant.id });
+        const url = await uploadApplicantResume(fr.file, {
+          applicantId: match.applicant.id,
+          preferSupabase: true,
+        });
         const { error } = await supabase
           .from("applicants")
           .update({
@@ -194,7 +202,10 @@ const BulkResumeUpload = () => {
     }
 
     setRunning(false);
-    toast.message("Bulk upload finished", { description: `${ok} succeeded, ${fail} failed` });
+    setLastRunSummary({ ok, fail, skippedPresetError });
+    toast.message("Bulk upload finished", {
+      description: `${ok} matched & uploaded, ${fail} failed (includes ${skippedPresetError} file-type/size errors if any)`,
+    });
   };
 
   return (
@@ -213,8 +224,10 @@ const BulkResumeUpload = () => {
           <CardTitle className="text-lg">Bulk resume upload</CardTitle>
           <CardDescription>
             Upload many CV files at once. Each file is matched to an applicant by file name (full name, email, or unique
-            first name). URLs are stored in Supabase; files go to{" "}
-            {cloudinaryResume ? "Cloudinary (raw upload preset)" : "Supabase Storage (configure Cloudinary for raw uploads)"}.
+            first name).             Matched resumes are always stored in the{" "}
+            <span className="font-medium text-foreground">Supabase Storage &quot;resumes&quot;</span> bucket (bulk ignores
+            Cloudinary so URLs stay consistent). Individual applicant uploads elsewhere may still use Cloudinary when
+            configured.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -264,11 +277,32 @@ const BulkResumeUpload = () => {
             <p className="text-xs text-muted-foreground">{hint}</p>
           </div>
 
-          <div className="flex flex-wrap gap-2">
+          {lastRunSummary && (
+            <div className="rounded-lg border bg-muted/30 p-4 text-sm space-y-2">
+              <p className="font-medium">Last run</p>
+              <ul className="list-disc pl-5 text-muted-foreground space-y-1">
+                <li>
+                  <span className="text-foreground font-medium">{lastRunSummary.ok}</span> uploaded and linked to an
+                  applicant
+                </li>
+                <li>
+                  <span className="text-foreground font-medium">{lastRunSummary.fail}</span> failed total (matching,
+                  validation, DB, or network)
+                </li>
+                <li>Unmatched names appear in red in the list — fix file names or match mode and run again</li>
+              </ul>
+            </div>
+          )}
+
+          <div className="flex flex-wrap gap-2 items-center">
             <Button type="button" variant="secondary" size="sm" onClick={loadApplicants} disabled={loadingIndex}>
-              {loadingIndex ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
               Load applicants from database
             </Button>
+            {loadingIndex && (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground flex-1 min-w-[140px]">
+                <Skeleton className="h-4 w-full max-w-[200px]" />
+              </div>
+            )}
             {applicantIndex && (
               <span className="text-sm text-muted-foreground self-center">
                 {applicantIndex.length} rows indexed

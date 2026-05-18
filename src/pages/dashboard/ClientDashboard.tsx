@@ -10,6 +10,7 @@ import {
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { NotificationBell } from "@/components/notifications/NotificationBell";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,11 +25,17 @@ import CandidatesPage from "./client/CandidatesPage";
 import CandidateProfileView from "./client/CandidateProfileView";
 import ClientFoldersManagement from "./client/ClientFoldersManagement";
 import JobsPage from "./client/JobsPage";
-import MessagesPage from "./client/MessagesPage";
 import ClientSettings from "./client/ClientSettings";
+import ClientBillingPage from "./client/ClientBillingPage";
+import ClientTeamPage from "./client/ClientTeamPage";
+import MessagesPage from "./client/MessagesPage";
+import { useClientContext } from "@/hooks/useClientContext";
+import { useUnreadMessageCount } from "@/hooks/useUnreadMessageCount";
 
 const ClientDashboard = () => {
   const { profile, signOut } = useAuth();
+  const { data: clientCtx } = useClientContext();
+  const { data: unreadTotal = 0 } = useUnreadMessageCount();
   const location = useLocation();
   const navigate = useNavigate();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -48,13 +55,28 @@ const ClientDashboard = () => {
     .toUpperCase()
     .slice(0, 2);
 
-  const navItems = [
-    { path: "/dashboard/client", label: "Dashboard", icon: LayoutDashboard, exact: true },
-    { path: "/dashboard/client/candidates", label: "Candidates", icon: Users },
-    { path: "/dashboard/client/folders", label: "My Shortlists", icon: FolderKanban },
-    { path: "/dashboard/client/jobs", label: "Jobs", icon: Briefcase },
-    { path: "/dashboard/client/messages", label: "Messages", icon: MessageSquare, badge: "2" },
-    { path: "/dashboard/client/settings", label: "Settings", icon: Settings },
+  const navSections = [
+    {
+      label: "MAIN MENU",
+      items: [
+        { path: "/dashboard/client", label: "Dashboard", icon: LayoutDashboard, exact: true },
+        { path: "/dashboard/client/candidates", label: "Candidates", icon: Users },
+        { path: "/dashboard/client/folders", label: "My Shortlists", icon: FolderKanban },
+        { path: "/dashboard/client/jobs", label: "Jobs", icon: Briefcase },
+        { path: "/dashboard/client/messages", label: "Messages", icon: MessageSquare },
+      ],
+    },
+    {
+      label: "MANAGEMENT",
+      items: [
+        { path: "/dashboard/client/billing", label: "Billing", icon: Settings },
+        { path: "/dashboard/client/team", label: "Team", icon: Users },
+      ],
+    },
+    {
+      label: "SETTINGS",
+      items: [{ path: "/dashboard/client/settings", label: "Settings", icon: Settings }],
+    },
   ];
 
   const isActive = (path: string, exact?: boolean) => {
@@ -81,45 +103,47 @@ const ClientDashboard = () => {
       <Separator />
 
       {/* Navigation */}
-      <nav className="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          const active = isActive(item.path, item.exact);
-
-          return (
-            <Link
-              key={item.path}
-              to={item.path}
-              onClick={() => mobile && setMobileMenuOpen(false)}
-              title={sidebarCollapsed && !mobile ? item.label : undefined}
-              className={cn(
-                "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group",
-                sidebarCollapsed && !mobile && "justify-center px-2",
-                active
-                  ? "bg-info text-info-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
-              )}
-            >
-              <Icon className={cn("h-[18px] w-[18px] flex-shrink-0", active && "text-info-foreground")} />
-              {(!sidebarCollapsed || mobile) && (
-                <>
-                  <span className="truncate">{item.label}</span>
-                  {item.badge && (
-                    <Badge
-                      variant={active ? "secondary" : "destructive"}
-                      className={cn(
-                        "text-[10px] px-1.5 py-0 ml-auto",
-                        active && "bg-info-foreground/20 text-info-foreground border-0"
-                      )}
-                    >
-                      {item.badge}
-                    </Badge>
+      <nav className="flex-1 py-4 px-3 space-y-4 overflow-y-auto">
+        {navSections.map((section) => (
+          <div key={section.label} className="space-y-1">
+            {(!sidebarCollapsed || mobile) && (
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground px-3 mb-1">
+                {section.label}
+              </p>
+            )}
+            {section.items.map((item) => {
+              const Icon = item.icon;
+              const active = isActive(item.path, item.exact);
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  onClick={() => mobile && setMobileMenuOpen(false)}
+                  title={sidebarCollapsed && !mobile ? item.label : undefined}
+                  className={cn(
+                    "flex items-center gap-3 px-3 h-10 rounded-lg text-sm font-medium transition-all duration-200",
+                    sidebarCollapsed && !mobile && "justify-center px-2",
+                    active
+                      ? "bg-info text-info-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
                   )}
-                </>
-              )}
-            </Link>
-          );
-        })}
+                >
+                  <Icon className={cn("h-[18px] w-[18px] flex-shrink-0", active && "text-info-foreground")} />
+                  {(!sidebarCollapsed || mobile) && (
+                    <span className="flex items-center justify-between gap-2 flex-1 min-w-0">
+                      <span className="truncate">{item.label}</span>
+                      {item.path.endsWith("/messages") && unreadTotal > 0 && (
+                        <Badge variant="destructive" className="h-5 min-w-5 px-1 justify-center text-[10px] shrink-0">
+                          {unreadTotal > 99 ? "99+" : unreadTotal}
+                        </Badge>
+                      )}
+                    </span>
+                  )}
+                </Link>
+              );
+            })}
+          </div>
+        ))}
       </nav>
 
       {/* Bottom section */}
@@ -132,7 +156,7 @@ const ClientDashboard = () => {
           "flex items-center gap-3 p-2 rounded-lg",
           sidebarCollapsed && !mobile && "justify-center"
         )}>
-          <div className="h-9 w-9 rounded-full bg-info/10 flex items-center justify-center flex-shrink-0 ring-2 ring-info/20">
+          <div className="h-8 w-8 rounded-full bg-info/10 flex items-center justify-center flex-shrink-0 ring-2 ring-info/20">
             <span className="text-xs font-semibold text-info">{initials}</span>
           </div>
           {(!sidebarCollapsed || mobile) && (
@@ -218,14 +242,21 @@ const ClientDashboard = () => {
           </div>
 
           <div className="flex items-center gap-2">
+            {clientCtx?.client && (
+              <span className={cn(
+                "text-xs font-medium px-2.5 py-1 rounded-full border hidden sm:inline",
+                (clientCtx.client.cv_downloads_used_this_month ?? 0) >= (clientCtx.client.subscription_plans?.cv_downloads_per_month ?? 100)
+                  ? "bg-red-50 text-red-700 border-red-200 dark:bg-red-950 dark:text-red-300"
+                  : (clientCtx.client.cv_downloads_used_this_month ?? 0) > ((clientCtx.client.subscription_plans?.cv_downloads_per_month ?? 100) * 0.75)
+                    ? "bg-amber-50 text-amber-700 border-amber-200"
+                    : "bg-green-50 text-green-700 border-green-200"
+              )}>
+                CVs: {clientCtx.client.cv_downloads_used_this_month ?? 0}/{clientCtx.client.subscription_plans?.cv_downloads_per_month ?? 100}
+              </span>
+            )}
             <ThemeToggle />
 
-            <Button variant="ghost" size="icon" className="relative h-9 w-9">
-              <Bell className="h-[18px] w-[18px] text-muted-foreground" />
-              <span className="absolute -top-0.5 -right-0.5 h-4 w-4 rounded-full bg-destructive text-[10px] font-medium text-destructive-foreground flex items-center justify-center">
-                5
-              </span>
-            </Button>
+            <NotificationBell />
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -270,7 +301,9 @@ const ClientDashboard = () => {
             <Route path="candidates" element={<CandidatesPage />} />
             <Route path="candidates/:id" element={<CandidateProfileView />} />
             <Route path="folders" element={<ClientFoldersManagement />} />
-            <Route path="jobs" element={<JobsPage />} />
+            <Route path="jobs/*" element={<JobsPage />} />
+            <Route path="billing" element={<ClientBillingPage />} />
+            <Route path="team" element={<ClientTeamPage />} />
             <Route path="messages" element={<MessagesPage />} />
             <Route path="settings" element={<ClientSettings />} />
           </Routes>

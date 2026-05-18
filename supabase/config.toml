@@ -1,0 +1,55 @@
+# Supabase local / deploy configuration
+# https://supabase.com/docs/guides/functions/function-configuration
+
+[functions.send-email]
+verify_jwt = false
+
+[functions.generate-invoice]
+verify_jwt = true
+
+[functions.expire-subscriptions]
+verify_jwt = false
+
+[functions.reset-monthly-downloads]
+verify_jwt = false
+
+[functions.run-job-alerts]
+verify_jwt = false
+
+[functions.run-saved-search-alerts]
+verify_jwt = false
+
+[functions.on-applicant-registered]
+verify_jwt = false
+
+[functions.on-application-submitted]
+verify_jwt = false
+
+[functions.on-application-stage-changed]
+verify_jwt = false
+
+[functions.on-client-signup]
+verify_jwt = false
+
+[functions.on-client-approved]
+verify_jwt = false
+
+[functions.on-message-received]
+verify_jwt = false
+
+# Cron schedules (UTC)
+# 00:05 IST = 18:35 UTC previous day — use 5 18 * * * per spec
+[functions.expire-subscriptions.cron]
+cron = "5 18 * * *"
+
+# 00:01 IST on 1st = 18:31 UTC on last day of prev month — spec: "1 18 1 * *"
+[functions.reset-monthly-downloads.cron]
+cron = "1 18 1 * *"
+
+# 08:00 IST = 02:30 UTC
+[functions.run-job-alerts.cron]
+cron = "30 2 * * *"
+
+# 08:30 IST = 03:00 UTC
+[functions.run-saved-search-alerts.cron]
+cron = "0 3 * * *"

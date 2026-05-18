@@ -226,13 +226,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       if (data.user) {
         console.log('✅ Login successful for user:', data.user.id);
-        // Don't block on profile fetch - let it happen in background
-        // The auth state change listener will fetch it automatically
-        fetchProfile(data.user.id).then(profileData => {
-          if (profileData) {
-            setProfile(profileData);
-          }
-        }).catch(err => {
+        void (async () => {
+          const { data: current } = await supabase
+            .from('profiles')
+            .select('login_count')
+            .eq('id', data.user!.id)
+            .maybeSingle();
+          await supabase
+            .from('profiles')
+            .update({
+              last_login_at: new Date().toISOString(),
+              login_count: (current?.login_count ?? 0) + 1,
+            })
+            .eq('id', data.user!.id);
+        })();
+        fetchProfile(data.user.id).then((profileData) => {
+          if (profileData) setProfile(profileData);
+        }).catch((err) => {
           console.error('Profile fetch error (non-blocking):', err);
         });
       }

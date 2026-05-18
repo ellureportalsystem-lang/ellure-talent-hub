@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useEffect } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -17,7 +17,6 @@ import {
   List,
   RefreshCw,
   SlidersHorizontal,
-  Loader2,
   AlertCircle,
   Search,
   ChevronLeft,
@@ -32,7 +31,14 @@ import ResumeSearchFilters, {
 } from "@/components/dashboard/admin/ResumeSearchFilters";
 import ApplicantTable from "@/components/dashboard/admin/ApplicantTable";
 import BulkActionsBar from "@/components/dashboard/admin/BulkActionsBar";
-import { useApplicants, Applicant } from "@/hooks/useApplicants";
+import { useApplicantSearch } from "@/hooks/useApplicantSearch";
+import { useShortlists } from "@/hooks/useShortlists";
+import { exportApplicantsToCsv, exportApplicantsToExcel } from "@/utils/applicantExport";
+import { supabase } from "@/lib/supabase";
+import { toast } from "sonner";
+import { Skeleton } from "@/components/ui/skeleton";
+import { SkeletonTable } from "@/components/ui/skeleton-table";
+import type { Applicant } from "@/hooks/useApplicants";
 
 const defaultFilters: SearchFilters = {
   keywords: "",
@@ -50,10 +56,16 @@ const defaultFilters: SearchFilters = {
   activeDays: null,
   resumeUpdatedDays: null,
   yearOfPassing: [2000, 2025],
+  isActivelyLooking: null,
+  isVerified: null,
+  hasResume: null,
+  profileCompleteRange: [0, 100],
+  status: [],
 };
 
 const ApplicantsManagement = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [submittedQuery, setSubmittedQuery] = useState("");
   const [filters, setFilters] = useState<SearchFilters>(defaultFilters);
   const [filtersCollapsed, setFiltersCollapsed] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -63,110 +75,59 @@ const ApplicantsManagement = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
 
-  const dbFilters = useMemo(() => {
-    const cities = filters.currentCity.length > 0 ? filters.currentCity : undefined;
-    const skills = filters.skills.length > 0 ? filters.skills : undefined;
-    const education = filters.education.length > 0 ? filters.education : undefined;
-    const noticePeriod = filters.noticePeriod.length > 0 ? filters.noticePeriod : undefined;
+  const { folders, addToFolder } = useShortlists("admin");
 
-    return {
-      experience: filters.experienceRange as [number, number],
-      salary: filters.salaryRange as [number, number],
-      cities,
-      skills,
-      education,
-      noticePeriod,
-      status: undefined,
-    };
-  }, [filters]);
+  const searchFilters = useMemo(
+    () => ({
+      ...filters,
+      experienceRange:
+        filters.experienceRange[0] > 0 || filters.experienceRange[1] < 20
+          ? filters.experienceRange
+          : undefined,
+      salaryRange:
+        filters.salaryRange[0] > 0 || filters.salaryRange[1] < 100
+          ? filters.salaryRange
+          : undefined,
+      profileCompleteRange:
+        filters.profileCompleteRange[0] > 0 || filters.profileCompleteRange[1] < 100
+          ? filters.profileCompleteRange
+          : undefined,
+    }),
+    [filters]
+  );
 
-  const { applicants: allApplicants, loading, totalCount, error } = useApplicants({
-    searchQuery: searchQuery.trim() || undefined,
-    filters: dbFilters,
-    sortField: sortField === "lastActive" ? "created_at" : sortField,
+  const effectiveSortField =
+    submittedQuery.trim() && sortField === "updated_at" ? "relevance" : sortField;
+
+  const { applicants: paginatedApplicants, loading, totalCount, error, refetch } = useApplicantSearch({
+    searchQuery: submittedQuery,
+    filters: searchFilters,
+    sortField: effectiveSortField === "lastActive" ? "updated_at" : effectiveSortField,
     sortOrder: sortDirection,
     page: currentPage,
-    pageSize: pageSize,
+    pageSize,
   });
 
-  useEffect(() => {
-    if (error) {
-      console.error('Error loading applicants:', error);
-    }
-  }, [error]);
+  const selectedApplicants = useMemo(
+    () => paginatedApplicants.filter((a) => selectedIds.includes(a.id)),
+    [paginatedApplicants, selectedIds]
+  );
 
-  const parseBooleanSearch = useCallback((query: string, applicant: Applicant): boolean => {
-    if (!query.trim()) return true;
-    const lowerQuery = query.toLowerCase();
-    const skillsArray = (applicant.key_skills || '').split(/[,;|]/).map(s => s.trim());
-    const searchableText = [
-      applicant.name || '',
-      applicant.current_designation || applicant.job_role || '',
-      applicant.current_company || '',
-      ...skillsArray,
-      applicant.city || applicant.city_current_location || '',
-      applicant.highest_qualification || applicant.education_level || '',
-    ].filter(Boolean).join(" ").toLowerCase();
+  const displayTotal = totalCount;
+  const totalPages = Math.max(1, Math.ceil(displayTotal / pageSize));
 
-    if (lowerQuery.includes(" not ")) {
-      const [include, exclude] = lowerQuery.split(" not ");
-      return (include ? searchableText.includes(include.replace(/"/g, "").trim()) : true) &&
-        !(exclude ? searchableText.includes(exclude.replace(/"/g, "").trim()) : false);
-    }
-    if (lowerQuery.includes(" and ")) {
-      return lowerQuery.split(" and ").map((t) => t.replace(/"/g, "").trim()).every((term) => searchableText.includes(term));
-    }
-    if (lowerQuery.includes(" or ")) {
-      return lowerQuery.split(" or ").map((t) => t.replace(/"/g, "").trim()).some((term) => searchableText.includes(term));
-    }
-    return searchableText.includes(lowerQuery.replace(/"/g, ""));
-  }, []);
-
-  const filteredApplicants = useMemo(() => {
-    if (!searchQuery.trim() || (!searchQuery.includes(" and ") && !searchQuery.includes(" or ") && !searchQuery.includes(" not "))) {
-      return allApplicants;
-    }
-    return allApplicants.filter((applicant) => {
-      if (!parseBooleanSearch(searchQuery, applicant)) return false;
-      if (filters.yearOfPassing) {
-        const passingYear = parseInt((applicant as any).year_of_passing || (applicant as any).passing_year?.toString() || '0');
-        if (passingYear < filters.yearOfPassing[0] || passingYear > filters.yearOfPassing[1]) return false;
+  const handleStatusChange = useCallback(
+    async (status: string, ids: string[]) => {
+      const { error: updateError } = await supabase.from("applicants").update({ status }).in("id", ids);
+      if (updateError) {
+        toast.error(updateError.message);
+        return;
       }
-      if (filters.registeredDays !== null) {
-        const daysAgo = Math.floor((Date.now() - new Date(applicant.created_at).getTime()) / 86400000);
-        if (daysAgo > filters.registeredDays) return false;
-      }
-      return true;
-    });
-  }, [allApplicants, searchQuery, filters, parseBooleanSearch]);
-
-  const sortedApplicants = useMemo(() => {
-    if (sortField === "created_at" || sortField === "updated_at") return filteredApplicants;
-    return [...filteredApplicants].sort((a, b) => {
-      let comparison = 0;
-      switch (sortField) {
-        case "name": comparison = (a.name || '').localeCompare(b.name || ''); break;
-        case "experience":
-          comparison = parseFloat(a.total_experience_numbers || a.total_experience || '0') - parseFloat(b.total_experience_numbers || b.total_experience || '0');
-          break;
-        case "currentCTC": comparison = parseFloat(a.current_ctc || '0') - parseFloat(b.current_ctc || '0'); break;
-        case "currentCity": comparison = (a.city || a.city_current_location || '').localeCompare(b.city || b.city_current_location || ''); break;
-        case "status": comparison = (a.status || '').localeCompare(b.status || ''); break;
-      }
-      return sortDirection === "asc" ? comparison : -comparison;
-    });
-  }, [filteredApplicants, sortField, sortDirection]);
-
-  const paginatedApplicants = useMemo(() => {
-    if (filteredApplicants.length !== allApplicants.length) {
-      const start = (currentPage - 1) * pageSize;
-      return sortedApplicants.slice(start, start + pageSize);
-    }
-    return sortedApplicants;
-  }, [sortedApplicants, currentPage, pageSize, filteredApplicants.length, allApplicants.length]);
-
-  const displayTotal = filteredApplicants.length !== allApplicants.length ? filteredApplicants.length : totalCount;
-  const totalPages = Math.ceil(displayTotal / pageSize);
+      toast.success(`Updated ${ids.length} candidate(s)`);
+      void refetch();
+    },
+    [refetch]
+  );
 
   const handleSort = (field: string) => {
     if (sortField === field) {
@@ -177,13 +138,26 @@ const ApplicantsManagement = () => {
     }
   };
 
-  const handleResetFilters = () => {
-    setFilters(defaultFilters);
-    setSearchQuery("");
+  const handleSearch = () => {
+    setSubmittedQuery(searchQuery);
     setCurrentPage(1);
   };
 
-  const isFiltered = searchQuery.trim().length > 0 || filters.currentCity.length > 0 || filters.skills.length > 0 || filters.education.length > 0;
+  const handleResetFilters = () => {
+    setFilters(defaultFilters);
+    setSearchQuery("");
+    setSubmittedQuery("");
+    setCurrentPage(1);
+  };
+
+  const isFiltered =
+    submittedQuery.trim().length > 0 ||
+    filters.currentCity.length > 0 ||
+    filters.skills.length > 0 ||
+    filters.education.length > 0 ||
+    filters.isActivelyLooking !== null ||
+    filters.isVerified !== null ||
+    filters.hasResume !== null;
 
   return (
     <div className="p-4 lg:p-6 space-y-4 max-w-[1600px] mx-auto">
@@ -218,7 +192,7 @@ const ApplicantsManagement = () => {
           <BooleanSearchBar
             value={searchQuery}
             onChange={setSearchQuery}
-            onSearch={() => setCurrentPage(1)}
+            onSearch={handleSearch}
           />
         </CardContent>
       </Card>
@@ -228,7 +202,10 @@ const ApplicantsManagement = () => {
         {/* Filters Sidebar */}
         <ResumeSearchFilters
           filters={filters}
-          onFiltersChange={setFilters}
+          onFiltersChange={(f) => {
+            setFilters(f);
+            setCurrentPage(1);
+          }}
           onReset={handleResetFilters}
           isCollapsed={filtersCollapsed}
           onToggleCollapse={() => setFiltersCollapsed(!filtersCollapsed)}
@@ -241,7 +218,7 @@ const ApplicantsManagement = () => {
             <div className="flex items-center gap-3">
               <span className="text-sm font-medium tabular-nums">
                 {loading ? (
-                  <Loader2 className="h-4 w-4 animate-spin inline-block" />
+                  <Skeleton className="h-4 w-12 inline-block" />
                 ) : (
                   <span className="text-primary font-bold">{displayTotal.toLocaleString()}</span>
                 )}
@@ -311,7 +288,8 @@ const ApplicantsManagement = () => {
           )}
 
           {/* Table */}
-          {!error && (
+          {!error && loading && <SkeletonTable rows={Math.min(pageSize, 10)} cols={6} />}
+          {!error && !loading && (
             <ApplicantTable
               applicants={paginatedApplicants}
               selectedIds={selectedIds}
@@ -390,8 +368,15 @@ const ApplicantsManagement = () => {
 
       <BulkActionsBar
         selectedCount={selectedIds.length}
+        selectedIds={selectedIds}
+        selectedApplicants={selectedApplicants}
+        folders={folders}
         onClearSelection={() => setSelectedIds([])}
-        isAdmin={true}
+        onAddToFolder={addToFolder}
+        onExportExcel={(rows) => exportApplicantsToExcel(rows, `candidates-${Date.now()}`)}
+        onExportCsv={(rows) => exportApplicantsToCsv(rows, `candidates-${Date.now()}`)}
+        onStatusChange={handleStatusChange}
+        isAdmin
       />
     </div>
   );

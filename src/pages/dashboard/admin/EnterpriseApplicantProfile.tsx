@@ -1,9 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, AlertTriangle, Loader2 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/contexts/AuthContext";
+import { incrementProfileView } from "@/services/profileViewService";
 import { updateProfileSummary } from "@/services/applicantService";
 import {
   syncApplicantSkillsFromChipList,
@@ -49,6 +51,7 @@ interface EnterpriseApplicantProfileProps {
 const EnterpriseApplicantProfile = ({ viewMode = 'admin', applicantId: propApplicantId }: EnterpriseApplicantProfileProps) => {
   const { id: paramId } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   // Use prop ID if provided, otherwise use URL param
   const id = propApplicantId || paramId;
   const { toast: toastHook } = useToast();
@@ -56,6 +59,7 @@ const EnterpriseApplicantProfile = ({ viewMode = 'admin', applicantId: propAppli
   const [isFavorite, setIsFavorite] = useState(false);
   const [loading, setLoading] = useState(true);
   const [applicantData, setApplicantData] = useState<any>(null);
+  const viewRecordedRef = useRef<string | null>(null);
   const [profileData, setProfileData] = useState<any>(null);
   const [educationData, setEducationData] = useState<any[]>([]);
   const [experienceData, setExperienceData] = useState<any[]>([]);
@@ -164,6 +168,34 @@ const EnterpriseApplicantProfile = ({ viewMode = 'admin', applicantId: propAppli
 
     fetchData();
   }, [id, profileReloadNonce, toastHook]);
+
+  useEffect(() => {
+    viewRecordedRef.current = null;
+  }, [id, viewMode]);
+
+  useEffect(() => {
+    if (loading || !applicantData?.id) return;
+    if (viewMode !== "admin" && viewMode !== "client") return;
+
+    let cancelled = false;
+    void (async () => {
+      const uid = user?.id;
+      if (!uid || cancelled) return;
+      const key = `${viewMode}:${applicantData.id}`;
+      if (viewRecordedRef.current === key) return;
+      viewRecordedRef.current = key;
+      const viewerType = viewMode === "admin" ? "admin" : "client";
+      try {
+        await incrementProfileView(applicantData.id, uid, viewerType);
+      } catch {
+        viewRecordedRef.current = null;
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [loading, applicantData?.id, viewMode, user?.id]);
 
   // Intersection observer for active section detection (must be before early returns)
   useEffect(() => {

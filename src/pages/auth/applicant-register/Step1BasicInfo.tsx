@@ -1,311 +1,189 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Check, Loader2 } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Loader2, Plus, Trash2 } from "lucide-react";
 import RegistrationLayout from "@/components/registration/RegistrationLayout";
-import { useToast } from "@/hooks/use-toast";
+import { RegistrationProgressBar } from "@/components/registration/RegistrationProgressBar";
+import { PhotoCropUpload } from "@/components/registration/PhotoCropUpload";
+import { useRegistrationApplicant } from "@/hooks/useRegistrationApplicant";
+import { saveRegistrationStep1 } from "@/services/registrationService";
+import { saveLanguagesKnown, type LanguageRow } from "@/lib/registrationExtras";
+import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 
-const step1Schema = z.object({
-  fullName: z.string().trim().min(2, "Name must be at least 2 characters").max(100),
-  mobileNumber: z.string().regex(/^[0-9]{10}$/, "Enter valid 10-digit mobile number"),
-  email: z.string()
-    .trim()
-    .toLowerCase()
-    .email("Enter valid email address")
-    .max(255)
-    .transform((val) => val.trim().toLowerCase()), // Always lowercase and trim
-  dob: z.string().min(1, "Please select date of birth"),
-  gender: z.enum(["male", "female", "other"], {
-    required_error: "Please select gender",
-  }),
-  jobRole: z.string().min(1, "Please select a job role"),
-  communicationSkill: z.enum(["good", "okay", "average", "poor"], {
-    required_error: "Please select communication skill level",
-  }),
+const schema = z.object({
+  fullName: z.string().trim().min(2, "Required").max(100),
+  dateOfBirth: z.string().min(1, "Required"),
+  gender: z.enum(["male", "female", "other", "prefer_not_to_say"], { required_error: "Required" }),
+  maritalStatus: z.string().optional(),
+  fatherName: z.string().optional(),
+  differentlyAbled: z.boolean(),
+  languages: z.array(z.object({
+    name: z.string().min(1),
+    proficiency: z.enum(["Beginner", "Intermediate", "Expert", "Native"]),
+  })).optional(),
 });
 
-type Step1FormData = z.infer<typeof step1Schema>;
+type FormData = z.infer<typeof schema>;
 
 const Step1BasicInfo = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
   const { user, loading: authLoading } = useAuth();
+  const { data, loading, email } = useRegistrationApplicant();
+  const [saving, setSaving] = useState(false);
+  const [avatarFile, setAvatarFile] = useState<File | undefined>();
 
-  const {
-    register,
-    handleSubmit,
-    watch,
-    setValue,
-    formState: { errors },
-  } = useForm<Step1FormData>({
-    resolver: zodResolver(step1Schema),
-    defaultValues: {
-      communicationSkill: undefined,
-      jobRole: "",
-      gender: undefined,
-      dob: "",
-    },
+  const { register, handleSubmit, setValue, watch, control, formState: { errors } } = useForm<FormData>({
+    resolver: zodResolver(schema),
+    defaultValues: { differentlyAbled: false, languages: [] },
   });
 
-  // TEMPORARY: Check for demo mode
-  const isDemoMode = sessionStorage.getItem('demo_registration') === 'true';
+  const { fields, append, remove } = useFieldArray({ control, name: "languages" });
 
-  // Check authentication on mount (skip in demo mode)
   useEffect(() => {
-    if (isDemoMode) {
-      // Skip auth check in demo mode
-      return;
-    }
-    
-    if (!authLoading && !user) {
-      // User not authenticated, redirect to account creation
-      toast({
-        title: "Authentication Required",
-        description: "Please create an account first to continue registration",
-      });
-      navigate("/auth/register");
-    }
-  }, [user, authLoading, navigate, toast, isDemoMode]);
+    if (!data) return;
+    const a = data.applicant;
+    const p = data.profile;
+    if (a?.name || p?.full_name) setValue("fullName", a?.name || p?.full_name || "");
+    if (a?.date_of_birth || a?.dob) setValue("dateOfBirth", (a.date_of_birth || a.dob)?.slice?.(0, 10) || a.date_of_birth);
+    if (a?.gender) setValue("gender", a.gender as FormData["gender"]);
+    if (a?.marital_status) setValue("maritalStatus", a.marital_status);
+    if (a?.father_name) setValue("fatherName", a.father_name);
+    setValue("differentlyAbled", !!a?.differently_abled);
+    const langs = a?.languages_known as LanguageRow[] | undefined;
+    if (langs?.length) setValue("languages", langs);
+  }, [data, setValue]);
 
-  // Show loading while checking auth (skip in demo mode)
-  if (!isDemoMode && authLoading) {
+  useEffect(() => {
+    if (!authLoading && !user) navigate("/auth/applicant");
+  }, [user, authLoading, navigate]);
+
+  const onSubmit = async (form: FormData) => {
+    if (!user?.id || !email) return;
+    setSaving(true);
+    try {
+      const applicantId = await saveRegistrationStep1(user.id, email, {
+        fullName: form.fullName,
+        dateOfBirth: form.dateOfBirth,
+        gender: form.gender,
+        maritalStatus: form.maritalStatus,
+        fatherName: form.fatherName,
+        differentlyAbled: form.differentlyAbled,
+        avatarFile,
+      });
+      if (form.languages?.length) await saveLanguagesKnown(applicantId, form.languages);
+      toast.success("Saved");
+      navigate("/auth/applicant-register/step-2");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Save failed");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const fullName = watch("fullName") || "U";
+  const initials = fullName.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase();
+
+  if (authLoading || loading) {
     return (
-      <div className="min-h-screen bg-gradient-subtle flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto" />
-          <p className="text-muted-foreground">Loading...</p>
-        </div>
-      </div>
+      <RegistrationLayout currentStep={1} totalSteps={8} stepTitle="Loading" stepSubtitle="" showPrevious={false}>
+        <Loader2 className="h-8 w-8 animate-spin mx-auto" />
+      </RegistrationLayout>
     );
   }
-
-  // If not authenticated, don't render form (will redirect) - skip in demo mode
-  if (!isDemoMode && !user) {
-    return null;
-  }
-
-  const onSubmit = (data: Step1FormData) => {
-    // Ensure email is lowercase and trimmed
-    const normalizedData = {
-      ...data,
-      email: data.email.trim().toLowerCase(),
-      mobileNumber: data.mobileNumber.trim(),
-    };
-    
-    // Save to localStorage for multi-step form
-    localStorage.setItem("applicant_step1", JSON.stringify(normalizedData));
-    navigate("/auth/applicant-register/step-2");
-  };
-
-  const handleSaveLater = () => {
-    const data = watch();
-    localStorage.setItem("applicant_step1_draft", JSON.stringify(data));
-    toast({
-      title: "Progress Saved",
-      description: "Your progress has been saved. You can continue later.",
-    });
-    navigate("/");
-  };
 
   return (
     <RegistrationLayout
       currentStep={1}
-      totalSteps={7}
-      stepTitle="Personal Details"
+      totalSteps={8}
+      stepTitle="Basic Info"
       stepSubtitle="Tell us about yourself"
-      onNext={handleSubmit(onSubmit)}
-      onSaveLater={handleSaveLater}
       showPrevious={false}
+      onNext={handleSubmit(onSubmit)}
+      nextLabel={saving ? "Saving..." : "Next"}
+      isNextDisabled={saving}
     >
-      <form className="space-y-6">
-        {/* Full Name */}
+      <RegistrationProgressBar currentStep={1} />
+      <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+        <PhotoCropUpload
+          currentUrl={data?.applicant?.profile_image || data?.profile?.avatar_url}
+          initials={initials}
+          onCropped={setAvatarFile}
+        />
         <div className="space-y-2">
-          <Label htmlFor="fullName">
-            Full Name <span className="text-destructive">*</span>
-          </Label>
-          <Input
-            id="fullName"
-            placeholder="Enter your full name"
-            {...register("fullName")}
-          />
-          {errors.fullName && (
-            <p className="text-sm text-destructive">{errors.fullName.message}</p>
-          )}
+          <Label>Full Name *</Label>
+          <Input {...register("fullName")} />
+          {errors.fullName && <p className="text-sm text-destructive">{errors.fullName.message}</p>}
         </div>
-
-        {/* Mobile Number */}
         <div className="space-y-2">
-          <Label htmlFor="mobileNumber">
-            Mobile Number <span className="text-destructive">*</span>
-          </Label>
-          <div className="flex">
-            <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-input bg-muted text-sm">
-              +91
-            </span>
-            <Input
-              id="mobileNumber"
-              type="tel"
-              placeholder="Enter 10-digit mobile number"
-              className="rounded-l-none"
-              maxLength={10}
-              {...register("mobileNumber")}
-            />
+          <Label>Date of Birth *</Label>
+          <Input type="date" {...register("dateOfBirth")} />
+          {errors.dateOfBirth && <p className="text-sm text-destructive">{errors.dateOfBirth.message}</p>}
+        </div>
+        <div className="space-y-2">
+          <Label>Gender *</Label>
+          <RadioGroup value={watch("gender")} onValueChange={(v) => setValue("gender", v as FormData["gender"])}>
+            {[
+              { v: "male", l: "Male" },
+              { v: "female", l: "Female" },
+              { v: "other", l: "Other" },
+              { v: "prefer_not_to_say", l: "Prefer not to say" },
+            ].map(({ v, l }) => (
+              <div key={v} className="flex items-center gap-2">
+                <RadioGroupItem value={v} id={v} />
+                <Label htmlFor={v}>{l}</Label>
+              </div>
+            ))}
+          </RadioGroup>
+        </div>
+        <div className="grid sm:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label>Marital Status</Label>
+            <Select value={watch("maritalStatus") || ""} onValueChange={(v) => setValue("maritalStatus", v)}>
+              <SelectTrigger><SelectValue placeholder="Optional" /></SelectTrigger>
+              <SelectContent>
+                {["Single", "Married", "Divorced", "Widowed"].map((s) => (
+                  <SelectItem key={s} value={s}>{s}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-          {errors.mobileNumber && (
-            <p className="text-sm text-destructive">{errors.mobileNumber.message}</p>
-          )}
+          <div className="space-y-2">
+            <Label>Father&apos;s Name</Label>
+            <Input {...register("fatherName")} />
+          </div>
         </div>
-
-        {/* Email */}
-        <div className="space-y-2">
-          <Label htmlFor="email">
-            Email Address <span className="text-destructive">*</span>
-          </Label>
-          <Input
-            id="email"
-            type="email"
-            placeholder="your.email@example.com"
-            {...register("email")}
-          />
-          {errors.email && (
-            <p className="text-sm text-destructive">{errors.email.message}</p>
-          )}
+        <div className="flex items-center justify-between">
+          <Label>Differently Abled</Label>
+          <Switch checked={watch("differentlyAbled")} onCheckedChange={(c) => setValue("differentlyAbled", c)} />
         </div>
-
-        {/* Date of Birth */}
-        <div className="space-y-2">
-          <Label htmlFor="dob">
-            Date of Birth <span className="text-destructive">*</span>
-          </Label>
-          <Input
-            id="dob"
-            type="date"
-            max={new Date().toISOString().split('T')[0]}
-            {...register("dob")}
-          />
-          {errors.dob && (
-            <p className="text-sm text-destructive">{errors.dob.message}</p>
-          )}
-        </div>
-
-        {/* Gender */}
         <div className="space-y-3">
-          <Label>
-            Gender <span className="text-destructive">*</span>
-          </Label>
-          <RadioGroup
-            onValueChange={(value) =>
-              setValue("gender", value as any)
-            }
-            className="grid grid-cols-3 gap-4"
-          >
-            {[
-              { value: "male", label: "Male" },
-              { value: "female", label: "Female" },
-              { value: "other", label: "Other" },
-            ].map((option) => (
-              <div key={option.value}>
-                <RadioGroupItem
-                  value={option.value}
-                  id={option.value}
-                  className="peer sr-only"
-                />
-                <Label
-                  htmlFor={option.value}
-                  className="flex items-center justify-center rounded-lg border-2 border-muted bg-background p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5 cursor-pointer transition-all"
-                >
-                  {option.label}
-                </Label>
-              </div>
-            ))}
-          </RadioGroup>
-          {errors.gender && (
-            <p className="text-sm text-destructive">
-              {errors.gender.message}
-            </p>
-          )}
-        </div>
-
-        {/* Job Role */}
-        <div className="space-y-2">
-          <Label htmlFor="jobRole">
-            Skill / Job Role Applying For <span className="text-destructive">*</span>
-          </Label>
-          <Select
-            onValueChange={(value) => setValue("jobRole", value)}
-            defaultValue=""
-          >
-            <SelectTrigger id="jobRole">
-              <SelectValue placeholder="Select job role" />
-            </SelectTrigger>
-            <SelectContent className="bg-background z-50">
-              <SelectItem value="telecaller">Telecaller</SelectItem>
-              <SelectItem value="data-entry">Data Entry Operator</SelectItem>
-              <SelectItem value="sales-executive">Sales Executive</SelectItem>
-              <SelectItem value="back-office">Back Office</SelectItem>
-              <SelectItem value="hr-trainee">HR Trainee</SelectItem>
-              <SelectItem value="admin-executive">Admin Executive</SelectItem>
-              <SelectItem value="graphic-designer">Graphic Designer</SelectItem>
-              <SelectItem value="customer-support">Customer Support</SelectItem>
-            </SelectContent>
-          </Select>
-          {errors.jobRole && (
-            <p className="text-sm text-destructive">{errors.jobRole.message}</p>
-          )}
-        </div>
-
-        {/* Communication Skill */}
-        <div className="space-y-3">
-          <Label>
-            Communication Skill Rating <span className="text-destructive">*</span>
-          </Label>
-          <RadioGroup
-            onValueChange={(value) =>
-              setValue("communicationSkill", value as any)
-            }
-            className="grid grid-cols-2 md:grid-cols-4 gap-4"
-          >
-            {[
-              { value: "good", label: "Good" },
-              { value: "okay", label: "Okay" },
-              { value: "average", label: "Average" },
-              { value: "poor", label: "Poor" },
-            ].map((option) => (
-              <div key={option.value}>
-                <RadioGroupItem
-                  value={option.value}
-                  id={option.value}
-                  className="peer sr-only"
-                />
-                <Label
-                  htmlFor={option.value}
-                  className="flex items-center justify-center rounded-lg border-2 border-muted bg-background p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5 cursor-pointer transition-all"
-                >
-                  {option.label}
-                </Label>
-              </div>
-            ))}
-          </RadioGroup>
-          {errors.communicationSkill && (
-            <p className="text-sm text-destructive">
-              {errors.communicationSkill.message}
-            </p>
-          )}
+          <Label>Languages Known</Label>
+          {fields.map((field, i) => (
+            <div key={field.id} className="flex gap-2">
+              <Input placeholder="Language" {...register(`languages.${i}.name`)} className="flex-1" />
+              <Select value={watch(`languages.${i}.proficiency`)} onValueChange={(v) => setValue(`languages.${i}.proficiency`, v as LanguageRow["proficiency"])}>
+                <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {["Beginner", "Intermediate", "Expert", "Native"].map((p) => (
+                    <SelectItem key={p} value={p}>{p}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button type="button" variant="ghost" size="icon" onClick={() => remove(i)}><Trash2 className="h-4 w-4" /></Button>
+            </div>
+          ))}
+          <Button type="button" variant="outline" size="sm" onClick={() => append({ name: "", proficiency: "Intermediate" })}>
+            <Plus className="h-4 w-4 mr-1" /> Add language
+          </Button>
         </div>
       </form>
     </RegistrationLayout>

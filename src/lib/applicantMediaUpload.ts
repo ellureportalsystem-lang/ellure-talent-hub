@@ -6,6 +6,8 @@ export type ApplicantResumeUploadContext = {
   applicantId?: string;
   /** Auth user id (registration flow before applicant row exists) */
   authUserId?: string;
+  /** When true, always use Supabase Storage (e.g. admin bulk upload) even if Cloudinary is configured */
+  preferSupabase?: boolean;
 };
 
 function assertContext(ctx: ApplicantResumeUploadContext): void {
@@ -58,7 +60,7 @@ export async function uploadApplicantResume(
   const ext = file.name.includes('.') ? (file.name.split('.').pop() as string) : 'pdf';
   const { cloudinaryPublicId, supabasePath } = resumePaths(ctx, ext);
 
-  if (isCloudinaryRawConfigured()) {
+  if (isCloudinaryRawConfigured() && !ctx.preferSupabase) {
     const { secure_url } = await uploadToCloudinary(file, {
       resourceType: 'raw',
       publicId: cloudinaryPublicId,

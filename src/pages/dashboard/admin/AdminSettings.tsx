@@ -1,156 +1,181 @@
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
-import { Upload, Bell, Key, FileText } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Bell, Key, Loader2, User } from "lucide-react";
+import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
 const AdminSettings = () => {
+  const { user, profile, refreshProfile } = useAuth();
+  const [loading, setLoading] = useState(true);
+  const [savingProfile, setSavingProfile] = useState(false);
+  const [pw, setPw] = useState({ next: "", confirm: "" });
+  const [savingPw, setSavingPw] = useState(false);
+  const [fullName, setFullName] = useState("");
+  const [displayName, setDisplayName] = useState("");
+  const [phone, setPhone] = useState("");
+
+  useEffect(() => {
+    if (!user?.id) {
+      setLoading(false);
+      return;
+    }
+    let alive = true;
+    void supabase
+      .from("profiles")
+      .select("full_name, display_name, phone")
+      .eq("id", user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (!alive) return;
+        setFullName((data?.full_name as string) || profile?.full_name || "");
+        setDisplayName((data?.display_name as string) || profile?.display_name || "");
+        setPhone((data?.phone as string) || profile?.phone || "");
+      })
+      .finally(() => alive && setLoading(false));
+    return () => {
+      alive = false;
+    };
+  }, [user?.id, profile?.full_name, profile?.display_name, profile?.phone]);
+
+  const saveProfile = async () => {
+    if (!user?.id) return;
+    setSavingProfile(true);
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .update({
+          full_name: fullName.trim() || null,
+          display_name: displayName.trim() || null,
+          phone: phone.trim() || null,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", user.id);
+      if (error) throw error;
+      await refreshProfile();
+      toast.success("Profile saved");
+    } catch (e: unknown) {
+      toast.error(e instanceof Error ? e.message : "Could not save");
+    } finally {
+      setSavingProfile(false);
+    }
+  };
+
+  const updatePassword = async () => {
+    if (pw.next.length < 8) {
+      toast.error("Use at least 8 characters");
+      return;
+    }
+    if (pw.next !== pw.confirm) {
+      toast.error("Passwords do not match");
+      return;
+    }
+    setSavingPw(true);
+    try {
+      const { error } = await supabase.auth.updateUser({ password: pw.next });
+      if (error) throw error;
+      setPw({ next: "", confirm: "" });
+      toast.success("Password updated");
+    } catch (e: unknown) {
+      toast.error(e instanceof Error ? e.message : "Password update failed");
+    } finally {
+      setSavingPw(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="space-y-6 p-6">
+        <Skeleton className="h-8 w-48" />
+        <Skeleton className="h-40 w-full max-w-xl" />
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-4 lg:p-6 max-w-2xl">
       <div>
-        <h1 className="text-2xl font-bold">Admin Settings</h1>
-        <p className="text-muted-foreground">Configure system settings and preferences</p>
+        <h1 className="text-2xl font-bold tracking-tight">Admin settings</h1>
+        <p className="text-muted-foreground">Your administrator profile — automations run through Supabase Edge Functions.</p>
       </div>
 
-      {/* Branding */}
       <Card className="shadow-sm">
         <CardHeader>
-          <CardTitle className="text-lg">Branding</CardTitle>
+          <CardTitle className="text-lg flex items-center gap-2">
+            <User className="h-5 w-5" />
+            Profile
+          </CardTitle>
+          <CardDescription>Displayed internally; email comes from authentication.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="company-name">Company Name</Label>
-            <Input 
-              id="company-name" 
-              defaultValue="Ellure NexHire"
-            />
+            <Label>Email</Label>
+            <Input value={profile?.email || user?.email || ""} disabled />
           </div>
           <div className="space-y-2">
-            <Label>Company Logo</Label>
-            <div className="flex items-center gap-4">
-              <div className="h-20 w-20 rounded-lg border flex items-center justify-center bg-muted">
-                <span className="text-xs text-muted-foreground">Logo</span>
-              </div>
-              <Button variant="outline">
-                <Upload className="mr-2 h-4 w-4" />
-                Upload Logo
-              </Button>
-            </div>
+            <Label htmlFor="adm-fn">Full name</Label>
+            <Input id="adm-fn" value={fullName} onChange={(e) => setFullName(e.target.value)} />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="adm-dn">Display name</Label>
+            <Input id="adm-dn" value={displayName} onChange={(e) => setDisplayName(e.target.value)} />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="adm-ph">Phone</Label>
+            <Input id="adm-ph" value={phone} onChange={(e) => setPhone(e.target.value)} />
           </div>
           <Separator />
-          <Button>Save Branding</Button>
+          <Button onClick={() => void saveProfile()} disabled={savingProfile}>
+            {savingProfile ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+            Save profile
+          </Button>
         </CardContent>
       </Card>
 
-      {/* Notifications */}
       <Card className="shadow-sm">
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
             <Bell className="h-5 w-5" />
-            Notification Settings
+            Platform operations
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-medium">Email Notifications</p>
-              <p className="text-sm text-muted-foreground">Receive email updates for new applicants</p>
-            </div>
-            <Switch defaultChecked />
-          </div>
-          <Separator />
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-medium">Client Activity Alerts</p>
-              <p className="text-sm text-muted-foreground">Get notified when clients access data</p>
-            </div>
-            <Switch defaultChecked />
-          </div>
-          <Separator />
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-medium">Weekly Reports</p>
-              <p className="text-sm text-muted-foreground">Receive weekly summary reports</p>
-            </div>
-            <Switch />
-          </div>
+        <CardContent className="text-sm text-muted-foreground leading-relaxed space-y-3">
+          <p>
+            Webhooks, scheduled jobs (crons), and transactional email deploy as Supabase Edge Functions. Configure secrets
+            such as{" "}
+            <code className="text-xs bg-muted px-1 py-0.5 rounded">RESEND_API_KEY</code> and{" "}
+            <code className="text-xs bg-muted px-1 py-0.5 rounded">SITE_URL</code> in the Supabase project dashboard, then deploy
+            each folder under <code className="text-xs bg-muted px-1 py-0.5 rounded">supabase/functions</code>.
+          </p>
+          <p>Add database webhooks in the Supabase Dashboard so rows in applicants, job applications, clients, or messages call your function URLs.</p>
         </CardContent>
       </Card>
 
-      {/* Email Templates */}
-      <Card className="shadow-sm">
-        <CardHeader>
-          <CardTitle className="text-lg flex items-center gap-2">
-            <FileText className="h-5 w-5" />
-            Email Template Editor
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label>Welcome Email Template</Label>
-            <Textarea 
-              rows={4}
-              defaultValue="Dear {name}, Welcome to Ellure Portal..."
-              placeholder="Edit email template..."
-            />
-          </div>
-          <div className="space-y-2">
-            <Label>Application Confirmation Template</Label>
-            <Textarea 
-              rows={4}
-              defaultValue="Thank you for submitting your application..."
-              placeholder="Edit email template..."
-            />
-          </div>
-          <Button>Save Templates</Button>
-        </CardContent>
-      </Card>
-
-      {/* Integration Keys */}
       <Card className="shadow-sm">
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
             <Key className="h-5 w-5" />
-            Integration Keys
+            Password
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-4 max-w-md">
           <div className="space-y-2">
-            <Label>API Key</Label>
-            <div className="flex gap-2">
-              <Input 
-                type="password"
-                value="••••••••••••••••••••"
-                readOnly
-              />
-              <Button variant="outline">Regenerate</Button>
-            </div>
+            <Label htmlFor="a-np">New password</Label>
+            <Input id="a-np" type="password" value={pw.next} onChange={(e) => setPw((p) => ({ ...p, next: e.target.value }))} autoComplete="new-password" />
           </div>
           <div className="space-y-2">
-            <Label>Webhook URL</Label>
-            <Input 
-              placeholder="https://your-webhook-url.com"
-            />
+            <Label htmlFor="a-cp">Confirm</Label>
+            <Input id="a-cp" type="password" value={pw.confirm} onChange={(e) => setPw((p) => ({ ...p, confirm: e.target.value }))} autoComplete="new-password" />
           </div>
-          <Button>Save Integration Keys</Button>
-        </CardContent>
-      </Card>
-
-      {/* System Logs */}
-      <Card className="shadow-sm">
-        <CardHeader>
-          <CardTitle className="text-lg">System Logs</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="h-64 rounded-lg border bg-muted/20 p-4 font-mono text-xs overflow-auto">
-            <p className="text-muted-foreground">[2024-03-15 10:23:45] User admin@ellureconsulting.com logged in</p>
-            <p className="text-muted-foreground">[2024-03-15 10:25:12] New applicant registered: priya@example.com</p>
-            <p className="text-muted-foreground">[2024-03-15 10:27:33] CSV import completed: 200 records</p>
-            <p className="text-muted-foreground">[2024-03-15 10:30:15] Client client+infosys accessed applicant data</p>
-          </div>
+          <Button variant="secondary" onClick={() => void updatePassword()} disabled={savingPw}>
+            {savingPw ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+            Update password
+          </Button>
         </CardContent>
       </Card>
     </div>

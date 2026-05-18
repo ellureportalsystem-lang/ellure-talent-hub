@@ -29,6 +29,10 @@ import {
   type Course,
 } from "@/services/masterDataService";
 import { Plus, X, Loader2 } from "lucide-react";
+import { useRegistrationApplicant } from "@/hooks/useRegistrationApplicant";
+import { saveRegistrationStep3 } from "@/services/registrationService";
+import { saveEducationLevel } from "@/lib/registrationExtras";
+import { toast as sonnerToast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 
 const educationEntrySchema = z.object({
@@ -61,6 +65,8 @@ type Step3FormData = z.infer<typeof step3Schema>;
 const Step3Education = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { applicantId } = useRegistrationApplicant();
+  const [saving, setSaving] = useState(false);
   const [boards, setBoards] = useState<Board[]>([]);
   const [institutions, setInstitutions] = useState<Institution[]>([]);
   const [degrees, setDegrees] = useState<Degree[]>([]);
@@ -261,7 +267,7 @@ const Step3Education = () => {
     setAddingNew(null);
   };
 
-  const onSubmit = () => {
+  const onSubmit = async () => {
     // Validate at least one entry has isHighest = true
     const hasHighest = entries.some((e) => e.isHighest);
     if (!hasHighest && entries.length > 0) {
@@ -284,8 +290,31 @@ const Step3Education = () => {
       return;
     }
 
-    localStorage.setItem("applicant_step3", JSON.stringify({ entries }));
-    navigate("/auth/applicant-register/step-4");
+    if (!applicantId) {
+      sonnerToast.error("Applicant profile not found");
+      return;
+    }
+    setSaving(true);
+    try {
+      const education = entries.map((e) => ({
+        degree: e.otherCourseName || e.degreeId || e.educationLevel,
+        fieldOfStudy: e.stream,
+        institutionName: e.otherInstitutionName || e.institutionId,
+        boardName: e.otherBoardName || e.boardId,
+        passingYear: e.passingYear ? parseInt(e.passingYear, 10) : undefined,
+        percentage: e.percentage ? parseFloat(e.percentage) : undefined,
+        mode: e.medium,
+      }));
+      await saveRegistrationStep3(applicantId, education, []);
+      const highest = entries.find((e) => e.isHighest);
+      if (highest) await saveEducationLevel(applicantId, highest.educationLevel);
+      sonnerToast.success("Saved");
+      navigate("/auth/applicant-register/step-4");
+    } catch (e) {
+      sonnerToast.error(e instanceof Error ? e.message : "Save failed");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handlePrevious = () => {

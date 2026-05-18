@@ -28,87 +28,53 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
-import { mockApplicants } from "@/data/mockApplicants";
+import { useShortlists, type FolderView } from "@/hooks/useShortlists";
+import { searchApplicantsForFolder, type ApplicantSummary } from "@/services/shortlistService";
+import { exportApplicantsToExcel } from "@/utils/applicantExport";
+import type { Applicant } from "@/hooks/useApplicants";
+import { Loader2 } from "lucide-react";
 
 interface Folder {
-  id: number;
+  id: string;
   name: string;
   description: string;
   count: number;
   createdAt: string;
   isShared: boolean;
   sharedWith: string[];
-  applicantIds: number[];
+  applicantIds: string[];
   color: string;
 }
 
+function folderFromView(f: FolderView): Folder {
+  return {
+    id: f.id,
+    name: f.name,
+    description: f.description,
+    count: f.applicants.length,
+    createdAt: f.createdAt,
+    isShared: f.isShared,
+    sharedWith: [],
+    applicantIds: f.applicants.map((a) => a.id),
+    color: f.color,
+  };
+}
+
 const FoldersManagement = () => {
+  const { folders: folderViews, loading, createFolder, removeFolder, addToFolder, removeFromFolder, reload } =
+    useShortlists("admin");
+  const folders: Folder[] = folderViews.map(folderFromView);
+
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [selectedFolder, setSelectedFolder] = useState<Folder | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [newFolderName, setNewFolderName] = useState("");
   const [newFolderDescription, setNewFolderDescription] = useState("");
   const [newFolderColor, setNewFolderColor] = useState("blue");
-  const [selectedApplicants, setSelectedApplicants] = useState<number[]>([]);
+  const [selectedApplicants, setSelectedApplicants] = useState<string[]>([]);
   const [isAddApplicantsDialogOpen, setIsAddApplicantsDialogOpen] = useState(false);
-
-  const [folders, setFolders] = useState<Folder[]>([
-    { 
-      id: 1, 
-      name: "Infosys Applicants", 
-      description: "Shortlisted candidates for Infosys Java Developer role", 
-      count: 24, 
-      createdAt: "2024-01-15", 
-      isShared: true,
-      sharedWith: ["client@infosys.com"],
-      applicantIds: mockApplicants.slice(0, 24).map(a => a.id),
-      color: "blue"
-    },
-    { 
-      id: 2, 
-      name: "TCS Software Engineers", 
-      description: "Full Stack Developers for TCS project", 
-      count: 18, 
-      createdAt: "2024-01-20", 
-      isShared: false,
-      sharedWith: [],
-      applicantIds: mockApplicants.slice(10, 28).map(a => a.id),
-      color: "green"
-    },
-    { 
-      id: 3, 
-      name: "Wipro Data Analysts", 
-      description: "Data Analytics positions at Wipro", 
-      count: 12, 
-      createdAt: "2024-02-01", 
-      isShared: true,
-      sharedWith: ["hr@wipro.com", "recruiter@wipro.com"],
-      applicantIds: mockApplicants.slice(5, 17).map(a => a.id),
-      color: "purple"
-    },
-    { 
-      id: 4, 
-      name: "Premium Candidates", 
-      description: "High-value candidates with 10+ years experience", 
-      count: 35, 
-      createdAt: "2024-02-10", 
-      isShared: false,
-      sharedWith: [],
-      applicantIds: mockApplicants.slice(0, 35).map(a => a.id),
-      color: "yellow"
-    },
-    { 
-      id: 5, 
-      name: "Freshers Pool", 
-      description: "Fresh graduates ready for immediate joining", 
-      count: 42, 
-      createdAt: "2024-02-15", 
-      isShared: true,
-      sharedWith: ["campus@techmahindra.com"],
-      applicantIds: mockApplicants.slice(8, 50).map(a => a.id),
-      color: "cyan"
-    },
-  ]);
+  const [addSearchQuery, setAddSearchQuery] = useState("");
+  const [addSearchResults, setAddSearchResults] = useState<ApplicantSummary[]>([]);
 
   const colorOptions = [
     { value: "blue", label: "Blue", class: "bg-blue-500" },
@@ -131,64 +97,43 @@ const FoldersManagement = () => {
     return colorMap[color] || colorMap.blue;
   };
 
-  const handleCreateFolder = () => {
-    if (newFolderName.trim()) {
-      const newFolder: Folder = {
-        id: Date.now(),
-        name: newFolderName,
-        description: newFolderDescription,
-        count: 0,
-        createdAt: new Date().toISOString().split('T')[0],
-        isShared: false,
-        sharedWith: [],
-        applicantIds: [],
-        color: newFolderColor,
-      };
-      setFolders([newFolder, ...folders]);
+  const handleCreateFolder = async () => {
+    if (!newFolderName.trim()) return;
+    const ok = await createFolder(newFolderName.trim(), newFolderDescription.trim(), newFolderColor);
+    if (ok) {
       setNewFolderName("");
       setNewFolderDescription("");
       setNewFolderColor("blue");
       setIsCreateDialogOpen(false);
-      toast.success("Folder created successfully");
     }
   };
 
-  const handleDeleteFolder = (folderId: number) => {
-    setFolders(folders.filter(f => f.id !== folderId));
-    toast.success("Folder deleted");
+  const handleDeleteFolder = async (folderId: string) => {
+    await removeFolder(folderId);
+    if (selectedFolder?.id === folderId) setSelectedFolder(null);
   };
 
-  const handleAddApplicantsToFolder = () => {
+  const handleAddApplicantsToFolder = async () => {
     if (selectedFolder && selectedApplicants.length > 0) {
-      setFolders(folders.map(f => {
-        if (f.id === selectedFolder.id) {
-          const newApplicantIds = [...new Set([...f.applicantIds, ...selectedApplicants])];
-          return { ...f, applicantIds: newApplicantIds, count: newApplicantIds.length };
-        }
-        return f;
-      }));
+      await addToFolder(selectedFolder.id, selectedApplicants);
       setSelectedApplicants([]);
       setIsAddApplicantsDialogOpen(false);
-      toast.success(`${selectedApplicants.length} applicants added to folder`);
+      const fresh = folderViews.find((f) => f.id === selectedFolder.id);
+      if (fresh) setSelectedFolder(folderFromView(fresh));
     }
   };
 
-  const handleRemoveFromFolder = (applicantId: number) => {
+  const handleRemoveFromFolder = async (applicantId: string) => {
     if (selectedFolder) {
-      setFolders(folders.map(f => {
-        if (f.id === selectedFolder.id) {
-          const newApplicantIds = f.applicantIds.filter(id => id !== applicantId);
-          return { ...f, applicantIds: newApplicantIds, count: newApplicantIds.length };
-        }
-        return f;
-      }));
-      setSelectedFolder(prev => prev ? {
-        ...prev,
-        applicantIds: prev.applicantIds.filter(id => id !== applicantId),
-        count: prev.count - 1
-      } : null);
-      toast.success("Applicant removed from folder");
+      await removeFromFolder(selectedFolder.id, applicantId);
+      const fresh = folderViews.find((f) => f.id === selectedFolder.id);
+      if (fresh) setSelectedFolder(folderFromView(fresh));
     }
+  };
+
+  const searchApplicantsToAdd = async () => {
+    const { data } = await searchApplicantsForFolder(addSearchQuery, 25);
+    setAddSearchResults(data ?? []);
   };
 
   const filteredFolders = folders.filter(f => 
@@ -196,9 +141,17 @@ const FoldersManagement = () => {
     f.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const folderApplicants = selectedFolder 
-    ? mockApplicants.filter(a => selectedFolder.applicantIds.includes(a.id))
+  const folderApplicants: ApplicantSummary[] = selectedFolder
+    ? folderViews.find((f) => f.id === selectedFolder.id)?.applicants ?? []
     : [];
+
+  if (loading && folders.length === 0) {
+    return (
+      <div className="flex items-center justify-center p-12">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   // Folder Detail View
   if (selectedFolder) {
@@ -300,21 +253,24 @@ const FoldersManagement = () => {
                       <div>
                         <p className="font-medium">{applicant.name}</p>
                         <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                          <span>{applicant.designation || "Professional"}</span>
+                          <span>{applicant.current_designation || applicant.job_role || "Professional"}</span>
                           <span>•</span>
-                          <span>{applicant.experience} yrs exp</span>
-                          <span>•</span>
-                          <span>{applicant.currentCity}</span>
+                          <span>{applicant.city || "—"}</span>
                         </div>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
                       <div className="flex gap-1">
-                        {applicant.skills.slice(0, 3).map((skill, i) => (
-                          <Badge key={i} variant="secondary" className="text-xs">
-                            {skill}
-                          </Badge>
-                        ))}
+                        {(applicant.key_skills || "")
+                          .split(/[,;|]/)
+                          .map((s) => s.trim())
+                          .filter(Boolean)
+                          .slice(0, 3)
+                          .map((skill, i) => (
+                            <Badge key={i} variant="secondary" className="text-xs">
+                              {skill}
+                            </Badge>
+                          ))}
                       </div>
                       <div className="flex items-center gap-1">
                         <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -355,10 +311,21 @@ const FoldersManagement = () => {
             <div className="space-y-4">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input placeholder="Search applicants..." className="pl-10" />
+                <Input
+                  placeholder="Search applicants..."
+                  className="pl-10 flex-1"
+                  value={addSearchQuery}
+                  onChange={(e) => setAddSearchQuery(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && void searchApplicantsToAdd()}
+                />
+                <Button type="button" variant="secondary" onClick={() => void searchApplicantsToAdd()}>
+                  Search
+                </Button>
               </div>
               <div className="max-h-[400px] overflow-y-auto space-y-2">
-                {mockApplicants.filter(a => !selectedFolder.applicantIds.includes(a.id)).slice(0, 20).map((applicant) => (
+                {addSearchResults
+                  .filter((a) => !selectedFolder.applicantIds.includes(a.id))
+                  .map((applicant) => (
                   <div 
                     key={applicant.id}
                     className={`flex items-center gap-4 p-3 rounded-lg border cursor-pointer transition-colors ${
@@ -381,7 +348,7 @@ const FoldersManagement = () => {
                     <div className="flex-1">
                       <p className="font-medium text-sm">{applicant.name}</p>
                       <p className="text-xs text-muted-foreground">
-                        {applicant.skills.slice(0, 2).join(", ")} • {applicant.experience} yrs
+                        {(applicant.key_skills || "").slice(0, 40)}
                       </p>
                     </div>
                   </div>
@@ -615,10 +582,12 @@ const FoldersManagement = () => {
               {/* Preview Avatars */}
               <div className="flex items-center gap-2">
                 <div className="flex -space-x-2">
-                  {mockApplicants.slice(0, 4).map((applicant, i) => (
-                    <Avatar key={i} className="h-7 w-7 border-2 border-background">
+                  {(folderViews.find((fv) => fv.id === folder.id)?.applicants ?? [])
+                    .slice(0, 4)
+                    .map((applicant, i) => (
+                    <Avatar key={applicant.id} className="h-7 w-7 border-2 border-background">
                       <AvatarFallback className="text-xs bg-primary/10 text-primary">
-                        {applicant.name.split(" ").map(n => n[0]).join("")}
+                        {applicant.name.split(" ").map((n) => n[0]).join("")}
                       </AvatarFallback>
                     </Avatar>
                   ))}

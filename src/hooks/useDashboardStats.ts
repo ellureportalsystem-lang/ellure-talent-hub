@@ -7,12 +7,18 @@ import {
   getExperienceDistribution,
   getEducationDistribution,
   getRecentActivity,
+  getProfileRegistrationTrend,
+  getTopSkillsFromSearchIndex,
+  getCityDistribution,
+  getPendingClients,
   DashboardStats,
   RegistrationTrend,
   SkillDistribution,
   ExperienceDistribution,
   EducationDistribution,
   RecentActivity,
+  CityDistribution,
+  PendingClient,
 } from '@/services/dashboardService';
 
 export function useAdminDashboardStats(dateRange: '7days' | '30days' | 'quarter' | 'ytd' = '7days') {
@@ -154,4 +160,42 @@ export function useRecentActivity(limit: number = 10) {
   }, [limit]);
 
   return { data, loading };
+}
+
+export function useProfileRegistrationTrend(days = 30) {
+  const [data, setData] = useState<RegistrationTrend[]>([]);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    getProfileRegistrationTrend(days).then(setData).finally(() => setLoading(false));
+  }, [days]);
+  return { data, loading };
+}
+
+export function useTopSkillsFromSearchIndex(limit = 10) {
+  const [data, setData] = useState<SkillDistribution[]>([]);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    getTopSkillsFromSearchIndex(limit).then(setData).finally(() => setLoading(false));
+  }, [limit]);
+  return { data, loading };
+}
+
+export function useCityDistribution(limit = 10) {
+  const [data, setData] = useState<CityDistribution[]>([]);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    getCityDistribution(limit).then(setData).finally(() => setLoading(false));
+  }, [limit]);
+  return { data, loading };
+}
+
+export function usePendingClients(limit = 10) {
+  const [data, setData] = useState<PendingClient[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshKey, setRefreshKey] = useState(0);
+  useEffect(() => {
+    setLoading(true);
+    getPendingClients(limit).then(setData).finally(() => setLoading(false));
+  }, [limit, refreshKey]);
+  return { data, loading, refetch: () => setRefreshKey((k) => k + 1) };
 }

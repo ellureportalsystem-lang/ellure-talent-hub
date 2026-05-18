@@ -133,3 +133,4 @@ const ApplicantProfile = () => {
 };
 
 export default ApplicantProfile;
+

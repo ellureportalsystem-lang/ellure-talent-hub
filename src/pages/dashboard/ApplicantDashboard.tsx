@@ -10,11 +10,13 @@ import { openResumePreview } from "@/lib/resumePreview";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { CandidateFAQs } from "@/components/CandidateFAQs";
+import { OldApplicantWelcomeModal } from "@/components/registration/OldApplicantWelcomeModal";
 
-const ApplicantDashboard = () => {
+const ApplicantDashboard = ({ embedded = false }: { embedded?: boolean }) => {
   const { profile, user, signOut } = useAuth();
   const [applicantData, setApplicantData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [showOldApplicantModal, setShowOldApplicantModal] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -177,6 +179,42 @@ const ApplicantDashboard = () => {
   };
 
   const profileCompletion = profile?.profile_complete_percent || applicantData?.profile_complete_percent || 0;
+  const [applicationStats, setApplicationStats] = useState({
+    total: 0,
+    pending: 0,
+    shortlisted: 0,
+    interviews: 0,
+  });
+
+  useEffect(() => {
+    const loadStats = async () => {
+      const applicantId = profile?.applicant_id ?? applicantData?.id;
+      if (!applicantId) return;
+      const { data } = await supabase
+        .from("job_applications")
+        .select("current_stage")
+        .eq("applicant_id", applicantId);
+      if (!data) return;
+      setApplicationStats({
+        total: data.length,
+        pending: data.filter((a) => a.current_stage === "applied" || a.current_stage === "screening").length,
+        shortlisted: data.filter((a) => a.current_stage === "shortlisted").length,
+        interviews: data.filter((a) =>
+          ["interview_scheduled", "interviewed", "offer"].includes(a.current_stage ?? "")
+        ).length,
+      });
+    };
+    void loadStats();
+  }, [profile?.applicant_id, applicantData?.id]);
+
+  useEffect(() => {
+    if (
+      applicantData?.is_old_applicant &&
+      (profile?.login_count === 1 || profile?.login_count === 2)
+    ) {
+      setShowOldApplicantModal(true);
+    }
+  }, [applicantData?.is_old_applicant, profile?.login_count]);
 
   // Show loading only if we have a user but no profile/applicant data yet
   // Don't block if user is logged in - show dashboard with available data
@@ -199,8 +237,9 @@ const ApplicantDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-subtle">
-      {/* Header */}
+    <div className={embedded ? "p-4 lg:p-6 max-w-6xl mx-auto" : "min-h-screen bg-gradient-subtle"}>
+      <OldApplicantWelcomeModal open={showOldApplicantModal} onClose={() => setShowOldApplicantModal(false)} />
+      {!embedded && (
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur">
         <div className="container flex h-16 items-center justify-between">
           <div className="flex items-center gap-1">
@@ -216,8 +255,9 @@ const ApplicantDashboard = () => {
           </Button>
         </div>
       </header>
+      )}
 
-      <div className="container py-8">
+      <div className={embedded ? "space-y-6" : "container py-8"}>
         {/* Profile Header Card */}
         <Card className="mb-8 shadow-lg">
           <CardContent className="p-6">
@@ -326,7 +366,7 @@ const ApplicantDashboard = () => {
                   <FileText className="h-6 w-6 text-primary" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold">5</p>
+                  <p className="text-2xl font-bold">{applicationStats.total}</p>
                   <p className="text-sm text-muted-foreground">Applications</p>
                 </div>
               </div>
@@ -340,7 +380,7 @@ const ApplicantDashboard = () => {
                   <Clock className="h-6 w-6 text-secondary" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold">2</p>
+                  <p className="text-2xl font-bold">{applicationStats.pending}</p>
                   <p className="text-sm text-muted-foreground">Pending</p>
                 </div>
               </div>
@@ -354,7 +394,7 @@ const ApplicantDashboard = () => {
                   <CheckCircle2 className="h-6 w-6 text-success" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold">2</p>
+                  <p className="text-2xl font-bold">{applicationStats.shortlisted}</p>
                   <p className="text-sm text-muted-foreground">Shortlisted</p>
                 </div>
               </div>
@@ -368,7 +408,7 @@ const ApplicantDashboard = () => {
                   <Award className="h-6 w-6 text-info" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold">1</p>
+                  <p className="text-2xl font-bold">{applicationStats.interviews}</p>
                   <p className="text-sm text-muted-foreground">Interviews</p>
                 </div>
               </div>
