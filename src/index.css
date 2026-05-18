@@ -411,6 +411,18 @@ All colors MUST be HSL.
     }
   }
 
+  /* Homepage hero slides — same 1600×896 assets, identical fit as banner-1 */
+  .marketing-hero-banner-img {
+    object-fit: cover;
+    object-position: center center;
+  }
+
+  @media (min-width: 768px) {
+    .marketing-hero-banner-img {
+      object-position: center right;
+    }
+  }
+
   .marketing-hero-overlay {
     background: linear-gradient(
       180deg,

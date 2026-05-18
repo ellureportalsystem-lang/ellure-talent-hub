@@ -84,14 +84,17 @@ const Landing = () => {
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-primary text-primary-foreground marketing-landing-hero flex items-center">
         <AnimatePresence mode="wait">
-          <motion.div
+          <motion.img
             key={currentSlide}
+            src={`/banner-${currentSlide + 1}.jpg`}
+            alt=""
+            aria-hidden
             initial={{ opacity: 0, x: 100 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -100 }}
             transition={{ duration: 0.7, ease: [0.4, 0, 0.2, 1] }}
-            className="absolute inset-0 marketing-hero-banner bg-cover bg-no-repeat"
-            style={{ backgroundImage: `url(/banner-${currentSlide + 1}.jpg)` }}
+            className="absolute inset-0 w-full h-full marketing-hero-banner-img"
+            draggable={false}
           />
         </AnimatePresence>
         <div className="absolute inset-0 marketing-hero-overlay" />
