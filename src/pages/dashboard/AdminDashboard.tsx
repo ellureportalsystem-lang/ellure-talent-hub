@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import {
   LayoutDashboard, Users, FolderOpen, FileText,
   Settings, UserCog, LogOut, BarChart3, Search, Briefcase,
-  Bell, Menu, X, ChevronDown, ChevronLeft, ChevronsLeft, Upload,
+  Bell, Menu, X, ChevronDown, ChevronLeft, ChevronsLeft, Upload, FileSpreadsheet,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
@@ -28,6 +28,7 @@ import UsersManagement from "./admin/UsersManagement";
 import AdminSettings from "./admin/AdminSettings";
 import EnterpriseApplicantProfile from "./admin/EnterpriseApplicantProfile";
 import BulkResumeUpload from "./admin/BulkResumeUpload";
+import ImportCandidatesPage from "./admin/ImportCandidatesPage";
 import AdminJobsPage from "./admin/AdminJobsPage";
 import AdminMessagesPage from "./admin/AdminMessagesPage";
 import { useUnreadMessageCount } from "@/hooks/useUnreadMessageCount";
@@ -61,6 +62,7 @@ const AdminDashboard = () => {
         { path: "/dashboard/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
         { path: "/dashboard/admin/applicants", label: "Resume Search", icon: Search, badge: "AI" },
         { path: "/dashboard/admin/applicants/bulk-resumes", label: "Bulk CV upload", icon: Upload },
+        { path: "/dashboard/admin/import", label: "Import Data", icon: FileSpreadsheet },
         { path: "/dashboard/admin/folders", label: "Folders", icon: FolderOpen },
       ],
     },
@@ -295,6 +297,7 @@ const AdminDashboard = () => {
             <Route index element={<AdminHome />} />
             <Route path="applicants" element={<ApplicantsManagement />} />
             <Route path="applicants/bulk-resumes" element={<BulkResumeUpload />} />
+            <Route path="import" element={<ImportCandidatesPage />} />
             <Route path="applicants/:id" element={<EnterpriseApplicantProfile viewMode="admin" />} />
             <Route path="folders" element={<FoldersManagement />} />
             <Route path="jobs/*" element={<AdminJobsPage />} />

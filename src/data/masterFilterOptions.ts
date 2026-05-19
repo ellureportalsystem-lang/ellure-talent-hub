@@ -1,11 +1,19 @@
 /** Static filter option lists — not mock applicant records */
 export const educationOptions = [
-  "10th Pass",
-  "12th Pass",
-  "Diploma",
   "Graduate",
   "Post Graduate",
+  "Diploma",
+  "12th",
+  "10th",
   "Doctorate",
+];
+
+export const experienceTypeOptions = [
+  "Fresher",
+  "Junior",
+  "Mid-Level",
+  "Senior",
+  "Expert",
 ];
 
 export const noticePeriodOptions = [

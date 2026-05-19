@@ -2,6 +2,7 @@
 // Provides functions to fetch dashboard statistics and analytics
 
 import { supabase } from '@/lib/supabase';
+import { fetchClientRecord, resolveCvDownloadLimit } from '@/services/clientPlanHelper';
 
 export interface DashboardStats {
   totalApplicants: number;
@@ -221,11 +222,19 @@ export async function getAdminDashboardStats(dateRange: '7days' | '30days' | 'qu
       .select('*', { count: 'exact', head: true })
       .eq('is_active', false);
 
-    const { count: verifiedProfiles } = await supabase
+    const { count: verifiedByFlag } = await supabase
+      .from('applicants')
+      .select('*', { count: 'exact', head: true })
+      .eq('is_deleted', false)
+      .eq('is_verified', true);
+
+    const { count: verifiedLegacy } = await supabase
       .from('applicants')
       .select('*', { count: 'exact', head: true })
       .eq('is_deleted', false)
       .eq('verified', true);
+
+    const verifiedProfiles = Math.max(verifiedByFlag || 0, verifiedLegacy || 0);
 
     let applicationsThisMonth = 0;
     try {
@@ -395,7 +404,7 @@ export async function getExperienceDistribution(): Promise<ExperienceDistributio
   try {
     const { data, error } = await supabase
       .from('applicants')
-      .select('total_experience, total_experience_numbers')
+      .select('total_experience_years, total_experience_numbers, total_experience')
       .eq('is_deleted', false);
 
     if (error) throw error;
@@ -409,21 +418,18 @@ export async function getExperienceDistribution(): Promise<ExperienceDistributio
     };
 
     data?.forEach(applicant => {
-      let exp = 0;
-      
-      // Try to parse total_experience_numbers first
-      if (applicant.total_experience_numbers) {
-        const num = parseFloat(applicant.total_experience_numbers.toString());
-        if (!isNaN(num)) {
-          exp = num;
-        }
-      } else if (applicant.total_experience) {
-        // Try to extract number from text
-        const match = applicant.total_experience.toString().match(/(\d+\.?\d*)/);
-        if (match) {
-          exp = parseFloat(match[1]);
-        }
+      let exp = applicant.total_experience_years != null
+        ? Number(applicant.total_experience_years)
+        : NaN;
+
+      if (isNaN(exp) && applicant.total_experience_numbers) {
+        exp = parseFloat(applicant.total_experience_numbers.toString());
       }
+      if (isNaN(exp) && applicant.total_experience) {
+        const match = applicant.total_experience.toString().match(/(\d+\.?\d*)/);
+        if (match) exp = parseFloat(match[1]);
+      }
+      if (isNaN(exp)) exp = 0;
 
       if (exp === 0) ranges['Fresher']++;
       else if (exp < 3) ranges['1-3 yrs']++;
@@ -649,14 +655,14 @@ export async function getCityDistribution(limit = 10): Promise<CityDistribution[
   try {
     const { data, error } = await supabase
       .from('applicant_search_index')
-      .select('current_city')
-      .not('current_city', 'is', null);
+      .select('location_city')
+      .not('location_city', 'is', null);
 
     if (error) throw error;
 
     const counts: Record<string, number> = {};
     data?.forEach((row) => {
-      const city = String(row.current_city || '').trim();
+      const city = String(row.location_city || '').trim();
       if (city) counts[city] = (counts[city] || 0) + 1;
     });
 
@@ -713,16 +719,10 @@ export async function approveClient(clientId: string): Promise<void> {
 
 export async function getClientHomeStats(clientId: string): Promise<ClientHomeStats> {
   try {
-    const { data: client } = await supabase
-      .from('clients')
-      .select('*, subscription_plans(*)')
-      .eq('id', clientId)
-      .single();
-
-    const plan = (client as { subscription_plans?: { cv_downloads_per_month?: number; max_team_members?: number; max_active_jobs?: number } })
-      ?.subscription_plans;
-    const cvLimit = plan?.cv_downloads_per_month ?? 0;
-    const cvUsed = (client as { cv_downloads_used_this_month?: number })?.cv_downloads_used_this_month ?? 0;
+    const client = await fetchClientRecord(clientId);
+    const plan = client.subscription_plans;
+    const cvLimit = resolveCvDownloadLimit(client, plan);
+    const cvUsed = (client.cv_downloads_used_this_month as number) ?? 0;
 
     const { count: activeJobs } = await supabase
       .from('jobs')
@@ -815,26 +815,60 @@ export async function getClientTopJobs(clientId: string, limit = 3) {
 }
 
 export async function fetchFilterCities(): Promise<string[]> {
-  const { data } = await supabase.from('cities').select('name').order('name').limit(500);
-  if (data?.length) return data.map((c) => c.name).filter(Boolean);
-  const { data: idx } = await supabase
+  const { data: indexCities } = await supabase
     .from('applicant_search_index')
-    .select('current_city')
-    .not('current_city', 'is', null)
-    .limit(500);
-  const set = new Set<string>();
-  idx?.forEach((r) => {
-    const c = String(r.current_city || '').trim();
-    if (c) set.add(c);
-  });
-  return [...set].sort();
+    .select('location_city')
+    .not('location_city', 'is', null)
+    .neq('location_city', '');
+
+  if (indexCities && indexCities.length > 0) {
+    const unique = [...new Set(indexCities.map((r) => r.location_city).filter(Boolean))].sort();
+    return unique as string[];
+  }
+
+  const { data: appCities } = await supabase
+    .from('applicants')
+    .select('city')
+    .not('city', 'is', null)
+    .eq('is_deleted', false);
+
+  return [...new Set(appCities?.map((r) => r.city).filter(Boolean) ?? [])].sort() as string[];
 }
 
 export async function fetchFilterSkills(): Promise<string[]> {
-  const { data } = await supabase.from('applicant_skills').select('skill_name').limit(500);
-  if (data?.length) {
-    return [...new Set(data.map((s) => s.skill_name).filter(Boolean))].sort() as string[];
-  }
-  const dist = await getSkillDistribution(30);
-  return dist.map((d) => d.name).filter((n) => n !== 'Others');
+  const { data } = await supabase
+    .from('applicants')
+    .select('key_skills')
+    .not('key_skills', 'is', null)
+    .neq('key_skills', '')
+    .eq('is_deleted', false);
+
+  const skills = new Set<string>();
+  data?.forEach((r) => {
+    r.key_skills?.split(',').forEach((s: string) => {
+      const clean = s.trim();
+      if (clean.length > 1 && clean.length < 50) skills.add(clean);
+    });
+  });
+  return [...skills].sort();
+}
+
+export async function fetchFilterCompanies(): Promise<string[]> {
+  const { data } = await supabase
+    .from('applicants')
+    .select('current_company')
+    .not('current_company', 'is', null)
+    .neq('current_company', '')
+    .eq('is_deleted', false);
+  return [...new Set(data?.map((r) => r.current_company).filter(Boolean) ?? [])].sort() as string[];
+}
+
+export async function fetchFilterJobRoles(): Promise<string[]> {
+  const { data } = await supabase
+    .from('applicants')
+    .select('job_role')
+    .not('job_role', 'is', null)
+    .neq('job_role', '')
+    .eq('is_deleted', false);
+  return [...new Set(data?.map((r) => r.job_role).filter(Boolean) ?? [])].sort() as string[];
 }

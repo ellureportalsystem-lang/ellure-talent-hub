@@ -1,0 +1,29 @@
+---
+description: Protect dashboard and portal UI from accidental restyling during feature or backend work
+globs:
+  - src/pages/dashboard/**
+  - src/components/dashboard/**
+  - src/components/client/**
+  - src/components/search/**
+  - src/pages/auth/**
+  - src/index.css
+alwaysApply: false
+---
+
+# Dashboard / portal UI — do not change unless asked
+
+When the user task is about **search**, **import**, **Supabase**, **data**, **RLS**, or **bugs**:
+
+- **Do not edit** layout, spacing, colors, typography, sidebar chrome, table shells, or filter panel styling in the files matched by this rule.
+- **Do not introduce** new layout wrappers (`DashboardPageShell`, grid redesigns, motion wrappers) unless the user explicitly requests UI changes.
+- **Preserve** the canonical dashboard UI from `main` (commit `7b0bb80` baseline). Wire new features using existing patterns (cards, tables, `AdminDashboard` nav routes).
+
+Allowed without explicit UI approval:
+
+- Bug fixes that do not change visual design
+- New routes/nav items that match existing sidebar style
+- Service/hook/RPC wiring behind existing components
+
+If UI must change: user must say so explicitly (e.g. "change the admin dashboard UI").
+
+Do not edit marketing pages when working on dashboards. See `marketing-website-protected.mdc`.

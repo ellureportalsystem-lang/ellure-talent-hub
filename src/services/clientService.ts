@@ -1,21 +1,50 @@
 import { supabase } from "@/lib/supabase";
+import {
+  enrichSubscriptionPlan,
+  fetchClientRecord,
+  loadSubscriptionPlanByName,
+  resolveCvDownloadLimit,
+} from "@/services/clientPlanHelper";
+
+/** Link profiles.client_id after clients row is created (signup / admin provision). */
+export async function linkProfileToClient(
+  userId: string,
+  clientId: string,
+  options?: { keepAdminRole?: boolean }
+) {
+  const patch: { client_id: string; role?: "client" } = { client_id: clientId };
+  if (!options?.keepAdminRole) {
+    patch.role = "client";
+  }
+  const { error } = await supabase.from("profiles").update(patch).eq("id", userId);
+  if (error) throw new Error(error.message);
+}
 
 export async function fetchClientByProfile(userId: string) {
   const { data: profile } = await supabase
     .from("profiles")
-    .select("client_id, full_name, email")
+    .select("client_id, full_name, email, role")
     .eq("id", userId)
     .single();
 
-  if (!profile?.client_id) return null;
+  if (!profile) return null;
 
-  const { data: client, error } = await supabase
-    .from("clients")
-    .select("*, subscription_plans(*)")
-    .eq("id", profile.client_id)
-    .single();
+  let clientId = profile.client_id as string | null;
+  if (!clientId) {
+    const { data: byUser } = await supabase
+      .from("clients")
+      .select("id")
+      .eq("user_id", userId)
+      .maybeSingle();
+    clientId = byUser?.id ?? null;
+    if (clientId && !profile.client_id) {
+      await supabase.from("profiles").update({ client_id: clientId }).eq("id", userId);
+    }
+  }
 
-  if (error) throw new Error(error.message);
+  if (!clientId) return null;
+
+  const client = await fetchClientRecord(clientId);
   return { profile, client };
 }
 
@@ -33,17 +62,11 @@ export async function checkAndLogCvDownload(clientId: string, applicantId: strin
     downloaded_by: downloadedBy,
   });
 
-  const { data: client } = await supabase
-    .from("clients")
-    .select("cv_downloads_used_this_month, subscription_plans(cv_downloads_per_month)")
-    .eq("id", clientId)
-    .single();
-
-  const used = (client?.cv_downloads_used_this_month || 0) + 1;
+  const client = await fetchClientRecord(clientId);
+  const used = ((client.cv_downloads_used_this_month as number) || 0) + 1;
   await supabase.from("clients").update({ cv_downloads_used_this_month: used }).eq("id", clientId);
 
-  const limit = (client as { subscription_plans?: { cv_downloads_per_month?: number } })
-    ?.subscription_plans?.cv_downloads_per_month ?? 100;
+  const limit = resolveCvDownloadLimit(client, client.subscription_plans);
 
   return { allowed: true as const, remaining: Math.max(0, limit - used) };
 }
@@ -65,14 +88,8 @@ export async function saveClientSearch(
   query: string,
   filters: Record<string, unknown>
 ) {
-  const { data: client } = await supabase
-    .from("clients")
-    .select("subscription_plans(max_saved_searches)")
-    .eq("id", clientId)
-    .single();
-
-  const maxSaved = (client as { subscription_plans?: { max_saved_searches?: number } })
-    ?.subscription_plans?.max_saved_searches ?? 10;
+  const client = await fetchClientRecord(clientId);
+  const maxSaved = client.subscription_plans?.max_saved_searches ?? 10;
 
   const { count } = await supabase
     .from("saved_searches")
@@ -111,7 +128,7 @@ export async function fetchSubscriptionPlans() {
     .eq("is_active", true)
     .order("price_monthly", { ascending: true });
   if (error) throw new Error(error.message);
-  return data || [];
+  return (data || []).map((row) => enrichSubscriptionPlan(row as Record<string, unknown>));
 }
 
 export async function fetchSubscriptionTransactions(clientId: string) {
@@ -140,14 +157,15 @@ export async function inviteTeamMember(
   role: string,
   invitedBy: string
 ) {
-  const { data: client } = await supabase
+  const { data: clientRow } = await supabase
     .from("clients")
-    .select("company_name, subscription_plans(max_team_members)")
+    .select("company_name, subscription_plan")
     .eq("id", clientId)
     .single();
 
-  const maxTeam = (client as { subscription_plans?: { max_team_members?: number } })
-    ?.subscription_plans?.max_team_members ?? 5;
+  const plan = await loadSubscriptionPlanByName(clientRow?.subscription_plan);
+  const maxTeam = plan?.max_team_members ?? 5;
+  const client = { company_name: clientRow?.company_name };
 
   const { count } = await supabase
     .from("client_team_members")

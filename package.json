@@ -13,6 +13,7 @@
     "data:inspect": "node scripts/inspectExcelFiles.js",
     "data:compare": "node scripts/compareWithDatabase.js",
     "data:import": "node scripts/importApplicantData.js",
+    "data:import-master": "node scripts/importMasterDataset.js",
     "data:create-profiles": "node scripts/createProfilesAndAuthUsers.js",
     "data:create-missing-auth": "node scripts/createMissingAuthUsers.js",
     "data:create-single-auth": "node scripts/createSingleAuthUser.js",

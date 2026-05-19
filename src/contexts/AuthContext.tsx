@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
+import { getSignInErrorMessage } from '@/lib/authErrorMessages';
 import { Profile } from '@/types/database.types';
 
 interface AuthContextType {
@@ -208,7 +209,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       
       const { data, error } = await supabase.auth.signInWithPassword({
         email: email.trim().toLowerCase(),
-        password,
+        password: password.trim(),
       });
 
       if (error) {
@@ -220,7 +221,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           /failed to fetch|network error|load failed|err_name_not_resolved/i.test(error.message || '');
         const normalizedError = isNetworkError
           ? { ...error, message: 'Cannot reach the server. Check your internet connection and that your Supabase project URL in .env is correct and the project is not paused.' }
-          : error;
+          : { ...error, message: getSignInErrorMessage(error.message || 'Invalid credentials') };
         return { error: normalizedError };
       }
 

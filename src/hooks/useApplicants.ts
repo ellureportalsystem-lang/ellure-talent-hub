@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase';
 
 export interface Applicant {
   id: string;
+  applicant_number?: string;
   name: string;
   email: string;
   phone: string;
@@ -31,6 +32,8 @@ export interface Applicant {
   verified?: boolean;
   is_actively_looking?: boolean;
   updated_at?: string;
+  has_resume?: boolean;
+  notice_period_days?: number;
 }
 
 export interface UseApplicantsOptions {

@@ -130,7 +130,7 @@ const App = () => (
                   <Route
                     path="/dashboard/client/*"
                     element={
-                      <DashboardRoute allowedRoles={["client"]}>
+                      <DashboardRoute allowedRoles={["client", "admin"]}>
                         <Suspense fallback={<DashboardFallback />}>
                           <ClientDashboard />
                         </Suspense>
