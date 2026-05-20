@@ -1,6 +1,6 @@
 # UI canonical routes (do not add alternate UIs)
 
-**Frozen baseline:** commit after `b8d33f8` — applicant portal uses `ApplicantPortal` + `ApplicantDashboard` only.
+**Frozen baseline:** commit `1d63582` on `main` — applicant portal uses `ApplicantPortal` + `ApplicantDashboard` only.
 
 ## Applicant (canonical)
 

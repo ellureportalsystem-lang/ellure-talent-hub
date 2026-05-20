@@ -16,7 +16,7 @@ When the user task is about **search**, **import**, **Supabase**, **data**, **RL
 
 - **Do not edit** layout, spacing, colors, typography, sidebar chrome, table shells, or filter panel styling in the files matched by this rule.
 - **Do not introduce** new layout wrappers (`DashboardPageShell`, grid redesigns, motion wrappers) unless the user explicitly requests UI changes.
-- **Preserve** the canonical dashboard UI frozen on `main` after commit `UI-FREEZE-APPLICANT` (see `docs/UI_CANONICAL_ROUTES.md`). Baseline before applicant fix: `b8d33f8`.
+- **Preserve** the canonical dashboard UI frozen on `main` at commit `1d63582` (see `docs/UI_CANONICAL_ROUTES.md`).
 - **Never re-add** applicant `EnterpriseApplicantProfile`, `ApplicantProfile.tsx`, or `OldApplicantWelcomeModal`.
 
 Allowed without explicit UI approval:
