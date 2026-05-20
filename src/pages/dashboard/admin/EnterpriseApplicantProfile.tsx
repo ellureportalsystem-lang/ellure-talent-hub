@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { DashboardPageShell } from "@/components/dashboard/DashboardPageShell";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, AlertTriangle, Loader2 } from "lucide-react";
@@ -17,6 +18,7 @@ import {
 } from "@/services/applicantProfileMutations";
 import { toast } from "sonner";
 import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
 
 // Profile Components
 import ProfileHeader from "@/components/profile/ProfileHeader";
@@ -220,7 +222,7 @@ const EnterpriseApplicantProfile = ({ viewMode = 'admin', applicantId: propAppli
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-muted/30 flex items-center justify-center">
+      <div className="flex min-h-[50vh] flex-col items-center justify-center gap-4 px-4 py-12">
         <div className="text-center space-y-4">
           <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto" />
           <p className="text-muted-foreground">Loading profile...</p>
@@ -231,8 +233,8 @@ const EnterpriseApplicantProfile = ({ viewMode = 'admin', applicantId: propAppli
 
   if (!applicantData) {
     return (
-      <div className="min-h-screen bg-muted/30 flex items-center justify-center p-4">
-        <div className="text-center space-y-4">
+      <div className="flex min-h-[50vh] flex-col items-center justify-center gap-4 px-4 py-12">
+        <div className="text-center space-y-4 max-w-md">
           <p className="text-muted-foreground">Applicant not found</p>
           <Button onClick={() => navigate(-1)}>Go Back</Button>
         </div>
@@ -448,32 +450,40 @@ const EnterpriseApplicantProfile = ({ viewMode = 'admin', applicantId: propAppli
     typeof rowId === "string" &&
     /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(rowId);
 
-  return (
-    <div className={viewMode === 'applicant' ? 'bg-muted/30' : 'min-h-screen bg-muted/30'}>
-      {viewMode !== 'applicant' && (
-        <div className="sticky top-0 z-50 bg-background/95 backdrop-blur border-b">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2 flex items-center justify-between">
-            <Button variant="ghost" onClick={() => {
-              if (viewMode === 'client') {
-                navigate('/dashboard/client/candidates');
+  const profileChrome = (
+    <>
+      {viewMode !== "applicant" && (
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="gap-2 -ml-2"
+            onClick={() => {
+              if (viewMode === "client") {
+                navigate("/dashboard/client/candidates");
               } else {
-                navigate('/dashboard/admin/applicants');
+                navigate("/dashboard/admin/applicants");
               }
-            }} className="gap-2">
-              <ArrowLeft className="h-4 w-4" />
-              Back to {viewMode === 'client' ? 'Candidates' : 'Applicants'}
-            </Button>
-            {viewMode === 'client' && (
-              <div className="flex items-center gap-2 text-sm text-muted-foreground bg-yellow-500/10 px-3 py-1.5 rounded-full">
-                <AlertTriangle className="h-4 w-4 text-yellow-600" />
-                Read-only Client View
-              </div>
-            )}
-          </div>
+            }}
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to {viewMode === "client" ? "Candidates" : "Resume Search"}
+          </Button>
+          {viewMode === "client" && (
+            <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground bg-amber-500/10 px-3 py-1.5 rounded-full border border-amber-500/20">
+              <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0" />
+              Read-only client view
+            </div>
+          )}
         </div>
       )}
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-5">
+      <div
+        className={cn(
+          "mx-auto w-full max-w-7xl space-y-5",
+          viewMode === "applicant" ? "px-4 sm:px-6 py-5" : "py-2"
+        )}
+      >
         <ProfileHeader
           applicant={applicant}
           viewMode={viewMode}
@@ -911,7 +921,17 @@ const EnterpriseApplicantProfile = ({ viewMode = 'admin', applicantId: propAppli
           </div>
         </div>
       </div>
-    </div>
+    </>
+  );
+
+  if (viewMode === "applicant") {
+    return (
+      <div className="min-h-0 w-full bg-[var(--surface-2)]">{profileChrome}</div>
+    );
+  }
+
+  return (
+    <DashboardPageShell className="space-y-1">{profileChrome}</DashboardPageShell>
   );
 };
 

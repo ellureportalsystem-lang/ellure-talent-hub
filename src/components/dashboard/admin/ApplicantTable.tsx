@@ -120,7 +120,7 @@ const ApplicantTable = ({
 
   return (
     <TooltipProvider>
-      <div className="rounded-lg border bg-card overflow-hidden">
+      <div className="rounded-lg border bg-card overflow-hidden min-w-0">
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
@@ -276,7 +276,7 @@ const ApplicantTable = ({
                       </span>
                     </TableCell>
                     <TableCell className="pr-4" onClick={(e) => e.stopPropagation()}>
-                      <div className="flex items-center justify-end gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="flex items-center justify-end gap-0.5 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleViewProfile(applicant.id)}>

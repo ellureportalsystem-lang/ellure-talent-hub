@@ -13,10 +13,7 @@ import {
 import {
   Users,
   Filter,
-  LayoutGrid,
-  List,
   RefreshCw,
-  SlidersHorizontal,
   AlertCircle,
   Search,
   ChevronLeft,
@@ -40,6 +37,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { SkeletonTable } from "@/components/ui/skeleton-table";
 import type { Applicant } from "@/hooks/useApplicants";
 
+const currentYear = new Date().getFullYear();
+
 const defaultFilters: SearchFilters = {
   keywords: "",
   experienceRange: [0, 20],
@@ -55,7 +54,7 @@ const defaultFilters: SearchFilters = {
   registeredDays: null,
   activeDays: null,
   resumeUpdatedDays: null,
-  yearOfPassing: [2000, 2025],
+  yearOfPassing: [2000, currentYear],
   isActivelyLooking: null,
   isVerified: null,
   hasResume: null,
@@ -71,7 +70,6 @@ const ApplicantsManagement = () => {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [sortField, setSortField] = useState("created_at");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
-  const [viewMode, setViewMode] = useState<"table" | "grid">("table");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
 
@@ -153,17 +151,34 @@ const ApplicantsManagement = () => {
   const isFiltered =
     submittedQuery.trim().length > 0 ||
     filters.currentCity.length > 0 ||
+    filters.preferredCity.length > 0 ||
     filters.skills.length > 0 ||
     filters.education.length > 0 ||
+    filters.noticePeriod.length > 0 ||
+    filters.currentCompany.length > 0 ||
+    filters.pastCompanies.length > 0 ||
+    filters.gender.length > 0 ||
+    filters.status.length > 0 ||
+    filters.experienceRange[0] > 0 ||
+    filters.experienceRange[1] < 20 ||
+    filters.salaryRange[0] > 0 ||
+    filters.salaryRange[1] < 100 ||
+    filters.yearOfPassing[0] > 2000 ||
+    filters.yearOfPassing[1] < currentYear ||
+    filters.registeredDays !== null ||
+    filters.activeDays !== null ||
+    filters.resumeUpdatedDays !== null ||
     filters.isActivelyLooking !== null ||
     filters.isVerified !== null ||
-    filters.hasResume !== null;
+    filters.hasResume !== null ||
+    filters.profileCompleteRange[0] > 0 ||
+    filters.profileCompleteRange[1] < 100;
 
   return (
     <div className="p-4 lg:p-6 space-y-4 max-w-[1600px] mx-auto">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
           <h1 className="text-xl font-bold flex items-center gap-2">
             <Search className="h-5 w-5 text-primary" />
             Resume Search
@@ -172,7 +187,7 @@ const ApplicantsManagement = () => {
             {loading ? 'Searching...' : `${displayTotal.toLocaleString()} candidates in database`}
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 shrink-0">
           <Button variant="default" size="sm" className="h-8 text-xs" asChild>
             <Link to="/dashboard/admin/applicants/bulk-resumes">
               <Upload className="h-3.5 w-3.5 mr-1.5" />
@@ -197,9 +212,8 @@ const ApplicantsManagement = () => {
         </CardContent>
       </Card>
 
-      {/* Main Content */}
-      <div className="flex gap-4">
-        {/* Filters Sidebar */}
+      {/* Filters + results (stacked: full-width filter panel, then table) */}
+      <div className="space-y-4">
         <ResumeSearchFilters
           filters={filters}
           onFiltersChange={(f) => {
@@ -212,7 +226,7 @@ const ApplicantsManagement = () => {
         />
 
         {/* Results */}
-        <div className="flex-1 space-y-3 min-w-0">
+        <div className="space-y-3 min-w-0">
           {/* Results toolbar */}
           <div className="flex items-center justify-between gap-3 px-1">
             <div className="flex items-center gap-3">
@@ -232,12 +246,6 @@ const ApplicantsManagement = () => {
               )}
             </div>
             <div className="flex items-center gap-2">
-              {filtersCollapsed && (
-                <Button variant="outline" size="sm" className="h-8 text-xs" onClick={() => setFiltersCollapsed(false)}>
-                  <SlidersHorizontal className="h-3.5 w-3.5 mr-1.5" />
-                  Filters
-                </Button>
-              )}
               <Select value={pageSize.toString()} onValueChange={(v) => { setPageSize(parseInt(v)); setCurrentPage(1); }}>
                 <SelectTrigger className="w-[110px] h-8 text-xs">
                   <SelectValue />
@@ -249,24 +257,6 @@ const ApplicantsManagement = () => {
                   <SelectItem value="100">100 / page</SelectItem>
                 </SelectContent>
               </Select>
-              <div className="flex items-center border rounded-md h-8 overflow-hidden">
-                <Button
-                  variant={viewMode === "table" ? "secondary" : "ghost"}
-                  size="sm"
-                  onClick={() => setViewMode("table")}
-                  className="rounded-none h-8 w-8 p-0"
-                >
-                  <List className="h-3.5 w-3.5" />
-                </Button>
-                <Button
-                  variant={viewMode === "grid" ? "secondary" : "ghost"}
-                  size="sm"
-                  onClick={() => setViewMode("grid")}
-                  className="rounded-none h-8 w-8 p-0"
-                >
-                  <LayoutGrid className="h-3.5 w-3.5" />
-                </Button>
-              </div>
             </div>
           </div>
 

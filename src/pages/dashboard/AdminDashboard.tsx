@@ -292,13 +292,16 @@ const AdminDashboard = () => {
         </header>
 
         {/* Page content */}
-        <main className="flex-1 overflow-auto">
+        <main className="flex-1 min-h-0 overflow-auto">
           <Routes>
             <Route index element={<AdminHome />} />
             <Route path="applicants" element={<ApplicantsManagement />} />
             <Route path="applicants/bulk-resumes" element={<BulkResumeUpload />} />
             <Route path="import" element={<ImportCandidatesPage />} />
-            <Route path="applicants/:id" element={<EnterpriseApplicantProfile viewMode="admin" />} />
+            <Route
+              path="applicants/:id"
+              element={<EnterpriseApplicantProfile key={location.pathname} viewMode="admin" />}
+            />
             <Route path="folders" element={<FoldersManagement />} />
             <Route path="jobs/*" element={<AdminJobsPage />} />
             <Route path="reports" element={<ReportsPage />} />

@@ -1,17 +1,16 @@
 import { useState } from "react";
-import { Routes, Route, Link, useLocation, useNavigate } from "react-router-dom";
+import { Routes, Route, Link, useLocation, useNavigate, Navigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
 import {
-  LayoutDashboard, User, Briefcase, FileText, Bookmark, Bell, LogOut, Menu, X, ChevronsLeft, MessageSquare, Eye,
+  LayoutDashboard, Briefcase, FileText, Bookmark, Bell, LogOut, Menu, X, ChevronsLeft, MessageSquare, Eye,
   Settings as SettingsIcon,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 import ApplicantDashboard from "./ApplicantDashboard";
-import ApplicantProfile from "./applicant/ApplicantProfile";
 import ApplicantJobsPage from "./applicant/ApplicantJobsPage";
 import ApplicantJobDetail from "./applicant/ApplicantJobDetail";
 import ApplicantApplicationsPage from "./applicant/ApplicantApplicationsPage";
@@ -25,7 +24,6 @@ import { Badge } from "@/components/ui/badge";
 
 const navItems = [
   { path: "/dashboard/applicant", label: "Dashboard", icon: LayoutDashboard, exact: true },
-  { path: "/dashboard/applicant/profile", label: "My Profile", icon: User },
   { path: "/dashboard/applicant/applications", label: "Applications", icon: FileText },
   { path: "/dashboard/applicant/jobs", label: "Browse Jobs", icon: Briefcase },
   { path: "/dashboard/applicant/saved-jobs", label: "Saved Jobs", icon: Bookmark },
@@ -125,12 +123,12 @@ const ApplicantPortal = () => {
             <NotificationBell />
           </div>
         </header>
-        <main className="flex-1 overflow-auto">
+        <main className="flex-1 min-h-0 overflow-auto">
           <AnimatePresence mode="wait">
             <motion.div key={location.pathname} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.15 }}>
               <Routes>
                 <Route index element={<ApplicantDashboard embedded />} />
-                <Route path="profile" element={<ApplicantProfile />} />
+                <Route path="profile" element={<Navigate to="/dashboard/applicant" replace />} />
                 <Route path="jobs" element={<ApplicantJobsPage />} />
                 <Route path="jobs/:id" element={<ApplicantJobDetail />} />
                 <Route path="applications" element={<ApplicantApplicationsPage />} />

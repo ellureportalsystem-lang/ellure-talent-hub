@@ -65,9 +65,9 @@ const ApplicantLogin = () => {
         return;
       }
 
-      toast({ title: "Welcome back!", description: "Redirecting to your profile..." });
+      toast({ title: "Welcome back!", description: "Redirecting to your dashboard..." });
       setIsLoading(false);
-      setTimeout(() => navigate("/dashboard/applicant/profile"), 100);
+      setTimeout(() => navigate("/dashboard/applicant"), 100);
     } catch (error: any) {
       toast({ title: "Error", description: error.message || "An error occurred", variant: "destructive" });
     } finally {

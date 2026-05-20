@@ -81,12 +81,13 @@ export async function searchApplicants(
   const tsquery = booleanToTsquery(searchQuery);
   const gender = filters.gender?.length === 1 ? filters.gender[0] : null;
 
+  const yearMaxDefault = new Date().getFullYear();
   const yearMin =
     filters.yearOfPassing?.[0] != null && filters.yearOfPassing[0] > 2000
       ? filters.yearOfPassing[0]
       : null;
   const yearMax =
-    filters.yearOfPassing?.[1] != null && filters.yearOfPassing[1] < 2025
+    filters.yearOfPassing?.[1] != null && filters.yearOfPassing[1] < yearMaxDefault
       ? filters.yearOfPassing[1]
       : null;
 
@@ -99,7 +100,7 @@ export async function searchApplicants(
         : null,
     p_current_ctc_min: filters.salaryRange?.[0] ?? null,
     p_current_ctc_max:
-      filters.salaryRange?.[1] != null && filters.salaryRange[1] < 50
+      filters.salaryRange?.[1] != null && filters.salaryRange[1] < 100
         ? filters.salaryRange[1]
         : null,
     p_expected_ctc_min: null,

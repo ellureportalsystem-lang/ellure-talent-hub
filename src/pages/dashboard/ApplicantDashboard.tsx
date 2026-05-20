@@ -10,13 +10,11 @@ import { openResumePreview } from "@/lib/resumePreview";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { CandidateFAQs } from "@/components/CandidateFAQs";
-import { OldApplicantWelcomeModal } from "@/components/registration/OldApplicantWelcomeModal";
 
 const ApplicantDashboard = ({ embedded = false }: { embedded?: boolean }) => {
   const { profile, user, signOut } = useAuth();
   const [applicantData, setApplicantData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [showOldApplicantModal, setShowOldApplicantModal] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -207,24 +205,23 @@ const ApplicantDashboard = ({ embedded = false }: { embedded?: boolean }) => {
     void loadStats();
   }, [profile?.applicant_id, applicantData?.id]);
 
-  useEffect(() => {
-    if (
-      applicantData?.is_old_applicant &&
-      (profile?.login_count === 1 || profile?.login_count === 2)
-    ) {
-      setShowOldApplicantModal(true);
-    }
-  }, [applicantData?.is_old_applicant, profile?.login_count]);
-
   // Show loading only if we have a user but no profile/applicant data yet
   // Don't block if user is logged in - show dashboard with available data
   if (loading && user && !profile && !applicantData) {
     return (
-      <div className="min-h-screen bg-gradient-subtle flex items-center justify-center">
+      <div
+        className={
+          embedded
+            ? "flex min-h-[40vh] items-center justify-center py-12"
+            : "min-h-screen bg-gradient-subtle flex items-center justify-center"
+        }
+      >
         <div className="text-center space-y-4">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto" />
           <p className="text-muted-foreground">Loading profile...</p>
-          <p className="text-xs text-muted-foreground">This may take a few seconds</p>
+          {!embedded && (
+            <p className="text-xs text-muted-foreground">This may take a few seconds</p>
+          )}
         </div>
       </div>
     );
@@ -236,9 +233,18 @@ const ApplicantDashboard = ({ embedded = false }: { embedded?: boolean }) => {
     return null;
   }
 
+  const cardClass = embedded
+    ? "rounded-xl border border-border bg-card shadow-sm"
+    : "shadow-lg";
+
   return (
-    <div className={embedded ? "p-4 lg:p-6 max-w-6xl mx-auto" : "min-h-screen bg-gradient-subtle"}>
-      <OldApplicantWelcomeModal open={showOldApplicantModal} onClose={() => setShowOldApplicantModal(false)} />
+    <div
+      className={
+        embedded
+          ? "w-full min-w-0 max-w-6xl mx-auto p-4 lg:p-6 text-foreground"
+          : "min-h-screen bg-gradient-subtle"
+      }
+    >
       {!embedded && (
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur">
         <div className="container flex h-16 items-center justify-between">
@@ -259,7 +265,7 @@ const ApplicantDashboard = ({ embedded = false }: { embedded?: boolean }) => {
 
       <div className={embedded ? "space-y-6" : "container py-8"}>
         {/* Profile Header Card */}
-        <Card className="mb-8 shadow-lg">
+        <Card className={embedded ? `mb-6 ${cardClass}` : "mb-8 shadow-lg"}>
           <CardContent className="p-6">
             <div className="flex flex-col md:flex-row gap-6 items-start md:items-center">
               {profile?.profile_image ? (
@@ -269,7 +275,13 @@ const ApplicantDashboard = ({ embedded = false }: { embedded?: boolean }) => {
                   className="h-24 w-24 rounded-full object-cover"
                 />
               ) : (
-                <div className="h-24 w-24 rounded-full bg-gradient-primary flex items-center justify-center text-white text-3xl font-bold">
+                <div
+                  className={
+                    embedded
+                      ? "h-24 w-24 rounded-full bg-primary/15 text-primary flex items-center justify-center text-3xl font-bold border border-primary/20"
+                      : "h-24 w-24 rounded-full bg-gradient-primary flex items-center justify-center text-white text-3xl font-bold"
+                  }
+                >
                   {getInitials()}
                 </div>
               )}
@@ -292,9 +304,9 @@ const ApplicantDashboard = ({ embedded = false }: { embedded?: boolean }) => {
                 )}
               </div>
               <div className="flex flex-col gap-2">
-                <Button size="sm" variant="default" onClick={() => navigate("/dashboard/applicant/profile")}>
+                <Button size="sm" variant="default" onClick={() => navigate("/dashboard/applicant/settings")}>
                   <Edit className="mr-2 h-4 w-4" />
-                  View Full Profile
+                  Edit settings
                 </Button>
                 <Button
                   size="sm"
@@ -318,7 +330,7 @@ const ApplicantDashboard = ({ embedded = false }: { embedded?: boolean }) => {
         </Card>
 
         {/* Profile Completion */}
-        <Card className="mb-8">
+        <Card className={embedded ? `mb-6 ${cardClass}` : "mb-8"}>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <CheckCircle2 className="h-5 w-5 text-primary" />
@@ -358,8 +370,8 @@ const ApplicantDashboard = ({ embedded = false }: { embedded?: boolean }) => {
         </Card>
 
         {/* Quick Stats */}
-        <div className="grid md:grid-cols-4 gap-4 mb-8">
-          <Card>
+        <div className={embedded ? "grid md:grid-cols-4 gap-4 mb-6" : "grid md:grid-cols-4 gap-4 mb-8"}>
+          <Card className={embedded ? cardClass : undefined}>
             <CardContent className="p-6">
               <div className="flex items-center gap-4">
                 <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
@@ -373,7 +385,7 @@ const ApplicantDashboard = ({ embedded = false }: { embedded?: boolean }) => {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className={embedded ? cardClass : undefined}>
             <CardContent className="p-6">
               <div className="flex items-center gap-4">
                 <div className="h-12 w-12 rounded-lg bg-secondary/10 flex items-center justify-center">
@@ -387,7 +399,7 @@ const ApplicantDashboard = ({ embedded = false }: { embedded?: boolean }) => {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className={embedded ? cardClass : undefined}>
             <CardContent className="p-6">
               <div className="flex items-center gap-4">
                 <div className="h-12 w-12 rounded-lg bg-success/10 flex items-center justify-center">
@@ -401,7 +413,7 @@ const ApplicantDashboard = ({ embedded = false }: { embedded?: boolean }) => {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className={embedded ? cardClass : undefined}>
             <CardContent className="p-6">
               <div className="flex items-center gap-4">
                 <div className="h-12 w-12 rounded-lg bg-info/10 flex items-center justify-center">
@@ -420,7 +432,7 @@ const ApplicantDashboard = ({ embedded = false }: { embedded?: boolean }) => {
         <div className="grid lg:grid-cols-3 gap-6">
           {/* Profile Sections */}
           <div className="lg:col-span-2 space-y-6">
-            <Card>
+            <Card className={embedded ? cardClass : undefined}>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <User className="h-5 w-5" />
@@ -469,7 +481,7 @@ const ApplicantDashboard = ({ embedded = false }: { embedded?: boolean }) => {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className={embedded ? cardClass : undefined}>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Award className="h-5 w-5" />
@@ -503,7 +515,7 @@ const ApplicantDashboard = ({ embedded = false }: { embedded?: boolean }) => {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className={embedded ? cardClass : undefined}>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <FileText className="h-5 w-5" />
@@ -551,7 +563,7 @@ const ApplicantDashboard = ({ embedded = false }: { embedded?: boolean }) => {
 
           {/* Activity Sidebar */}
           <div className="space-y-6">
-            <Card>
+            <Card className={embedded ? cardClass : undefined}>
               <CardHeader>
                 <CardTitle>Recent Activity</CardTitle>
               </CardHeader>
@@ -579,7 +591,7 @@ const ApplicantDashboard = ({ embedded = false }: { embedded?: boolean }) => {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className={embedded ? cardClass : undefined}>
               <CardHeader>
                 <CardTitle>Recommendations</CardTitle>
               </CardHeader>
@@ -593,7 +605,7 @@ const ApplicantDashboard = ({ embedded = false }: { embedded?: boolean }) => {
                     <Award className="mr-2 h-4 w-4" />
                     Add certifications
                   </Button>
-                  <Button variant="outline" className="w-full justify-start" size="sm" onClick={() => navigate("/dashboard/applicant/profile")}>
+                  <Button variant="outline" className="w-full justify-start" size="sm" onClick={() => navigate("/dashboard/applicant/settings")}>
                     <User className="mr-2 h-4 w-4" />
                     Complete profile
                   </Button>
@@ -601,7 +613,7 @@ const ApplicantDashboard = ({ embedded = false }: { embedded?: boolean }) => {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className={embedded ? cardClass : undefined}>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <HelpCircle className="h-5 w-5" />

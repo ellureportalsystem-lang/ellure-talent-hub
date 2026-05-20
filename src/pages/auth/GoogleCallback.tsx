@@ -70,7 +70,7 @@ const GoogleCallback = () => {
           navigate("/dashboard/client");
         } else {
           // Default to applicant flow - redirect to profile page
-          navigate("/dashboard/applicant/profile");
+          navigate("/dashboard/applicant");
         }
       } catch (error: any) {
         console.error("❌ Unexpected error in Google callback:", error);

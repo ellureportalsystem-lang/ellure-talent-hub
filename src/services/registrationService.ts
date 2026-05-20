@@ -67,14 +67,14 @@ export async function createApplicantNotification(
     p_title: title,
     p_message: message,
     p_type: type,
-    p_link: "/dashboard/applicant/profile",
+    p_link: "/dashboard/applicant",
   }).catch(() => {
     supabase.from("notifications").insert({
       user_id: userId,
       title,
       message,
       type,
-      link: "/dashboard/applicant/profile",
+      link: "/dashboard/applicant",
     });
   });
 }
