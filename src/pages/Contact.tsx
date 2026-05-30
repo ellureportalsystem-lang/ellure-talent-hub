@@ -78,10 +78,11 @@ const Contact = () => {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
           >
-            <Card className="p-8 card-hover border-2 border-border shadow-md hover:shadow-xl hover:border-primary/60 transition-all duration-300">
+            <Card className="p-5 sm:p-8 card-hover border-2 border-border shadow-md hover:shadow-xl hover:border-primary/60 transition-all duration-300">
               <h2 className="text-2xl font-bold mb-6">Send Us a Message</h2>
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="space-y-2">
+              <form onSubmit={handleSubmit} className="space-y-5 lg:space-y-6">
+                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-4">
+                <div className="space-y-2 sm:col-span-2">
                   <Label htmlFor="name">Full Name *</Label>
                   <Input
                     id="name"
@@ -89,7 +90,7 @@ const Contact = () => {
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     placeholder="Enter your full name"
                     required
-                    className="transition-all duration-300 focus:shadow-md"
+                    className="h-11 text-base transition-all duration-300 focus:shadow-md lg:h-10 lg:text-sm"
                   />
                 </div>
                 <div className="space-y-2">
@@ -101,7 +102,7 @@ const Contact = () => {
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     placeholder="your.email@example.com"
                     required
-                    className="transition-all duration-300 focus:shadow-md"
+                    className="h-11 text-base transition-all duration-300 focus:shadow-md lg:h-10 lg:text-sm"
                   />
                 </div>
                 <div className="space-y-2">
@@ -113,8 +114,9 @@ const Contact = () => {
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                     placeholder="+91 XXXXX XXXXX"
                     required
-                    className="transition-all duration-300 focus:shadow-md"
+                    className="h-11 text-base transition-all duration-300 focus:shadow-md lg:h-10 lg:text-sm"
                   />
+                </div>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="query">Your Message *</Label>
@@ -125,10 +127,10 @@ const Contact = () => {
                     placeholder="Tell us how we can help you..."
                     rows={6}
                     required
-                    className="transition-all duration-300 focus:shadow-md"
+                    className="min-h-[140px] text-base transition-all duration-300 focus:shadow-md lg:text-sm"
                   />
                 </div>
-                <Button type="submit" className="w-full btn-hover" size="lg">
+                <Button type="submit" className="h-12 min-h-[48px] w-full btn-hover active:scale-[0.98] lg:h-10" size="lg">
                   <Send className="mr-2 h-4 w-4" />
                   Send Message
                 </Button>
@@ -211,7 +213,7 @@ const Contact = () => {
                       href={item.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className={`h-12 w-12 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-lg ${
+                      className={`touch-target flex h-11 w-11 items-center justify-center rounded-full transition-all duration-300 active:scale-95 hover:scale-110 hover:shadow-lg lg:h-12 lg:w-12 ${
                         item.isWhatsApp 
                           ? "bg-secondary/10 hover:bg-secondary hover:text-secondary-foreground" 
                           : "bg-primary/10 hover:bg-primary hover:text-primary-foreground"

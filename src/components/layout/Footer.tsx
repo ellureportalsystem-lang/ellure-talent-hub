@@ -1,4 +1,5 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import { cn } from "@/lib/utils";
 import {
   Facebook,
   Linkedin,
@@ -7,9 +8,8 @@ import {
   Phone,
   MapPin,
   MessageCircle,
-  HelpCircle,
-  FileText,
   Shield,
+  FileText,
 } from "lucide-react";
 
 const quickLinks = [
@@ -21,84 +21,103 @@ const quickLinks = [
   { to: "/faq", label: "FAQ" },
 ];
 
-const legalLinks = [
-  { to: "/privacy", label: "Privacy Policy", icon: Shield },
-  { to: "/terms", label: "Terms of Service", icon: FileText },
+const employerLinks = [
+  { to: "/contact", label: "Contact sales" },
+  { to: "/services", label: "Hiring services" },
+  { to: "/industries", label: "Industry expertise" },
+  { to: "/features", label: "Platform features" },
+  { to: "/client/auth/login", label: "Client login" },
 ];
 
-const Footer = () => (
-  <footer className="border-t bg-muted/30 relative z-[1]">
-    <div className="container py-10 md:py-14 px-4 sm:px-6">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-10 mb-10">
-        <div className="lg:col-span-4 space-y-4">
-          <Link to="/" className="flex items-center gap-1 group w-fit">
+const applicantLinks = [
+  { to: "/auth/register", label: "Create profile" },
+  { to: "/auth/login", label: "Applicant login" },
+  { to: "/auth/applicant-register/step-1", label: "Complete registration" },
+  { to: "/faq", label: "Candidate FAQ" },
+];
+
+const Footer = () => {
+  const { pathname } = useLocation();
+  const hideOnMobile = pathname !== "/";
+
+  return (
+  <footer
+    className={cn(
+      "marketing-footer-dark relative z-[1] border-t border-white/5",
+      hideOnMobile && "hidden md:block"
+    )}
+  >
+    <div className="container px-4 py-12 sm:px-6 md:py-16">
+      <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-12 lg:gap-8 xl:gap-10">
+        {/* Brand */}
+        <div className="space-y-5 lg:col-span-3">
+          <Link to="/" className="group flex w-fit items-center gap-2">
             <img
               src="/ellure-logo.png"
               alt="Ellure NexHire"
-              className="h-11 sm:h-12 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
+              className="h-11 w-auto object-contain transition-transform duration-300 group-hover:scale-105 sm:h-12"
             />
-            <div className="flex flex-col leading-none items-start">
-              <span className="text-lg font-bold" style={{ color: "#3d4853" }}>
-                Ellure
-              </span>
-              <span className="text-lg font-bold -mt-2" style={{ color: "#0566cd" }}>
-                NexHire
-              </span>
+            <div className="flex flex-col leading-none">
+              <span className="text-lg font-bold text-white">Ellure</span>
+              <span className="-mt-0.5 text-lg font-bold text-[#5eb8e8]">NexHire</span>
             </div>
           </Link>
-          <p className="text-sm text-muted-foreground max-w-sm leading-relaxed">
-            Connecting exceptional talent with leading organizations through precision-driven recruitment solutions.
+          <p className="marketing-footer-muted max-w-xs text-sm leading-relaxed">
+            Connecting exceptional talent with leading organizations through precision-driven,
+            ethical recruitment — across IT, BFSI, pharma, telecom, and more.
           </p>
           <div className="flex flex-wrap gap-2">
-            <a
-              href="https://www.linkedin.com/company/ellure-consulting-services"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="h-10 w-10 rounded-full bg-secondary/10 flex items-center justify-center transition-all duration-300 hover:bg-secondary hover:text-secondary-foreground hover:scale-110 hover:shadow-lg icon-brand-green"
-              aria-label="LinkedIn"
-            >
-              <Linkedin className="h-5 w-5" />
-            </a>
-            <a
-              href="https://www.facebook.com/ellureconsulting"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center transition-all duration-300 hover:bg-primary hover:text-primary-foreground hover:scale-110"
-              aria-label="Facebook"
-            >
-              <Facebook className="h-5 w-5 text-primary" />
-            </a>
-            <a
-              href="https://www.instagram.com/ellureconsulting"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center transition-all duration-300 hover:bg-primary hover:text-primary-foreground hover:scale-110"
-              aria-label="Instagram"
-            >
-              <Instagram className="h-5 w-5 text-primary" />
-            </a>
-            <a
-              href="https://wa.me/917517383196"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="h-10 w-10 rounded-full bg-secondary/10 flex items-center justify-center transition-all duration-300 hover:bg-secondary hover:text-secondary-foreground hover:scale-110 icon-brand-green"
-              aria-label="WhatsApp"
-            >
-              <MessageCircle className="h-5 w-5" />
-            </a>
+            {[
+              {
+                href: "https://www.linkedin.com/company/ellure-consulting-services",
+                icon: Linkedin,
+                label: "LinkedIn",
+                className: "hover:bg-[#0a66c2] hover:text-white",
+              },
+              {
+                href: "https://www.facebook.com/ellureconsulting",
+                icon: Facebook,
+                label: "Facebook",
+                className: "hover:bg-[#1877f2] hover:text-white",
+              },
+              {
+                href: "https://www.instagram.com/ellureconsulting",
+                icon: Instagram,
+                label: "Instagram",
+                className: "hover:bg-gradient-to-br hover:from-purple-600 hover:to-orange-500 hover:text-white",
+              },
+              {
+                href: "https://wa.me/917517383196",
+                icon: MessageCircle,
+                label: "WhatsApp",
+                className: "hover:bg-[#25d366] hover:text-white",
+              },
+            ].map(({ href, icon: Icon, label, className }) => (
+              <a
+                key={label}
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`touch-target flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white/80 ring-1 ring-white/10 transition-all duration-300 hover:scale-105 ${className}`}
+                aria-label={label}
+              >
+                <Icon className="h-5 w-5" />
+              </a>
+            ))}
           </div>
         </div>
 
-        <div className="lg:col-span-2 space-y-4">
-          <h4 className="font-semibold text-base md:text-lg">Quick Links</h4>
-          <ul className="space-y-2">
+        {/* Quick links */}
+        <div className="space-y-4 lg:col-span-2">
+          <h4 className="text-sm font-semibold uppercase tracking-wider text-white">Quick links</h4>
+          <ul className="space-y-2.5">
             {quickLinks.map((link) => (
               <li key={link.to}>
                 <Link
                   to={link.to}
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors duration-300 inline-flex items-center gap-1 group"
+                  className="marketing-footer-muted group inline-flex text-sm transition-colors"
                 >
-                  <span className="transition-transform duration-300 group-hover:translate-x-1">
+                  <span className="transition-transform duration-300 group-hover:translate-x-0.5">
                     {link.label}
                   </span>
                 </Link>
@@ -107,102 +126,124 @@ const Footer = () => (
           </ul>
         </div>
 
-        <div className="lg:col-span-3 space-y-4">
-          <h4 className="font-semibold text-base md:text-lg">Legal &amp; Help</h4>
-          <ul className="space-y-2">
-            {legalLinks.map((link) => (
+        {/* Employers */}
+        <div className="space-y-4 lg:col-span-2">
+          <h4 className="text-sm font-semibold uppercase tracking-wider text-white">For employers</h4>
+          <ul className="space-y-2.5">
+            {employerLinks.map((link) => (
               <li key={link.to}>
-                <Link
-                  to={link.to}
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors inline-flex items-center gap-2 group"
-                >
-                  <link.icon className="h-4 w-4 icon-brand-green shrink-0" />
+                <Link to={link.to} className="marketing-footer-muted text-sm transition-colors">
                   {link.label}
                 </Link>
               </li>
             ))}
+          </ul>
+        </div>
+
+        {/* Applicants */}
+        <div className="space-y-4 lg:col-span-2">
+          <h4 className="text-sm font-semibold uppercase tracking-wider text-white">For applicants</h4>
+          <ul className="space-y-2.5">
+            {applicantLinks.map((link) => (
+              <li key={link.to}>
+                <Link to={link.to} className="marketing-footer-muted text-sm transition-colors">
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+          <ul className="space-y-2 border-t border-white/10 pt-4">
             <li>
               <Link
-                to="/contact"
-                className="text-sm text-muted-foreground hover:text-primary transition-colors inline-flex items-center gap-2"
+                to="/privacy"
+                className="marketing-footer-muted inline-flex items-center gap-2 text-sm transition-colors"
               >
-                <Mail className="h-4 w-4 icon-brand-green shrink-0" />
-                Contact Us
+                <Shield className="h-3.5 w-3.5 shrink-0" />
+                Privacy Policy
               </Link>
             </li>
             <li>
-              <a
-                href="mailto:info@ellureconsulting.com"
-                className="text-sm text-muted-foreground hover:text-primary transition-colors inline-flex items-center gap-2 break-all"
+              <Link
+                to="/terms"
+                className="marketing-footer-muted inline-flex items-center gap-2 text-sm transition-colors"
               >
-                <HelpCircle className="h-4 w-4 icon-brand-green shrink-0" />
-                Help: info@ellureconsulting.com
-              </a>
+                <FileText className="h-3.5 w-3.5 shrink-0" />
+                Terms of Service
+              </Link>
             </li>
           </ul>
         </div>
 
-        <div className="lg:col-span-3 space-y-4">
-          <h4 className="font-semibold text-base md:text-lg">Get in Touch</h4>
-          <div className="space-y-3">
+        {/* Contact */}
+        <div className="space-y-4 lg:col-span-3">
+          <h4 className="text-sm font-semibold uppercase tracking-wider text-white">Contact</h4>
+          <div className="space-y-4">
             <div className="flex items-start gap-3">
-              <MapPin className="h-5 w-5 text-secondary mt-0.5 flex-shrink-0" />
-              <p className="text-sm text-muted-foreground">
+              <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-secondary" />
+              <p className="marketing-footer-muted text-sm leading-relaxed">
                 H657 Parmar Nagar,
                 <br />
                 Pune, Maharashtra, India
               </p>
             </div>
             <div className="flex items-center gap-3">
-              <Phone className="h-5 w-5 text-secondary flex-shrink-0" />
-              <a
-                href="tel:+917517383196"
-                className="text-sm text-muted-foreground hover:text-primary transition-colors"
-              >
+              <Phone className="h-5 w-5 shrink-0 text-secondary" />
+              <a href="tel:+917517383196" className="marketing-footer-muted text-sm transition-colors">
                 +91 7517383196
               </a>
             </div>
             <div className="flex items-center gap-3">
-              <Mail className="h-5 w-5 text-secondary flex-shrink-0" />
+              <Mail className="h-5 w-5 shrink-0 text-secondary" />
               <a
                 href="mailto:info@ellureconsulting.com"
-                className="text-sm text-muted-foreground hover:text-primary transition-colors break-all"
+                className="marketing-footer-muted break-all text-sm transition-colors"
               >
                 info@ellureconsulting.com
               </a>
             </div>
+            <ButtonLink to="/contact" label="Get in touch" />
           </div>
         </div>
       </div>
 
-      <div className="pt-6 md:pt-8 border-t">
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left">
-          <p className="text-xs sm:text-sm text-muted-foreground">
-            © {new Date().getFullYear()} Ellure NexHire. All rights reserved.
-          </p>
-          <div className="flex flex-wrap justify-center gap-4 sm:gap-6 text-xs sm:text-sm text-muted-foreground">
-            <Link to="/privacy" className="hover:text-primary transition-colors">
-              Privacy
-            </Link>
-            <Link to="/terms" className="hover:text-primary transition-colors">
-              Terms
-            </Link>
-            <Link to="/contact" className="hover:text-primary transition-colors">
-              Contact
-            </Link>
-            <a
-              href="https://www.linkedin.com/company/ellure-consulting-services"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-primary transition-colors"
-            >
-              LinkedIn
-            </a>
-          </div>
+      <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 md:flex-row">
+        <p className="marketing-footer-muted text-center text-xs sm:text-sm md:text-left">
+          © {new Date().getFullYear()} Ellure NexHire. All rights reserved.
+        </p>
+        <div className="flex flex-wrap justify-center gap-5 text-xs text-white/60 sm:text-sm">
+          <Link to="/privacy" className="transition-colors hover:text-secondary">
+            Privacy
+          </Link>
+          <Link to="/terms" className="transition-colors hover:text-secondary">
+            Terms
+          </Link>
+          <Link to="/contact" className="transition-colors hover:text-secondary">
+            Contact
+          </Link>
+          <a
+            href="https://www.linkedin.com/company/ellure-consulting-services"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="transition-colors hover:text-secondary"
+          >
+            LinkedIn
+          </a>
         </div>
       </div>
     </div>
   </footer>
-);
+  );
+};
+
+function ButtonLink({ to, label }: { to: string; label: string }) {
+  return (
+    <Link
+      to={to}
+      className="inline-flex h-10 items-center justify-center rounded-lg bg-secondary px-5 text-sm font-medium text-secondary-foreground shadow-md transition-colors hover:bg-secondary/90"
+    >
+      {label}
+    </Link>
+  );
+}
 
 export default Footer;

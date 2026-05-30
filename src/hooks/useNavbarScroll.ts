@@ -1,0 +1,15 @@
+import { useEffect, useState } from "react";
+
+/** True after the user scrolls past the hero threshold (scroll-aware navbar). */
+export function useNavbarScroll(threshold = 40) {
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > threshold);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [threshold]);
+
+  return scrolled;
+}

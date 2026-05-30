@@ -1,6 +1,4 @@
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Link } from "react-router-dom";
 import { FileCheck, TrendingUp, Users, Shield, Building2, Zap, ArrowRight, CheckCircle, Search, MessageSquare } from "lucide-react";
 import { useState } from "react";
 import { motion } from "framer-motion";
@@ -8,6 +6,7 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import MarketingLayout from "@/components/marketing/MarketingLayout";
 import MarketingPageHero from "@/components/marketing/MarketingPageHero";
+import { MarketingGradientSplitCta } from "@/components/marketing/MarketingGradientSplitCta";
 
 const features = [
   {
@@ -243,33 +242,21 @@ const Features = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
       <section className="marketing-section">
-        <Card className="p-12 text-white text-center relative overflow-hidden">
-          {/* CTA Banner Background */}
-          <div 
-            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-            style={{
-              backgroundImage: `url(/features-cta-banner.jpg)`,
-            }}
-          />
-          {/* Natural overlay for text readability */}
-          <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-black/30 to-black/50" />
-          <div className="relative z-10 max-w-2xl mx-auto space-y-6">
-            <h2 className="text-3xl font-bold text-white">Ready to <span className="gold-text">Experience</span> These <span className="gold-text">Features</span>?</h2>
-            <p className="text-white/90">
-              Get started today and <span className="gold-text">transform</span> your recruitment process.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" variant="secondary" className="btn-hover" asChild>
-                <Link to="/auth/register">Start Free Trial</Link>
-              </Button>
-              <Button size="lg" className="bg-white text-primary hover:bg-white/90 btn-hover" asChild>
-                <Link to="/contact">Schedule Demo</Link>
-              </Button>
-            </div>
-          </div>
-        </Card>
+        <MarketingGradientSplitCta
+          headline="Ready to experience the platform?"
+          subtitle="Employers can schedule a walkthrough; candidates can register and access the applicant portal."
+          employer={{
+            title: "See it in action",
+            description: "Schedule a demo and explore analytics, bulk operations, and client collaboration tools.",
+            ctaLabel: "Schedule a demo",
+            ctaHref: "/contact",
+          }}
+          applicant={{
+            ctaLabel: "Create free account",
+            ctaHref: "/auth/register",
+          }}
+        />
       </section>
 
       <Footer />

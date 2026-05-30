@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { portalContentWrap } from "@/components/portal/portalStyles";
 import { cn } from "@/lib/utils";
 
 type DashboardPageShellProps = {
@@ -8,13 +9,14 @@ type DashboardPageShellProps = {
   narrow?: boolean;
 };
 
-/** Consistent padding and max-width for admin/client dashboard pages */
+/** Consistent padding and max-width for portal dashboard pages */
 export function DashboardPageShell({ children, className, narrow }: DashboardPageShellProps) {
   return (
     <div
       className={cn(
-        "dashboard-page w-full mx-auto p-4 lg:p-6",
-        narrow ? "max-w-3xl" : "max-w-[1600px]",
+        portalContentWrap,
+        "w-full px-4 pt-4 pb-6 md:px-8 md:pt-6",
+        narrow && "max-w-3xl",
         className
       )}
     >

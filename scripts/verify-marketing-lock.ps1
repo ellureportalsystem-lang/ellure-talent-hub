@@ -33,14 +33,24 @@ if ($landing -match ("HeroDashboardMockup\s*/>\s*" + [regex]::Escape($badClose))
   $errors++
 }
 
-if ($landing -notmatch "marketing-landing-hero") {
-  Write-Host "[ERROR] Landing.tsx missing marketing-landing-hero section." -ForegroundColor Red
+$heroCarouselPath = Join-Path $root "src\components\marketing\LandingHeroCarousel.tsx"
+$heroSource = $landing
+if (Test-Path $heroCarouselPath) {
+  $heroSource = $heroSource + (Get-Content $heroCarouselPath -Raw)
+}
+
+if ($heroSource -notmatch "marketing-landing-hero") {
+  Write-Host "[ERROR] Homepage hero missing marketing-landing-hero (Landing.tsx or LandingHeroCarousel.tsx)." -ForegroundColor Red
   $errors++
 }
 
-if ($landing -notmatch "marketing-landing-hero-title") {
-  Write-Host "[ERROR] Landing.tsx missing marketing-landing-hero-title (homepage headline stack)." -ForegroundColor Red
+if ($heroSource -notmatch "marketing-landing-hero-title") {
+  Write-Host "[ERROR] Homepage hero missing marketing-landing-hero-title (headline stack)." -ForegroundColor Red
   $errors++
+}
+
+if ($landing -notmatch "LandingHeroCarousel") {
+  Write-Host "[WARN] Landing.tsx does not use LandingHeroCarousel." -ForegroundColor Yellow
 }
 
 if ($landing -match "HeroDashboardMockup") {

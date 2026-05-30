@@ -1,119 +1,754 @@
 import { Button } from "@/components/ui/button";
-import { Link, useLocation } from "react-router-dom";
-import { Menu, X } from "lucide-react";
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 
-const navItems = [
-  { href: "/", label: "Home" },
-  { href: "/services", label: "Services" },
-  { href: "/industries", label: "Industries" },
-  { href: "/features", label: "Features" },
-  { href: "/about", label: "About" },
-  { href: "/contact", label: "Contact Us" },
-];
+import {
+
+  NavigationMenu,
+
+  NavigationMenuContent,
+
+  NavigationMenuItem,
+
+  NavigationMenuLink,
+
+  NavigationMenuList,
+
+  NavigationMenuTrigger,
+
+  navigationMenuTriggerStyle,
+
+} from "@/components/ui/navigation-menu";
+
+import { MarketingNavMegaPanel } from "@/components/layout/MarketingNavMegaPanel";
+
+import { useNavbarScroll } from "@/hooks/useNavbarScroll";
+
+import { useNavbarScrollHide } from "@/hooks/useNavbarScrollHide";
+import { useIsLgUp } from "@/hooks/useIsLgUp";
+
+import {
+
+  INDUSTRY_NAV_ITEMS,
+
+  PRIMARY_NAV_LINKS,
+
+  SERVICE_NAV_ITEMS,
+
+} from "@/lib/marketingNavData";
+
+import { cn } from "@/lib/utils";
+
+import { AnimatePresence, motion } from "framer-motion";
+
+import { ChevronDown, Menu, X } from "lucide-react";
+
+import { useEffect, useState } from "react";
+
+import { Link, useLocation } from "react-router-dom";
+
+
 
 const Navbar = () => {
+
   const location = useLocation();
+
+  const scrolled = useNavbarScroll(40);
+
+  const isLgUp = useIsLgUp();
+  const navHidden = useNavbarScrollHide(72, isLgUp);
+
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-14 sm:h-16 items-center justify-between px-4 sm:px-6">
-        <Link to="/" className="flex items-center gap-1 group min-w-0">
-          <img 
-            src="/ellure-logo.png" 
-            alt="Ellure NexHire" 
-            className="h-10 sm:h-14 w-auto object-contain transition-transform duration-300 group-hover:scale-105 shrink-0" 
-          />
-          <div className="flex flex-col leading-none items-start">
-            <span className="text-base sm:text-xl font-bold" style={{ color: '#3d4853' }}>Ellure</span>
-            <span className="text-base sm:text-xl font-bold -mt-1 sm:-mt-2" style={{ color: '#0566cd' }}>NexHire</span>
-          </div>
-        </Link>
+  const [mobileServicesOpen, setMobileServicesOpen] = useState(false);
 
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-1">
-          {navItems.map((item) => {
-            const isActive = location.pathname === item.href;
-            return (
-              <Link
-                key={item.href}
-                to={item.href}
-                className="relative px-4 py-2 text-sm font-medium transition-all duration-300 group"
-              >
-                <span className={`relative z-10 transition-colors duration-300 ${
-                  isActive 
-                    ? "text-primary" 
-                    : "text-muted-foreground group-hover:text-primary"
-                }`}>
-                  {item.label}
-                </span>
-                {/* Hover underline animation */}
-                <span className={`absolute bottom-0 left-1/2 h-0.5 bg-primary transition-all duration-300 ease-out ${
-                  isActive 
-                    ? "w-3/4 -translate-x-1/2" 
-                    : "w-0 -translate-x-1/2 group-hover:w-3/4"
-                }`} />
-                {/* Hover background */}
-                <span className="absolute inset-0 rounded-md bg-primary/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-              </Link>
-            );
-          })}
-          <Button asChild className="ml-4 btn-glow btn-glow-primary transition-all duration-300">
-            <Link to="/auth/login">Login / Register</Link>
-          </Button>
-        </nav>
+  const [mobileIndustriesOpen, setMobileIndustriesOpen] = useState(false);
 
-        {/* Mobile Menu Button */}
-        <button
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="md:hidden p-2 rounded-md hover:bg-muted transition-colors"
-          aria-label="Toggle menu"
-        >
-          {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-        </button>
-      </div>
 
-      {/* Mobile Navigation */}
-      <AnimatePresence>
-        {mobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-            className="md:hidden border-t bg-background overflow-hidden"
-          >
-            <nav className="container py-4 flex flex-col gap-2">
-              {navItems.map((item) => {
-                const isActive = location.pathname === item.href;
-                return (
-                  <Link
-                    key={item.href}
-                    to={item.href}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={`px-4 py-3 rounded-md text-sm font-medium transition-all duration-300 ${
-                      isActive
-                        ? "bg-primary/10 text-primary"
-                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                    }`}
-                  >
-                    {item.label}
-                  </Link>
-                );
-              })}
-              <Button asChild className="mt-2 w-full btn-glow">
-                <Link to="/auth/login" onClick={() => setMobileMenuOpen(false)}>
-                  Login / Register
-                </Link>
-              </Button>
-            </nav>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </header>
+
+  const isLightNav = scrolled || mobileMenuOpen;
+
+
+
+  useEffect(() => {
+
+    if (!mobileMenuOpen) return;
+
+    const prev = document.body.style.overflow;
+
+    document.body.style.overflow = "hidden";
+
+    return () => {
+
+      document.body.style.overflow = prev;
+
+    };
+
+  }, [mobileMenuOpen]);
+
+
+
+  useEffect(() => {
+
+    setMobileMenuOpen(false);
+
+    setMobileServicesOpen(false);
+
+    setMobileIndustriesOpen(false);
+
+  }, [location.pathname]);
+
+
+
+  const linkClass = (href: string, extra?: string) =>
+
+    cn(
+
+      "relative rounded-md px-3 py-2 text-sm font-medium transition-colors duration-300",
+
+      location.pathname === href
+
+        ? isLightNav
+
+          ? "text-primary"
+
+          : "text-white"
+
+        : isLightNav
+
+          ? "text-muted-foreground hover:text-primary"
+
+          : "text-white/85 hover:text-white",
+
+      extra
+
+    );
+
+
+
+  const mobileLinkClass = (href: string) =>
+
+    cn(
+
+      "flex min-h-[48px] items-center rounded-xl border border-border/60 bg-card px-4 py-3 text-base font-medium transition-colors active:scale-[0.98]",
+
+      location.pathname === href
+
+        ? "border-primary/30 bg-primary/5 text-primary"
+
+        : "text-foreground hover:bg-muted/60"
+
+    );
+
+
+
+  const triggerClass = cn(
+
+    navigationMenuTriggerStyle(),
+
+    "h-9 bg-transparent px-3 text-sm font-medium shadow-none",
+
+    isLightNav
+
+      ? "text-muted-foreground hover:bg-primary/5 hover:text-primary data-[state=open]:bg-primary/5 data-[state=open]:text-primary"
+
+      : "text-white/90 hover:bg-white/10 hover:text-white data-[state=open]:bg-white/10 data-[state=open]:text-white"
+
   );
+
+
+
+  const closeMobile = () => {
+
+    setMobileMenuOpen(false);
+
+    setMobileServicesOpen(false);
+
+    setMobileIndustriesOpen(false);
+
+  };
+
+
+
+  return (
+
+    <>
+
+      <motion.header
+
+        className={cn(
+
+          "fixed top-0 z-50 w-full transition-all duration-300 ease-out pt-[env(safe-area-inset-top,0px)]",
+
+          isLightNav
+
+            ? "border-b border-border/80 bg-white/95 shadow-sm backdrop-blur-xl supports-[backdrop-filter]:bg-white/90"
+
+            : "border-b border-transparent bg-transparent"
+
+        )}
+
+        initial={false}
+
+        animate={{ y: mobileMenuOpen || !navHidden ? 0 : -100 }}
+
+        transition={{ duration: 0.28, ease: [0.4, 0, 0.2, 1] }}
+
+      >
+
+        <div className="container flex h-14 items-center justify-between gap-4 px-4 sm:h-[4.25rem] sm:px-6">
+
+          <Link to="/" className="group flex min-w-0 shrink-0 items-center gap-1.5">
+
+            <img
+
+              src="/ellure-logo.png"
+
+              alt="Ellure NexHire"
+
+              className="h-9 w-auto shrink-0 object-contain transition-transform duration-300 group-hover:scale-105 sm:h-11"
+
+            />
+
+            <div className="flex flex-col items-start leading-none">
+
+              <span
+
+                className={cn(
+
+                  "text-base font-bold transition-colors sm:text-lg",
+
+                  isLightNav ? "text-[#3d4853]" : "text-white"
+
+                )}
+
+              >
+
+                Ellure
+
+              </span>
+
+              <span
+
+                className={cn(
+
+                  "-mt-0.5 text-base font-bold transition-colors sm:-mt-1 sm:text-lg",
+
+                  isLightNav ? "text-[#0566cd]" : "text-white/95"
+
+                )}
+
+              >
+
+                NexHire
+
+              </span>
+
+            </div>
+
+          </Link>
+
+
+
+          {/* Desktop */}
+
+          <div className="hidden items-center gap-1 lg:flex">
+
+            <NavigationMenu delayDuration={80}>
+
+              <NavigationMenuList className="gap-0.5">
+
+                <NavigationMenuItem>
+
+                  <NavigationMenuLink asChild>
+
+                    <Link to="/" className={linkClass("/")}>
+
+                      Home
+
+                    </Link>
+
+                  </NavigationMenuLink>
+
+                </NavigationMenuItem>
+
+
+
+                <NavigationMenuItem>
+
+                  <NavigationMenuTrigger className={triggerClass}>Services</NavigationMenuTrigger>
+
+                  <NavigationMenuContent>
+
+                    <MarketingNavMegaPanel
+
+                      items={SERVICE_NAV_ITEMS}
+
+                      viewAllHref="/services"
+
+                      viewAllLabel="View all services"
+
+                    />
+
+                  </NavigationMenuContent>
+
+                </NavigationMenuItem>
+
+
+
+                <NavigationMenuItem>
+
+                  <NavigationMenuTrigger className={triggerClass}>Industries</NavigationMenuTrigger>
+
+                  <NavigationMenuContent>
+
+                    <MarketingNavMegaPanel
+
+                      items={INDUSTRY_NAV_ITEMS}
+
+                      viewAllHref="/industries"
+
+                      viewAllLabel="View all industries"
+
+                    />
+
+                  </NavigationMenuContent>
+
+                </NavigationMenuItem>
+
+
+
+                {PRIMARY_NAV_LINKS.filter((item) => item.href !== "/").map((item) => (
+
+                  <NavigationMenuItem key={item.href}>
+
+                    <NavigationMenuLink asChild>
+
+                      <Link to={item.href} className={linkClass(item.href)}>
+
+                        {item.label}
+
+                      </Link>
+
+                    </NavigationMenuLink>
+
+                  </NavigationMenuItem>
+
+                ))}
+
+              </NavigationMenuList>
+
+            </NavigationMenu>
+
+
+
+            <div className="ml-2 flex items-center gap-2 pl-1">
+
+              <Button
+
+                asChild
+
+                size="sm"
+
+                variant="outline"
+
+                className={cn(
+
+                  "h-9 rounded-full px-4 font-medium transition-all",
+
+                  isLightNav
+
+                    ? "border-border hover:bg-muted"
+
+                    : "border-white/35 bg-white/5 text-white hover:bg-white/15 hover:text-white"
+
+                )}
+
+              >
+
+                <Link to="/auth/login">Login</Link>
+
+              </Button>
+
+              <Button
+
+                asChild
+
+                size="sm"
+
+                className="h-9 rounded-full px-5 font-semibold shadow-md btn-glow-primary transition-all hover:shadow-lg"
+
+              >
+
+                <Link to="/contact">Hire Talent</Link>
+
+              </Button>
+
+            </div>
+
+          </div>
+
+
+
+          {/* Tablet / phone */}
+
+          <div className="flex items-center gap-2 lg:hidden">
+
+            <Button
+
+              asChild
+
+              size="sm"
+
+              className={cn(
+
+                "hidden h-9 rounded-full px-4 text-xs font-semibold sm:inline-flex",
+
+                !isLightNav && "shadow-lg"
+
+              )}
+
+            >
+
+              <Link to="/contact">Hire Talent</Link>
+
+            </Button>
+
+            <button
+
+              type="button"
+
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+
+              className={cn(
+
+                "touch-target flex h-11 w-11 items-center justify-center rounded-full transition-colors active:scale-95",
+
+                isLightNav ? "hover:bg-muted" : "hover:bg-white/10"
+
+              )}
+
+              aria-label="Toggle menu"
+
+              aria-expanded={mobileMenuOpen}
+
+            >
+
+              {mobileMenuOpen ? (
+
+                <X className={cn("h-6 w-6", isLightNav ? "text-foreground" : "text-white")} />
+
+              ) : (
+
+                <Menu className={cn("h-6 w-6", isLightNav ? "text-foreground" : "text-white")} />
+
+              )}
+
+            </button>
+
+          </div>
+
+        </div>
+
+      </motion.header>
+
+
+
+      {/* Spacer for fixed navbar */}
+
+      <div className="h-14 sm:h-[4.25rem]" aria-hidden />
+
+
+
+      {/* Mobile full-screen menu */}
+
+      <AnimatePresence>
+
+        {mobileMenuOpen && (
+
+          <motion.div
+
+            initial={{ opacity: 0 }}
+
+            animate={{ opacity: 1 }}
+
+            exit={{ opacity: 0 }}
+
+            transition={{ duration: 0.2 }}
+
+            className="fixed inset-0 top-14 z-[100] flex flex-col bg-background/98 backdrop-blur-md sm:top-[4.25rem] lg:hidden"
+
+            style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
+
+          >
+
+            <nav className="container flex flex-1 flex-col gap-2 overflow-y-auto px-4 py-4">
+
+              <motion.div
+
+                initial={{ opacity: 0, y: 8 }}
+
+                animate={{ opacity: 1, y: 0 }}
+
+                transition={{ delay: 0.03 }}
+
+              >
+
+                <Link to="/" onClick={closeMobile} className={mobileLinkClass("/")}>
+
+                  Home
+
+                </Link>
+
+              </motion.div>
+
+
+
+              <MobileMegaSection
+
+                label="Services"
+
+                open={mobileServicesOpen}
+
+                onToggle={() => setMobileServicesOpen((v) => !v)}
+
+                items={SERVICE_NAV_ITEMS}
+
+                viewAllHref="/services"
+
+                onNavigate={closeMobile}
+
+              />
+
+
+
+              <MobileMegaSection
+
+                label="Industries"
+
+                open={mobileIndustriesOpen}
+
+                onToggle={() => setMobileIndustriesOpen((v) => !v)}
+
+                items={INDUSTRY_NAV_ITEMS}
+
+                viewAllHref="/industries"
+
+                onNavigate={closeMobile}
+
+              />
+
+
+
+              {PRIMARY_NAV_LINKS.filter((item) => item.href !== "/").map((item, index) => (
+
+                <motion.div
+
+                  key={item.href}
+
+                  initial={{ opacity: 0, y: 8 }}
+
+                  animate={{ opacity: 1, y: 0 }}
+
+                  transition={{ delay: 0.05 + index * 0.03 }}
+
+                >
+
+                  <Link to={item.href} onClick={closeMobile} className={mobileLinkClass(item.href)}>
+
+                    {item.label}
+
+                  </Link>
+
+                </motion.div>
+
+              ))}
+
+
+
+              <div className="mt-auto flex flex-col gap-2 border-t border-border pt-4">
+
+                <Button asChild className="h-12 w-full rounded-full text-base" size="lg">
+
+                  <Link to="/contact" onClick={closeMobile}>
+
+                    Hire Talent
+
+                  </Link>
+
+                </Button>
+
+                <Button asChild variant="outline" className="h-12 w-full rounded-full text-base" size="lg">
+
+                  <Link to="/auth/login" onClick={closeMobile}>
+
+                    Login / Register
+
+                  </Link>
+
+                </Button>
+
+              </div>
+
+            </nav>
+
+          </motion.div>
+
+        )}
+
+      </AnimatePresence>
+
+    </>
+
+  );
+
 };
 
+
+
+type MobileMegaSectionProps = {
+
+  label: string;
+
+  open: boolean;
+
+  onToggle: () => void;
+
+  items: typeof SERVICE_NAV_ITEMS;
+
+  viewAllHref: string;
+
+  onNavigate: () => void;
+
+};
+
+
+
+function MobileMegaSection({
+
+  label,
+
+  open,
+
+  onToggle,
+
+  items,
+
+  viewAllHref,
+
+  onNavigate,
+
+}: MobileMegaSectionProps) {
+
+  return (
+
+    <div className="rounded-xl border border-border/60 bg-card">
+
+      <button
+
+        type="button"
+
+        onClick={onToggle}
+
+        className="flex min-h-[48px] w-full items-center justify-between px-4 py-3 text-base font-semibold text-foreground active:scale-[0.98]"
+
+      >
+
+        {label}
+
+        <ChevronDown className={cn("h-5 w-5 transition-transform", open && "rotate-180")} />
+
+      </button>
+
+      <AnimatePresence>
+
+        {open && (
+
+          <motion.div
+
+            initial={{ height: 0, opacity: 0 }}
+
+            animate={{ height: "auto", opacity: 1 }}
+
+            exit={{ height: 0, opacity: 0 }}
+
+            className="overflow-hidden"
+
+          >
+
+            <ul className="space-y-1 border-t border-border/60 px-2 pb-2 pt-1">
+
+              {items.map((item) => {
+
+                const Icon = item.icon;
+
+                return (
+
+                  <li key={item.title}>
+
+                    <Link
+
+                      to={item.href}
+
+                      onClick={onNavigate}
+
+                      className="flex min-h-[48px] gap-3 rounded-lg px-2 py-2.5 active:scale-[0.98] hover:bg-muted/80"
+
+                    >
+
+                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
+
+                        <Icon className="h-4 w-4" />
+
+                      </div>
+
+                      <div className="min-w-0 text-left">
+
+                        <p className="text-sm font-medium text-foreground">{item.title}</p>
+
+                        <p className="line-clamp-1 text-xs text-muted-foreground">{item.description}</p>
+
+                      </div>
+
+                    </Link>
+
+                  </li>
+
+                );
+
+              })}
+
+              <li>
+
+                <Link
+
+                  to={viewAllHref}
+
+                  onClick={onNavigate}
+
+                  className="flex min-h-[44px] items-center px-2 py-2 text-sm font-medium text-primary"
+
+                >
+
+                  View all →
+
+                </Link>
+
+              </li>
+
+            </ul>
+
+          </motion.div>
+
+        )}
+
+      </AnimatePresence>
+
+    </div>
+
+  );
+
+}
+
+
+
 export default Navbar;
+

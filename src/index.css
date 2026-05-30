@@ -465,6 +465,19 @@ All colors MUST be HSL.
   }
 
   /* Inner pages only — ~5.5cm shorter than previous hero height */
+  /* Pull hero under sticky transparent navbar */
+  .marketing-hero-under-nav {
+    margin-top: -3.5rem;
+    padding-top: 3.5rem;
+  }
+
+  @media (min-width: 640px) {
+    .marketing-hero-under-nav {
+      margin-top: -4.25rem;
+      padding-top: 4.25rem;
+    }
+  }
+
   .marketing-page-hero {
     --marketing-page-hero-trim: 5.5cm;
     display: flex;
@@ -601,43 +614,176 @@ All colors MUST be HSL.
     @apply p-5 sm:p-6 md:p-8 lg:p-10;
   }
 
-  .marketing-cta-banner {
-    background-position: center center;
-    background-size: cover;
-  }
-
-  .marketing-cta-overlay {
+  /* Gradient split CTA — brand blue → teal → dark (no JPG) */
+  .marketing-gradient-split-cta {
     background: linear-gradient(
-      180deg,
-      hsl(0 0% 0% / 0.65) 0%,
-      hsl(0 0% 0% / 0.5) 100%
+      145deg,
+      hsl(212 94% 32%) 0%,
+      hsl(195 85% 36%) 35%,
+      hsl(183 72% 32%) 55%,
+      hsl(215 28% 14%) 100%
     );
   }
 
-  @media (min-width: 768px) {
-    .marketing-cta-overlay {
-      background: linear-gradient(
-        to right,
-        hsl(0 0% 0% / 0.55) 0%,
-        hsl(0 0% 0% / 0.35) 50%,
-        hsl(0 0% 0% / 0.45) 100%
-      );
-    }
+  .marketing-gradient-split-cta__mesh {
+    background:
+      radial-gradient(ellipse 80% 60% at 10% 20%, hsl(212 94% 55% / 0.35), transparent 55%),
+      radial-gradient(ellipse 70% 50% at 90% 80%, hsl(183 72% 45% / 0.25), transparent 50%);
+  }
+
+  .marketing-gradient-split-cta__noise {
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  .marketing-footer-dark {
+    background-color: #1e2a38;
+    color: hsl(210 20% 92%);
+  }
+
+  .marketing-footer-dark .marketing-footer-muted {
+    color: hsl(215 15% 68%);
+  }
+
+  .marketing-footer-dark a:hover {
+    color: hsl(183 72% 55%);
   }
 
   .marketing-landing-hero {
-    min-height: 480px;
+    min-height: 520px;
   }
 
   @media (min-width: 640px) {
     .marketing-landing-hero {
-      min-height: 520px;
+      min-height: 560px;
     }
   }
 
   @media (min-width: 1024px) {
     .marketing-landing-hero {
-      min-height: 560px;
+      min-height: 600px;
+    }
+  }
+
+  /* Homepage — animated mesh gradient hero (replaces photo carousel) */
+  .marketing-hero-mesh-gradient {
+    background: linear-gradient(
+      135deg,
+      hsl(212 94% 32%) 0%,
+      hsl(212 94% 40%) 35%,
+      hsl(183 72% 36%) 70%,
+      hsl(183 72% 42%) 100%
+    );
+    background-size: 200% 200%;
+    animation: marketing-mesh-gradient 14s ease infinite;
+  }
+
+  .marketing-hero-mesh-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+    opacity: 0.45;
+    pointer-events: none;
+  }
+
+  .marketing-hero-mesh-orb--1 {
+    width: min(55vw, 420px);
+    height: min(55vw, 420px);
+    top: -15%;
+    right: 5%;
+    background: hsl(212 100% 70% / 0.55);
+    animation: marketing-mesh-float-1 18s ease-in-out infinite;
+  }
+
+  .marketing-hero-mesh-orb--2 {
+    width: min(45vw, 360px);
+    height: min(45vw, 360px);
+    bottom: -10%;
+    left: -5%;
+    background: hsl(183 80% 55% / 0.5);
+    animation: marketing-mesh-float-2 22s ease-in-out infinite;
+  }
+
+  .marketing-hero-mesh-orb--3 {
+    width: min(35vw, 280px);
+    height: min(35vw, 280px);
+    top: 40%;
+    left: 35%;
+    background: hsl(46 80% 60% / 0.2);
+    animation: marketing-mesh-float-3 16s ease-in-out infinite;
+  }
+
+  @keyframes marketing-mesh-gradient {
+    0%,
+    100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+
+  @keyframes marketing-mesh-float-1 {
+    0%,
+    100% {
+      transform: translate(0, 0) scale(1);
+    }
+    50% {
+      transform: translate(-30px, 20px) scale(1.08);
+    }
+  }
+
+  @keyframes marketing-mesh-float-2 {
+    0%,
+    100% {
+      transform: translate(0, 0) scale(1);
+    }
+    50% {
+      transform: translate(25px, -25px) scale(1.05);
+    }
+  }
+
+  @keyframes marketing-mesh-float-3 {
+    0%,
+    100% {
+      transform: translate(0, 0);
+    }
+    50% {
+      transform: translate(15px, 15px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .marketing-hero-mesh-gradient,
+    .marketing-hero-mesh-orb {
+      animation: none !important;
+    }
+  }
+
+  /* Industry trust strip — infinite horizontal marquee */
+  .marketing-logo-marquee-track {
+    animation: marketing-logo-marquee 42s linear infinite;
+  }
+
+  @keyframes marketing-logo-marquee {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .marketing-logo-marquee-track {
+      animation: none;
+      flex-wrap: wrap;
+      justify-content: center;
+      width: 100%;
+      padding: 0 1rem;
+    }
+
+    .marketing-logo-marquee {
+      overflow: visible;
     }
   }
 
@@ -648,5 +794,327 @@ All colors MUST be HSL.
     .card-hover:hover {
       @apply shadow-xl -translate-y-1;
     }
+  }
+}
+
+/* —— Portal dashboards (admin / client / applicant) —— */
+html:has(.portal-dashboard) {
+  --portal-accent: 221 55% 46%;
+  --portal-surface-2: 220 14% 95%;
+  --portal-border: 220 13% 88%;
+  --glass-shadow: 15 23 42 / 0.05;
+
+  --background: 220 14% 96.5%;
+  --foreground: 224 18% 14%;
+  --card: 0 0% 100%;
+  --card-foreground: 224 18% 14%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 224 18% 14%;
+  --muted: 220 13% 93%;
+  --muted-foreground: 220 9% 42%;
+  --primary: 221 55% 46%;
+  --primary-foreground: 0 0% 100%;
+  --accent: 221 55% 46%;
+  --accent-foreground: 0 0% 100%;
+  --border: 220 13% 88%;
+  --input: 220 13% 88%;
+  --ring: 221 55% 46%;
+  --destructive: 0 72% 51%;
+  --destructive-foreground: 0 0% 100%;
+  --radius: 0.75rem;
+
+  --surface-1: #ffffff;
+  --surface-2: #f4f5f7;
+  --surface-3: #eef0f4;
+  --surface-border: #dde1e8;
+  --card-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 0 0 1px hsl(221 55% 46% / 0.04);
+}
+
+html.dark:has(.portal-dashboard) {
+  --portal-accent: 214 65% 58%;
+  --portal-surface-2: 224 16% 16%;
+  --portal-border: 224 12% 22%;
+  --glass-shadow: 0 0 0 / 0.35;
+
+  --background: 224 20% 9%;
+  --foreground: 210 18% 96%;
+  --card: 224 18% 12.5%;
+  --card-foreground: 210 18% 96%;
+  --popover: 224 18% 12.5%;
+  --popover-foreground: 210 18% 96%;
+  --muted: 224 14% 16%;
+  --muted-foreground: 220 10% 62%;
+  --primary: 214 65% 58%;
+  --primary-foreground: 224 20% 9%;
+  --accent: 214 65% 58%;
+  --accent-foreground: 224 20% 9%;
+  --border: 224 12% 20%;
+  --input: 224 12% 20%;
+  --ring: 214 65% 58%;
+  --destructive: 0 62% 50%;
+
+  --surface-1: #1a1f28;
+  --surface-2: #12151c;
+  --surface-3: #252b36;
+  --surface-border: #2e3644;
+  --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+}
+
+html:has(.portal-dashboard--client) {
+  --portal-accent: 199 89% 48%;
+  --primary: 199 89% 48%;
+  --ring: 199 89% 48%;
+  --accent: 199 89% 48%;
+}
+
+html.dark:has(.portal-dashboard--client) {
+  --portal-accent: 199 89% 55%;
+  --primary: 199 89% 55%;
+  --ring: 199 89% 55%;
+  --accent: 199 89% 55%;
+}
+
+html:has(.portal-dashboard--applicant) {
+  --portal-accent: 212 94% 38%;
+  --primary: 212 94% 38%;
+  --ring: 212 94% 38%;
+}
+
+html.dark:has(.portal-dashboard--applicant) {
+  --portal-accent: 212 90% 55%;
+  --primary: 212 90% 55%;
+  --ring: 212 90% 55%;
+}
+
+.portal-dashboard {
+  font-family: Inter, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  letter-spacing: -0.011em;
+}
+
+.portal-dashboard .font-brand {
+  font-family: Sora, Inter, system-ui, sans-serif;
+}
+
+.portal-brand-accent {
+  color: hsl(var(--portal-accent));
+}
+
+.portal-dashboard.admin-shell-bg,
+.portal-dashboard.portal-shell-bg {
+  background-color: hsl(var(--background));
+  background-image:
+    radial-gradient(ellipse 90% 55% at 100% -15%, hsl(221 85% 94% / 0.55), transparent 52%),
+    radial-gradient(ellipse 70% 45% at 0% 105%, hsl(262 70% 94% / 0.35), transparent 48%),
+    radial-gradient(ellipse 50% 40% at 50% 0%, hsl(199 80% 95% / 0.25), transparent 55%);
+}
+
+html.dark .portal-dashboard.portal-shell-bg {
+  background-image:
+    radial-gradient(ellipse 90% 55% at 100% -15%, hsl(221 55% 22% / 0.35), transparent 52%),
+    radial-gradient(ellipse 70% 45% at 0% 105%, hsl(262 45% 18% / 0.28), transparent 48%),
+    radial-gradient(ellipse 50% 40% at 50% 0%, hsl(199 50% 18% / 0.2), transparent 55%);
+}
+
+.portal-glass-header {
+  position: relative;
+  background: hsl(var(--card) / 0.86);
+  backdrop-filter: blur(16px) saturate(110%);
+  -webkit-backdrop-filter: blur(16px) saturate(110%);
+  box-shadow: 0 4px 24px hsl(var(--glass-shadow));
+  border-bottom: 1px solid hsl(var(--border) / 0.55);
+}
+
+.portal-glass-header::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    hsl(var(--portal-accent) / 0.45),
+    hsl(262 70% 60% / 0.3),
+    hsl(199 80% 55% / 0.35)
+  );
+  pointer-events: none;
+}
+
+html.dark .portal-glass-header {
+  background: hsl(var(--card) / 0.9);
+}
+
+.portal-glass-sidebar {
+  background: hsl(var(--card) / 0.98);
+  backdrop-filter: blur(16px) saturate(110%);
+  -webkit-backdrop-filter: blur(16px) saturate(110%);
+  border-right: 1px solid hsl(var(--border));
+  box-shadow: 4px 0 24px hsl(var(--glass-shadow));
+}
+
+.portal-panel-card {
+  border-radius: 1rem;
+  border: 1px solid hsl(var(--border) / 0.8);
+  background: hsl(var(--card));
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.04),
+    0 0 0 1px hsl(var(--portal-accent) / 0.04);
+}
+
+.portal-dashboard .dashboard-card {
+  border-radius: 1rem;
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border) / 0.8);
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.04),
+    0 0 0 1px hsl(var(--portal-accent) / 0.04);
+}
+
+.portal-nav-link-active {
+  background: linear-gradient(
+    90deg,
+    hsl(var(--portal-accent) / 0.14),
+    hsl(var(--portal-accent) / 0.06)
+  );
+  color: hsl(var(--foreground));
+  font-weight: 600;
+  box-shadow: inset 3px 0 0 hsl(var(--portal-accent));
+}
+
+.portal-content-wrap {
+  max-width: 80rem;
+}
+
+.portal-animate-in {
+  animation: portal-fade-in 0.45s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+@keyframes portal-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .portal-animate-in {
+    animation: none;
+  }
+}
+
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.portal-dashboard .touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.portal-bottom-nav {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.portal-bottom-nav-item[aria-current="page"]::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 1.5rem;
+  height: 2px;
+  transform: translateX(-50%);
+  border-radius: 9999px;
+  background: hsl(var(--portal-accent));
+}
+
+.portal-dashboard .portal-mobile-dialog {
+  width: min(95vw, 100%);
+  max-height: min(90dvh, 100%);
+  overflow-y: auto;
+}
+
+@media (max-width: 767px) {
+  .portal-dashboard input:not([type="checkbox"]):not([type="radio"]),
+  .portal-dashboard textarea,
+  .portal-dashboard [role="combobox"],
+  .portal-dashboard button[role="combobox"] {
+    min-height: 2.75rem;
+  }
+
+  .portal-dashboard .portal-actions-stack > button,
+  .portal-dashboard .portal-actions-stack > a {
+    width: 100%;
+    min-height: 2.75rem;
+  }
+}
+
+@keyframes marketing-mobile-cta-in {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.marketing-mobile-cta {
+  animation: marketing-mobile-cta-in 0.5s cubic-bezier(0.22, 0.61, 0.36, 1) 1.2s both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marketing-mobile-cta {
+    animation: none;
+  }
+}
+
+.marketing-mobile-content-pad {
+  padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
+}
+
+@media (min-width: 768px) {
+  .marketing-mobile-content-pad {
+    padding-bottom: 0;
+  }
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Horizontal snap rows — phone/tablet only (lg+ layouts unchanged) */
+.marketing-snap-scroll {
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 1023px) {
+  .marketing-snap-scroll {
+    overflow-x: auto;
+    overflow-y: hidden;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .marketing-snap-scroll::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marketing-mobile-cta,
+  .marketing-logo-marquee-track {
+    animation: none !important;
   }
 }

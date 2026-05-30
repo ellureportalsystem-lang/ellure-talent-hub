@@ -23,6 +23,10 @@ import {
 } from "@/hooks/useDashboardStats";
 import { approveClient } from "@/services/dashboardService";
 import { toast } from "sonner";
+import { DashboardPageShell } from "@/components/dashboard/DashboardPageShell";
+import { PortalKpiGrid } from "@/components/portal/PortalKpiGrid";
+import { portalMobilePrimaryButtonClass } from "@/components/portal/portalStyles";
+import { cn } from "@/lib/utils";
 
 const CHART_COLORS = [
   "hsl(var(--primary))",
@@ -59,7 +63,7 @@ function KpiCard({
         <CardContent className="p-4 flex items-center justify-between gap-3">
           <div>
             <p className="text-xs text-muted-foreground">{title}</p>
-            <p className="text-2xl font-bold tracking-tight text-[var(--text-primary)]">{value}</p>
+            <p className="text-xl font-bold tabular-nums tracking-tight text-[var(--text-primary)] sm:text-2xl">{value}</p>
           </div>
           <div className={`h-10 w-10 rounded-lg flex items-center justify-center ${accent}`}>{icon}</div>
         </CardContent>
@@ -95,14 +99,21 @@ const AdminHome = () => {
   const eduPie = educationData.map((e) => ({ name: e.level, value: e.count }));
 
   return (
-    <div className="p-4 lg:p-6 space-y-6 max-w-[1600px] mx-auto">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <DashboardPageShell className="space-y-6">
+      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--text-primary)]">Dashboard Overview</h1>
-          <p className="text-sm text-muted-foreground mt-1">Real-time recruitment analytics</p>
+          <h1 className="text-2xl font-semibold tracking-[-0.025em] text-[var(--text-primary)] md:text-3xl">
+            Dashboard Overview
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">Real-time recruitment analytics</p>
         </div>
-        <Button variant="outline" size="sm" className="h-9" onClick={() => window.location.reload()}>
-          <RefreshCw className="h-3.5 w-3.5 mr-2" />
+        <Button
+          variant="outline"
+          size="sm"
+          className={cn("h-9", portalMobilePrimaryButtonClass)}
+          onClick={() => window.location.reload()}
+        >
+          <RefreshCw className="mr-2 h-3.5 w-3.5" />
           Refresh
         </Button>
       </div>
@@ -116,31 +127,22 @@ const AdminHome = () => {
         </Card>
       )}
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <PortalKpiGrid count={8}>
         {statsLoading ? (
-          Array.from({ length: 4 }).map((_, i) => <KpiSkeleton key={i} />)
+          Array.from({ length: 8 }).map((_, i) => <KpiSkeleton key={i} />)
         ) : (
           <>
             <KpiCard title="Total Applicants" value={(stats?.totalApplicants ?? 0).toLocaleString()} icon={<Users className="h-5 w-5 text-primary-foreground" />} accent="bg-primary" />
             <KpiCard title="New This Week" value={stats?.newThisWeek ?? 0} icon={<TrendingUp className="h-5 w-5 text-success-foreground" />} accent="bg-success" delay={0.05} />
             <KpiCard title="Active Clients" value={stats?.activeClients ?? 0} icon={<Building2 className="h-5 w-5 text-info-foreground" />} accent="bg-info" delay={0.1} />
             <KpiCard title="Jobs Posted" value={stats?.jobsPosted ?? 0} icon={<Briefcase className="h-5 w-5 text-primary-foreground" />} accent="bg-primary" delay={0.15} />
-          </>
-        )}
-      </div>
-
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {statsLoading ? (
-          Array.from({ length: 4 }).map((_, i) => <KpiSkeleton key={`s-${i}`} />)
-        ) : (
-          <>
-            <KpiCard title="CV Downloads This Month" value={stats?.cvDownloadsThisMonth ?? 0} icon={<Download className="h-5 w-5 text-secondary-foreground" />} accent="bg-secondary" />
+            <KpiCard title="CV Downloads" value={stats?.cvDownloadsThisMonth ?? 0} icon={<Download className="h-5 w-5 text-secondary-foreground" />} accent="bg-secondary" />
             <KpiCard title="Pending Approvals" value={stats?.pendingApprovals ?? 0} icon={<Clock className="h-5 w-5 text-warning-foreground" />} accent="bg-warning" delay={0.05} />
             <KpiCard title="Verified Profiles" value={stats?.verifiedProfiles ?? 0} icon={<UserCheck className="h-5 w-5 text-success-foreground" />} accent="bg-success" delay={0.1} />
-            <KpiCard title="Applications This Month" value={stats?.applicationsThisMonth ?? 0} icon={<FileText className="h-5 w-5 text-info-foreground" />} accent="bg-info" delay={0.15} />
+            <KpiCard title="Applications" value={stats?.applicationsThisMonth ?? 0} icon={<FileText className="h-5 w-5 text-info-foreground" />} accent="bg-info" delay={0.15} />
           </>
         )}
-      </div>
+      </PortalKpiGrid>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="dashboard-card border-[var(--surface-border)] bg-[var(--surface-1)]">
@@ -266,12 +268,22 @@ const AdminHome = () => {
           ) : (
             <ul className="divide-y divide-[var(--surface-border)]">
               {pendingClients.map((c) => (
-                <li key={c.id} className="flex items-center justify-between gap-4 py-3">
+                <li
+                  key={c.id}
+                  className="flex flex-col gap-3 py-3 sm:flex-row sm:items-center sm:justify-between"
+                >
                   <div className="min-w-0">
-                    <p className="font-medium text-sm truncate">{c.company_name}</p>
-                    <p className="text-xs text-muted-foreground">{c.contact_email || "—"} · {new Date(c.created_at).toLocaleDateString()}</p>
+                    <p className="truncate text-sm font-medium">{c.company_name}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {c.contact_email || "—"} · {new Date(c.created_at).toLocaleDateString()}
+                    </p>
                   </div>
-                  <Button size="sm" disabled={approving === c.id} onClick={() => handleApprove(c.id)}>
+                  <Button
+                    size="sm"
+                    className={cn("shrink-0", portalMobilePrimaryButtonClass)}
+                    disabled={approving === c.id}
+                    onClick={() => handleApprove(c.id)}
+                  >
                     {approving === c.id ? "Approving…" : "Approve"}
                   </Button>
                 </li>
@@ -280,7 +292,7 @@ const AdminHome = () => {
           )}
         </CardContent>
       </Card>
-    </div>
+    </DashboardPageShell>
   );
 };
 

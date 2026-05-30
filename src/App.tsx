@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider, ForceLightTheme } from "@/components/ThemeProvider";
 import ScrollToTop from "./components/ScrollToTop";
+import { PortalThemeSync } from "@/components/portal/PortalThemeSync";
 import { queryClient } from "@/lib/queryClient";
 import { ForcePasswordGuard } from "@/components/AuthRouteGuard";
 import { SessionTimeoutGuard } from "@/components/auth/SessionTimeoutGuard";
@@ -71,6 +72,7 @@ const App = () => (
             <SessionTimeoutGuard>
               <ForcePasswordGuard>
                 <ScrollToTop />
+                <PortalThemeSync />
                 <Routes>
                   <Route path="/" element={<ForceLightTheme><Landing /></ForceLightTheme>} />
                   <Route path="/about" element={<ForceLightTheme><About /></ForceLightTheme>} />

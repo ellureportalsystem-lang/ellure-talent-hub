@@ -1,6 +1,4 @@
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Link } from "react-router-dom";
 import { CheckCircle, Users, Award, TrendingUp, Heart } from "lucide-react";
 import { motion } from "framer-motion";
 import Navbar from "@/components/layout/Navbar";
@@ -8,6 +6,8 @@ import Footer from "@/components/layout/Footer";
 import MarketingLayout from "@/components/marketing/MarketingLayout";
 import { FadeInSection } from "@/components/marketing/FadeInSection";
 import MarketingPageHero from "@/components/marketing/MarketingPageHero";
+import { MarketingGradientSplitCta } from "@/components/marketing/MarketingGradientSplitCta";
+import { MarketingCollapsibleText } from "@/components/marketing/MarketingCollapsibleText";
 
 const About = () => {
   return (
@@ -30,8 +30,8 @@ const About = () => {
           className="max-w-4xl mx-auto"
         >
           <h2 className="text-3xl font-bold text-center mb-6">Our Journey</h2>
-          <Card className="p-8 md:p-12 card-hover border-2 border-border shadow-md hover:shadow-xl hover:border-primary/60 transition-all duration-300">
-            <div className="space-y-4 text-muted-foreground leading-relaxed">
+          <Card className="p-6 sm:p-8 md:p-12 card-hover border-2 border-border shadow-md hover:shadow-xl hover:border-primary/60 transition-all duration-300">
+            <MarketingCollapsibleText className="space-y-4 text-muted-foreground leading-relaxed">
               <p className="text-lg">
                 Ellure was founded with a clear purpose — to bring structure, transparency, and accountability into hiring processes.
               </p>
@@ -41,7 +41,7 @@ const About = () => {
               <p className="text-lg">
                 As hiring needs evolved, Ellure Nexhire was developed as a technology platform to enable scalable, process-driven recruitment workflows.
               </p>
-            </div>
+            </MarketingCollapsibleText>
           </Card>
         </motion.div>
       </section>
@@ -186,33 +186,19 @@ const About = () => {
         </motion.div>
       </section>
 
-      {/* CTA Section */}
       <section className="marketing-section">
-        <Card className="p-12 text-white text-center relative overflow-hidden">
-          {/* CTA Banner Background */}
-          <div 
-            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-            style={{
-              backgroundImage: `url(/about-cta-banner.jpg)`,
-            }}
-          />
-          {/* Natural overlay for text readability */}
-          <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-black/30 to-black/50" />
-          <div className="relative z-10 max-w-2xl mx-auto space-y-6">
-            <h2 className="text-3xl font-bold text-white">Ready to <span className="gold-text">Work With Us</span>?</h2>
-            <p className="text-white/90">
-              Let's build <span className="gold-text">hiring outcomes</span> that are <span className="gold-text">structured, ethical, and scalable</span>.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" variant="secondary" className="btn-hover" asChild>
-                <Link to="/contact">Get in Touch</Link>
-              </Button>
-              <Button size="lg" className="bg-white text-primary hover:bg-white/90 btn-hover" asChild>
-                <Link to="/services">Learn More</Link>
-              </Button>
-            </div>
-          </div>
-        </Card>
+        <MarketingGradientSplitCta
+          headline="Ready to work with us?"
+          subtitle="Structured, ethical, and scalable hiring — for teams hiring talent and professionals building careers."
+          employer={{
+            ctaLabel: "Get in touch",
+            ctaHref: "/contact",
+          }}
+          applicant={{
+            ctaLabel: "Explore opportunities",
+            ctaHref: "/auth/register",
+          }}
+        />
       </section>
 
       <Footer />
