@@ -60,6 +60,17 @@ data/column-comparison.json
 /COMPLETE_DATABASE_SCHEMA.sql
 /Ellure_NexHire_MasterDataset.xlsx
 
+# Local scratch / ops notes in docs/ (tracked docs use lowercase-kebab names)
+docs/ADMIN_*.md
+docs/CREATE_ADMIN_USER.md
+docs/ENTERPRISE_REBUILD_SPEC.md
+docs/FIX_DUPLICATE_APPLICANT_NUMBER.md
+docs/HOW_TO_SET_ADMIN_AND_CLIENT_USERS.md
+docs/MOBILE_TABLET_UI_PLAN.md
+docs/PORTAL_COMPLETE_REFERENCE.md
+docs/PROFILE_DATA_AND_NORMALIZED_TABLES_ANALYSIS.md
+docs/SUPABASE_EMAIL_CONFIRMATION_SETUP.md
+
 # Local banner backups (production uses public/banner-1.jpg … banner-3.jpg)
 public/banner-*-original.jpg
 
