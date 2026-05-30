@@ -34,3 +34,65 @@ data/old-applicant-data/*.xls
 data/old-applicant-data/*.xlsm
 data/excel-analysis.json
 data/column-comparison.json
+/old-applicant-data/
+*.xlsx
+*.xls
+*.xlsm
+
+# Cursor / IDE local settings
+.cursor/
+
+# Reference screenshots and scratch images at repo root (not production assets)
+/*.PNG
+/*.jpg
+/*.pdf
+
+# One-off analysis / fix notes at repo root (canonical docs live under docs/)
+/ADMIN_*.md
+/AUTHENTICATION_*.md
+/COMPREHENSIVE_*.md
+/DATABASE_SETUP_GUIDE.md
+/PROFILES_*.md
+/QUICK_FIX_*.md
+/ROLLBACK_*.md
+/SCHEMA_*.md
+/TROUBLESHOOTING.md
+/COMPLETE_DATABASE_SCHEMA.sql
+/Ellure_NexHire_MasterDataset.xlsx
+
+# Local banner backups (production uses public/banner-1.jpg … banner-3.jpg)
+public/banner-*-original.jpg
+
+# Orphan profile UIs — not routed (see docs/UI_CANONICAL_ROUTES.md)
+src/pages/dashboard/admin/AdminApplicantProfileView.tsx
+src/pages/dashboard/client/ClientApplicantProfileView.tsx
+
+# One-off DB / ops scripts (keep tracked scripts/ that are already in git)
+scripts/add_*.sql
+scripts/analyze_*.sql
+scripts/approve_*.sql
+scripts/auto_*.sql
+scripts/check_*.sql
+scripts/comprehensive_*.sql
+scripts/create_admin_*.sql
+scripts/create_all_*.sql
+scripts/create_master_*.sql
+scripts/create_safe_*.sql
+scripts/create_separate_*.sql
+scripts/create_states_*.sql
+scripts/diagnose_*.sql
+scripts/ensure_*.sql
+scripts/fix_*.sql
+scripts/insert_*.sql
+scripts/inspect_*.sql
+scripts/optimize_*.sql
+scripts/provision-*.mjs
+scripts/quick_*.sql
+scripts/reset_password_*.sql
+scripts/rollback_*.sql
+scripts/setup_storage_*.sql
+scripts/verify_admin_*.sql
+scripts/verify_database_*.sql
+scripts/write-*.mjs
+scripts/analyzeExcelFiles.js
+scripts/fix-tags.mjs
