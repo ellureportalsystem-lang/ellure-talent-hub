@@ -10,13 +10,16 @@ import { ArrowRight, Play } from "lucide-react";
 export function BharatGoHero() {
   return (
     <section className="bharatgo-hero relative -mt-14 overflow-hidden bg-[#080818] pb-[calc(4.5rem+1.2cm)] pt-[calc(4.5rem+2rem+1.2cm)] sm:-mt-[4.25rem] sm:pb-[calc(5rem+1.2cm)] sm:pt-[calc(5rem+2.5rem+1.2cm)] lg:min-h-[calc(100vh-4.25rem)] lg:pb-[calc(6rem+1.2cm)] lg:pt-[calc(5.5rem+2.5rem+1.2cm)]">
-      <ShaderBackground variant="dark" className="pointer-events-none" />
+      <ShaderBackground variant="dark" className="pointer-events-none bharatgo-hero-shader" />
+      <div className="bharatgo-hero-plasma-orb bharatgo-hero-plasma-orb--1" aria-hidden />
+      <div className="bharatgo-hero-plasma-orb bharatgo-hero-plasma-orb--2" aria-hidden />
+      <div className="bharatgo-hero-plasma-vignette" aria-hidden />
       <div
-        className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#060612]/95 via-[#0a0820]/55 to-[#12082a]/25"
+        className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#060612]/86 via-[#0a0820]/42 to-[#12082a]/12"
         aria-hidden
       />
       <div
-        className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[#060612]/40 via-transparent to-[#060612]/85"
+        className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[#060612]/28 via-transparent to-[#060612]/78"
         aria-hidden
       />
 
@@ -28,10 +31,10 @@ export function BharatGoHero() {
             transition={{ duration: 0.5 }}
             className="max-lg:mx-auto max-lg:max-w-xl max-lg:text-center lg:text-left"
           >
-            <h1 className="font-poppins text-4xl font-bold leading-[1.12] tracking-tight text-white sm:text-5xl lg:text-[3.25rem]">
-              <span className="block drop-shadow-sm">Hire exceptional talent in</span>
+            <h1 className="bharatgo-hero-headline font-poppins text-4xl font-bold leading-[1.12] tracking-tight text-white sm:text-5xl lg:text-[3.25rem]">
+              <span className="block">Hire exceptional talent in</span>
               <span className="mt-1 block min-h-[1.2em] sm:min-h-[1.15em]">
-                <HeroTypewriterHeadline className="text-violet-300" />
+                <HeroTypewriterHeadline className="text-violet-200" />
               </span>
             </h1>
             <p className="mt-5 text-lg leading-relaxed text-slate-300/95 sm:text-xl">
@@ -81,7 +84,11 @@ export function BharatGoHero() {
           >
             <div className="relative w-full max-w-md sm:max-w-lg lg:max-w-xl">
               <div
-                className="pointer-events-none absolute -inset-8 rounded-2xl bg-violet-500/25 blur-[40px]"
+                className="pointer-events-none absolute -inset-10 rounded-3xl bg-violet-500/28 blur-[48px]"
+                aria-hidden
+              />
+              <div
+                className="pointer-events-none absolute -inset-6 rounded-2xl bg-fuchsia-500/14 blur-[28px]"
                 aria-hidden
               />
               <HeroCandidatePreview variant="hero" />

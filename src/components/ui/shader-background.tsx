@@ -22,7 +22,7 @@ const fsSourceDark = `
   const float majorLineFrequency = 5.0;
   const float minorLineFrequency = 1.0;
   const float scale = 5.0;
-  const vec4 lineColor = vec4(0.45, 0.28, 0.88, 0.85);
+  const vec4 lineColor = vec4(0.5, 0.3, 0.92, 0.9);
   const float minLineWidth = 0.01;
   const float maxLineWidth = 0.18;
   const float lineSpeed = 1.0 * overallSpeed;
@@ -62,7 +62,7 @@ const fsSourceDark = `
 
     vec4 lines = vec4(0.0);
     vec4 bgColor1 = vec4(0.08, 0.09, 0.22, 1.0);
-    vec4 bgColor2 = vec4(0.22, 0.1, 0.42, 1.0);
+    vec4 bgColor2 = vec4(0.24, 0.11, 0.46, 1.0);
 
     for(int l = 0; l < linesPerGroup; l++) {
       float normalizedLineIndex = float(l) / float(linesPerGroup);
@@ -76,15 +76,15 @@ const fsSourceDark = `
 
       float circleX = mod(float(l) + iTime * lineSpeed, 25.0) - 12.0;
       vec2 circlePosition = vec2(circleX, getPlasmaY(circleX, horizontalFade, offset));
-      float circle = drawCircle(circlePosition, 0.01, space) * 3.5;
+      float circle = drawCircle(circlePosition, 0.01, space) * 4.0;
 
       line = line + circle;
-      lines += line * lineColor * rand * 0.55;
+      lines += line * lineColor * rand * 0.65;
     }
 
     vec4 fragColor = mix(bgColor1, bgColor2, uv.x);
     float textScrim = smoothstep(0.0, 0.55, uv.x);
-    fragColor = mix(fragColor, vec4(0.05, 0.06, 0.14, 1.0), textScrim * 0.42);
+    fragColor = mix(fragColor, vec4(0.05, 0.06, 0.14, 1.0), textScrim * 0.3);
     fragColor *= verticalFade * 0.92 + 0.08;
     fragColor.a = 1.0;
     fragColor += lines;
@@ -219,7 +219,7 @@ const FALLBACK: Record<ShaderBackgroundVariant, string> = {
 };
 
 const CANVAS_CLASS: Record<ShaderBackgroundVariant, string> = {
-  dark: "h-full w-full",
+  dark: "h-full w-full brightness-[1.06] saturate-[1.2]",
   light: "h-full w-full opacity-[0.55] mix-blend-multiply",
 };
 

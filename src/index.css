@@ -1436,6 +1436,100 @@ html.dark .portal-glass-header {
 }
 
 /* BharatGo-inspired marketing layout (light SaaS landing) */
+
+/* Homepage hero — plasma shader bloom + ambient violet glow */
+.bharatgo-hero-shader::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 85% 70% at 72% 42%,
+    hsl(270 95% 62% / 0.14),
+    transparent 58%
+  );
+  mix-blend-mode: screen;
+}
+
+.bharatgo-hero-plasma-orb {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(64px);
+  mix-blend-mode: screen;
+}
+
+.bharatgo-hero-plasma-orb--1 {
+  width: min(68vw, 500px);
+  height: min(68vw, 500px);
+  top: 5%;
+  right: -12%;
+  background: radial-gradient(circle, hsl(270 90% 68% / 0.42) 0%, transparent 68%);
+  opacity: 0.52;
+  animation: bharatgo-hero-orb-drift-1 22s ease-in-out infinite;
+}
+
+.bharatgo-hero-plasma-orb--2 {
+  width: min(50vw, 380px);
+  height: min(50vw, 380px);
+  bottom: 0%;
+  left: 20%;
+  background: radial-gradient(circle, hsl(258 85% 58% / 0.34) 0%, transparent 70%);
+  opacity: 0.38;
+  animation: bharatgo-hero-orb-drift-2 18s ease-in-out infinite;
+}
+
+.bharatgo-hero-plasma-vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 120% 80% at 50% 100%,
+    hsl(270 70% 45% / 0.1),
+    transparent 55%
+  );
+  mix-blend-mode: screen;
+}
+
+.bharatgo-hero-headline {
+  text-shadow:
+    0 0 32px hsl(270 90% 65% / 0.16),
+    0 0 64px hsl(270 85% 55% / 0.07);
+}
+
+.bharatgo-hero-headline .text-violet-200,
+.bharatgo-hero-headline .text-primary {
+  text-shadow:
+    0 0 20px hsl(270 95% 72% / 0.38),
+    0 0 40px hsl(270 90% 60% / 0.18);
+}
+
+@keyframes bharatgo-hero-orb-drift-1 {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(-24px, 18px) scale(1.06);
+  }
+}
+
+@keyframes bharatgo-hero-orb-drift-2 {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(20px, -16px) scale(1.08);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bharatgo-hero-plasma-orb {
+    animation: none !important;
+  }
+}
+
 .bharatgo-hero-glow {
   background: #e9f0ff;
   opacity: 0.35;
