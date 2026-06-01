@@ -4,6 +4,8 @@ import { cn } from "@/lib/utils";
 
 type MarketingPageHeroProps = {
   imageSrc?: string;
+  /** `contain` shows the full banner; `cover` fills the frame (may crop) */
+  imageFit?: "cover" | "contain";
   title: ReactNode;
   subtitle?: ReactNode;
   align?: "left" | "center";
@@ -12,6 +14,7 @@ type MarketingPageHeroProps = {
 
 const MarketingPageHero = ({
   imageSrc,
+  imageFit = "cover",
   title,
   subtitle,
   align = "center",
@@ -26,7 +29,8 @@ const MarketingPageHero = ({
     {imageSrc ? (
       <div
         className={cn(
-          "absolute inset-0 marketing-hero-banner bg-cover bg-no-repeat",
+          "absolute inset-0 marketing-hero-banner bg-no-repeat",
+          imageFit === "contain" ? "bg-contain bg-center" : "bg-cover",
           align === "center"
             ? "marketing-hero-banner--page-center"
             : "marketing-hero-banner--page-left"

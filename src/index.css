@@ -1684,19 +1684,33 @@ html.dark .portal-glass-header {
   height: auto;
 }
 
-/* Contact / inner-page hero backgrounds */
-.marketing-hero-banner {
-  background-position: center 32%;
+/* Contact page hero — full c1.png visible (1897×829); height tracks viewport width */
+.marketing-page-hero--contact {
+  --marketing-page-hero-trim: 0px;
+  --contact-banner-aspect: 829 / 1897;
+  background-color: hsl(220 45% 14%);
+  min-height: max(17.5rem, min(calc(100vw * var(--contact-banner-aspect)), 50vh));
 }
 
-@media (min-width: 768px) {
-  .marketing-page-hero .marketing-hero-banner.marketing-hero-banner--page-left {
-    background-position: 72% 32%;
-  }
+.marketing-page-hero--contact .marketing-hero-banner.marketing-hero-banner--page-left {
+  background-position: center center;
+  background-size: contain;
+}
 
-  .marketing-hero-banner-img {
-    object-position: 72% 32%;
-  }
+.marketing-page-hero--contact .marketing-hero-overlay {
+  background: linear-gradient(
+    to right,
+    hsl(0 0% 0% / 0.62) 0%,
+    hsl(0 0% 0% / 0.38) 42%,
+    hsl(0 0% 0% / 0.12) 72%,
+    transparent 100%
+  );
+}
+
+.marketing-page-hero--contact .marketing-page-hero-inner {
+  min-height: inherit;
+  padding-top: 2rem;
+  padding-bottom: 2rem;
 }
 
 .marketing-illustration-inner {

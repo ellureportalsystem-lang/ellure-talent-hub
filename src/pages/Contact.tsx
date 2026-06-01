@@ -28,7 +28,9 @@ const Contact = () => {
   return (
     <MarketingSaasShell>
       <MarketingPageHero
+        className="marketing-page-hero--contact"
         align="left"
+        imageFit="contain"
         imageSrc="/c1.png"
         title={
           <>
@@ -42,45 +44,17 @@ const Contact = () => {
         }
       />
 
-      <section className="container pt-10 pb-6">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-        >
-          <a
-            href="https://www.google.com/maps/place/Ellure+Consulting+Services/@18.503615,73.903043,14z/data=!4m6!3m5!1s0x3bc2c1c02ef704c1:0xe911db1b479e2e0a!8m2!3d18.5036152!4d73.9030428!16s%2Fg%2F11h88175wm"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="block"
-          >
-            <Card className="card-hover cursor-pointer overflow-hidden border-2 border-border shadow-md transition-all duration-300 hover:border-primary/60 hover:shadow-xl">
-              <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3784.264833726844!2d73.90044017519742!3d18.50361518256973!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bc2c1c02ef704c1%3A0xe911db1b479e2e0a!2sEllure%20Consultting%20Services!5e0!3m2!1sen!2sin!4v1701680000000!5m2!1sen!2sin"
-                width="100%"
-                className="pointer-events-none w-full rounded-lg h-[min(50vh,280px)] sm:h-[320px] md:h-[380px]"
-                style={{ border: 0 }}
-                allowFullScreen
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                title="Ellure Consulting Services Location"
-              />
-            </Card>
-          </a>
-          <p className="mt-3 text-center text-sm text-muted-foreground">Click on the map to open in Google Maps</p>
-        </motion.div>
-      </section>
-
       <section className="marketing-section">
         <div className="grid gap-8 lg:grid-cols-2">
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-          >
-            <Card className="card-hover border-2 border-border p-5 shadow-md transition-all duration-300 hover:border-primary/60 hover:shadow-xl sm:p-8">
-              <h2 className="mb-6 text-2xl font-bold">Send Us a Message</h2>
-              <form onSubmit={handleSubmit} className="space-y-5 lg:space-y-6">
+          <div className="space-y-6">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+            >
+              <Card className="card-hover border-2 border-border p-5 shadow-md transition-all duration-300 hover:border-primary/60 hover:shadow-xl sm:p-8">
+                <h2 className="mb-6 text-2xl font-bold">Send Us a Message</h2>
+                <form onSubmit={handleSubmit} className="space-y-5 lg:space-y-6">
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-4">
                   <div className="space-y-2 sm:col-span-2">
                     <Label htmlFor="name">Full Name *</Label>
@@ -135,8 +109,37 @@ const Contact = () => {
                   Send Message
                 </Button>
               </form>
-            </Card>
-          </motion.div>
+              </Card>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.05 }}
+            >
+              <a
+                href="https://www.google.com/maps/place/Ellure+Consulting+Services/@18.503615,73.903043,14z/data=!4m6!3m5!1s0x3bc2c1c02ef704c1:0xe911db1b479e2e0a!8m2!3d18.5036152!4d73.9030428!16s%2Fg%2F11h88175wm"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block"
+              >
+                <Card className="card-hover cursor-pointer overflow-hidden border-2 border-border shadow-md transition-all duration-300 hover:border-primary/60 hover:shadow-xl">
+                  <iframe
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3784.264833726844!2d73.90044017519742!3d18.50361518256973!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bc2c1c02ef704c1%3A0xe911db1b479e2e0a!2sEllure%20Consultting%20Services!5e0!3m2!1sen!2sin!4v1701680000000!5m2!1sen!2sin"
+                    width="100%"
+                    className="pointer-events-none block w-full rounded-lg h-40 sm:h-44"
+                    style={{ border: 0 }}
+                    allowFullScreen
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    title="Ellure Consulting Services Location"
+                  />
+                </Card>
+              </a>
+              <p className="mt-2 text-sm text-muted-foreground">Click the map to open in Google Maps</p>
+            </motion.div>
+          </div>
 
           <div className="space-y-6">
             <motion.div
