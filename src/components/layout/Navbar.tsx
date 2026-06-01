@@ -26,9 +26,11 @@ import { Link, useLocation } from "react-router-dom";
 type NavbarProps = {
   /** Always-light sticky bar (BharatGo-style homepage) */
   variant?: "default" | "saas";
+  /** White logo + links over dark hero until user scrolls */
+  heroOverlay?: boolean;
 };
 
-const Navbar = ({ variant = "default" }: NavbarProps) => {
+const Navbar = ({ variant = "default", heroOverlay = false }: NavbarProps) => {
   const location = useLocation();
   const scrolled = useNavbarScroll(32);
   const isLgUp = useIsLgUp();
@@ -45,7 +47,8 @@ const Navbar = ({ variant = "default" }: NavbarProps) => {
   const isSaas = variant === "saas";
   const forceSolidNav = isSaas && location.pathname === "/contact";
   const isSolidNav = scrolled || mobileMenuOpen || forceSolidNav;
-  const useLightText = !isSaas && !isSolidNav;
+  const useLightText = heroOverlay ? !isSolidNav : !isSaas && !isSolidNav;
+  const useHeroNavChrome = heroOverlay && !isSolidNav;
 
 
 
@@ -88,7 +91,7 @@ const Navbar = ({ variant = "default" }: NavbarProps) => {
           ? "bg-white/15 text-white"
           : "bg-primary/10 text-primary font-semibold"
         : useLightText
-          ? "text-white/90 hover:bg-white/10 hover:text-white"
+          ? "text-white hover:bg-white/12 hover:text-white"
           : isSaas && !isSolidNav
             ? "text-slate-800 hover:bg-white/70 hover:text-primary"
             : "text-foreground/80 hover:bg-muted/80 hover:text-primary",
@@ -117,7 +120,7 @@ const Navbar = ({ variant = "default" }: NavbarProps) => {
   const megaTriggerClass = cn(
     "h-9 bg-transparent px-3 text-sm font-medium shadow-none",
     useLightText
-      ? "text-white/90 hover:bg-white/10 hover:text-white"
+      ? "text-white hover:bg-white/12 hover:text-white"
       : isSaas && !isSolidNav
         ? "text-slate-800 hover:bg-white/70 hover:text-primary data-[state=open]:bg-white/80 data-[state=open]:text-primary"
         : "text-foreground/80 hover:bg-muted/80 hover:text-primary data-[state=open]:bg-primary/10 data-[state=open]:text-primary"
@@ -141,7 +144,9 @@ const Navbar = ({ variant = "default" }: NavbarProps) => {
           "fixed inset-x-0 top-0 z-[200] w-full transition-all duration-300 ease-out pt-[env(safe-area-inset-top,0px)]",
           isSolidNav
             ? "border-b border-border/80 bg-white/95 shadow-sm backdrop-blur-xl supports-[backdrop-filter]:bg-white/90"
-            : "border-b border-transparent bg-transparent"
+            : useHeroNavChrome
+              ? "border-b border-white/10 bg-[#060612]/50 shadow-[0_4px_24px_rgba(0,0,0,0.2)] backdrop-blur-md"
+              : "border-b border-transparent bg-transparent"
         )}
         initial={false}
         animate={{ y: mobileMenuOpen || !navHidden ? 0 : -100 }}
@@ -160,11 +165,11 @@ const Navbar = ({ variant = "default" }: NavbarProps) => {
             <span
               className={cn(
                 "font-poppins whitespace-nowrap text-lg font-bold leading-none tracking-tight transition-colors sm:text-xl",
-                useLightText ? "text-white" : "text-foreground"
+                useLightText ? "text-white drop-shadow-sm" : "text-foreground"
               )}
             >
               <span className={useLightText ? "text-white" : "text-[#3d4853]"}>Ellure </span>
-              <span className={useLightText ? "text-white/95" : "text-primary"}>NexHire</span>
+              <span className={useLightText ? "text-white" : "text-primary"}>NexHire</span>
             </span>
           </Link>
 

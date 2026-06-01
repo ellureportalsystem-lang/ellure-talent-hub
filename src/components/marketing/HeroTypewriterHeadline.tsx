@@ -1,4 +1,5 @@
 import { Typewriter } from "@/components/ui/typewriter";
+import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 
 const PHRASES = [
@@ -25,14 +26,14 @@ export function HeroTypewriterHeadline({ className }: HeroTypewriterHeadlineProp
 
   if (reducedMotion) {
     return (
-      <span className={className}>
-        minutes, <span className="text-primary">not months</span>
+      <span className={cn(className)}>
+        minutes, <span className={cn("text-primary", className)}>not months</span>
       </span>
     );
   }
 
   return (
-    <span className={className}>
+    <span className={cn(className)}>
       <Typewriter
         text={PHRASES}
         speed={42}
@@ -40,9 +41,9 @@ export function HeroTypewriterHeadline({ className }: HeroTypewriterHeadlineProp
         waitTime={2200}
         initialDelay={400}
         loop
-        className="text-primary"
+        className={cn("text-primary", className)}
         cursorChar="|"
-        cursorClassName="ml-0.5 text-primary font-normal"
+        cursorClassName={cn("ml-0.5 font-normal", className ?? "text-primary")}
       />
     </span>
   );

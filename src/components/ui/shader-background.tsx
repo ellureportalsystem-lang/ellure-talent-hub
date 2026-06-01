@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
 const vsSource = `
@@ -8,8 +8,92 @@ const vsSource = `
   }
 `;
 
-/** Light-theme variant — soft violet waves on near-white (hero only) */
-const fsSource = `
+/** Original dark plasma grid — deep indigo / violet (hero) */
+const fsSourceDark = `
+  precision highp float;
+  uniform vec2 iResolution;
+  uniform float iTime;
+
+  const float overallSpeed = 0.2;
+  const float gridSmoothWidth = 0.015;
+  const float axisWidth = 0.05;
+  const float majorLineWidth = 0.025;
+  const float minorLineWidth = 0.0125;
+  const float majorLineFrequency = 5.0;
+  const float minorLineFrequency = 1.0;
+  const float scale = 5.0;
+  const vec4 lineColor = vec4(0.45, 0.28, 0.88, 0.85);
+  const float minLineWidth = 0.01;
+  const float maxLineWidth = 0.18;
+  const float lineSpeed = 1.0 * overallSpeed;
+  const float lineAmplitude = 0.9;
+  const float lineFrequency = 0.2;
+  const float warpSpeed = 0.2 * overallSpeed;
+  const float warpFrequency = 0.5;
+  const float warpAmplitude = 0.85;
+  const float offsetFrequency = 0.5;
+  const float offsetSpeed = 1.33 * overallSpeed;
+  const float minOffsetSpread = 0.6;
+  const float maxOffsetSpread = 2.0;
+  const int linesPerGroup = 12;
+
+  #define drawCircle(pos, radius, coord) smoothstep(radius + gridSmoothWidth, radius, length(coord - (pos)))
+  #define drawSmoothLine(pos, halfWidth, t) smoothstep(halfWidth, 0.0, abs(pos - (t)))
+  #define drawCrispLine(pos, halfWidth, t) smoothstep(halfWidth + gridSmoothWidth, halfWidth, abs(pos - (t)))
+
+  float random(float t) {
+    return (cos(t) + cos(t * 1.3 + 1.3) + cos(t * 1.4 + 1.4)) / 3.0;
+  }
+
+  float getPlasmaY(float x, float horizontalFade, float offset) {
+    return random(x * lineFrequency + iTime * lineSpeed) * horizontalFade * lineAmplitude + offset;
+  }
+
+  void main() {
+    vec2 fragCoord = gl_FragCoord.xy;
+    vec2 uv = fragCoord.xy / iResolution.xy;
+    vec2 space = (fragCoord - iResolution.xy / 2.0) / iResolution.x * 2.0 * scale;
+
+    float horizontalFade = 1.0 - (cos(uv.x * 6.28) * 0.5 + 0.5);
+    float verticalFade = 1.0 - (cos(uv.y * 6.28) * 0.5 + 0.5);
+
+    space.y += random(space.x * warpFrequency + iTime * warpSpeed) * warpAmplitude * (0.5 + horizontalFade);
+    space.x += random(space.y * warpFrequency + iTime * warpSpeed + 2.0) * warpAmplitude * horizontalFade;
+
+    vec4 lines = vec4(0.0);
+    vec4 bgColor1 = vec4(0.08, 0.09, 0.22, 1.0);
+    vec4 bgColor2 = vec4(0.22, 0.1, 0.42, 1.0);
+
+    for(int l = 0; l < linesPerGroup; l++) {
+      float normalizedLineIndex = float(l) / float(linesPerGroup);
+      float offsetTime = iTime * offsetSpeed;
+      float offsetPosition = float(l) + space.x * offsetFrequency;
+      float rand = random(offsetPosition + offsetTime) * 0.5 + 0.5;
+      float halfWidth = mix(minLineWidth, maxLineWidth, rand * horizontalFade) / 2.0;
+      float offset = random(offsetPosition + offsetTime * (1.0 + normalizedLineIndex)) * mix(minOffsetSpread, maxOffsetSpread, horizontalFade);
+      float linePosition = getPlasmaY(space.x, horizontalFade, offset);
+      float line = drawSmoothLine(linePosition, halfWidth, space.y) / 2.0 + drawCrispLine(linePosition, halfWidth * 0.15, space.y);
+
+      float circleX = mod(float(l) + iTime * lineSpeed, 25.0) - 12.0;
+      vec2 circlePosition = vec2(circleX, getPlasmaY(circleX, horizontalFade, offset));
+      float circle = drawCircle(circlePosition, 0.01, space) * 3.5;
+
+      line = line + circle;
+      lines += line * lineColor * rand * 0.55;
+    }
+
+    vec4 fragColor = mix(bgColor1, bgColor2, uv.x);
+    float textScrim = smoothstep(0.0, 0.55, uv.x);
+    fragColor = mix(fragColor, vec4(0.05, 0.06, 0.14, 1.0), textScrim * 0.42);
+    fragColor *= verticalFade * 0.92 + 0.08;
+    fragColor.a = 1.0;
+    fragColor += lines;
+    gl_FragColor = fragColor;
+  }
+`;
+
+/** Light-theme variant — soft violet waves on near-white */
+const fsSourceLight = `
   precision highp float;
   uniform vec2 iResolution;
   uniform float iTime;
@@ -121,28 +205,51 @@ function initShaderProgram(gl: WebGLRenderingContext, vs: string, fs: string) {
   return program;
 }
 
+export type ShaderBackgroundVariant = "light" | "dark";
+
 type ShaderBackgroundProps = {
   className?: string;
+  /** `dark` = original indigo plasma; `light` = soft SaaS backdrop */
+  variant?: ShaderBackgroundVariant;
+};
+
+const FALLBACK: Record<ShaderBackgroundVariant, string> = {
+  dark: "bg-gradient-to-br from-[#0a0a24] via-[#14082e] to-[#1e0a3a]",
+  light: "bg-gradient-to-br from-[#f7f8ff] via-[#f0f2fa] to-[#e8ecfa]",
+};
+
+const CANVAS_CLASS: Record<ShaderBackgroundVariant, string> = {
+  dark: "h-full w-full",
+  light: "h-full w-full opacity-[0.55] mix-blend-multiply",
 };
 
 /** Animated shader — scoped to parent; pauses when off-screen. */
-export function ShaderBackground({ className }: ShaderBackgroundProps) {
+export function ShaderBackground({ className, variant = "dark" }: ShaderBackgroundProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
   const rafRef = useRef<number>(0);
   const visibleRef = useRef(true);
+  const [reducedMotion, setReducedMotion] = useState(false);
 
   useEffect(() => {
+    const mql = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const update = () => setReducedMotion(mql.matches);
+    update();
+    mql.addEventListener("change", update);
+    return () => mql.removeEventListener("change", update);
+  }, []);
+
+  useEffect(() => {
+    if (reducedMotion) return;
+
     const wrap = wrapRef.current;
     const canvas = canvasRef.current;
     if (!wrap || !canvas) return;
 
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reducedMotion) return;
-
     const gl = canvas.getContext("webgl", { alpha: true, antialias: false });
     if (!gl) return;
 
+    const fsSource = variant === "dark" ? fsSourceDark : fsSourceLight;
     const program = initShaderProgram(gl, vsSource, fsSource);
     if (!program) return;
 
@@ -202,14 +309,20 @@ export function ShaderBackground({ className }: ShaderBackgroundProps) {
       observer.disconnect();
       ro.disconnect();
     };
-  }, []);
+  }, [variant, reducedMotion]);
+
+  if (reducedMotion) {
+    return (
+      <div
+        className={cn("absolute inset-0 overflow-hidden", FALLBACK[variant], className)}
+        aria-hidden
+      />
+    );
+  }
 
   return (
     <div ref={wrapRef} className={cn("absolute inset-0 overflow-hidden", className)} aria-hidden>
-      <canvas
-        ref={canvasRef}
-        className="h-full w-full opacity-[0.42] mix-blend-multiply"
-      />
+      <canvas ref={canvasRef} className={CANVAS_CLASS[variant]} />
     </div>
   );
 }

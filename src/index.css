@@ -1545,18 +1545,22 @@ html.dark .portal-glass-header {
   background: hsl(var(--muted) / 0.35);
 }
 
-.marketing-photo-banner--strip {
-  min-height: clamp(240px, 38vw, 360px);
-  max-height: min(58vh, 480px);
+/* Type A full-width strips (~1643×957) — edge-to-edge, full artwork, no crop */
+.marketing-banner-bleed--strip {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1643 / 957;
+  padding: 0;
+  background: hsl(var(--muted) / 0.2);
 }
 
-.marketing-banner-bleed .marketing-photo-banner--strip {
+.marketing-photo-banner--strip {
   width: 100%;
-  height: clamp(240px, 38vw, 360px);
-  max-height: min(58vh, 480px);
-  min-height: clamp(240px, 38vw, 360px);
-  transform: scale(0.82);
-  transform-origin: center center;
+  height: 100%;
+  max-height: none;
+  min-height: 0;
+  object-fit: contain;
+  object-position: center center;
 }
 
 .marketing-photo-banner--card {
@@ -1645,5 +1649,115 @@ html.dark .portal-glass-header {
 @media (prefers-reduced-motion: reduce) {
   .bharatgo-how-it-works [data-motion] {
     animation: none !important;
+  }
+}
+
+/* Liquid glass — GlassButton / GlassPanel (molecule-style) */
+.glass-button-wrap,
+.glass-panel-wrap {
+  position: relative;
+  z-index: 1;
+  isolation: isolate;
+}
+
+.glass-button,
+.glass-panel {
+  position: relative;
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.2) 0%,
+    rgba(255, 255, 255, 0.06) 45%,
+    rgba(255, 255, 255, 0.12) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.4),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.15),
+    0 16px 48px rgba(0, 0, 0, 0.32);
+  -webkit-backdrop-filter: blur(24px) saturate(1.5);
+  backdrop-filter: blur(24px) saturate(1.5);
+  transition:
+    box-shadow 0.3s ease,
+    transform 0.3s ease,
+    border-color 0.3s ease;
+}
+
+.glass-button::before,
+.glass-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    165deg,
+    rgba(255, 255, 255, 0.28) 0%,
+    transparent 38%,
+    transparent 62%,
+    rgba(255, 255, 255, 0.08) 100%
+  );
+  pointer-events: none;
+}
+
+.glass-button > *,
+.glass-panel > * {
+  position: relative;
+  z-index: 1;
+}
+
+.glass-button {
+  cursor: pointer;
+}
+
+.glass-button:hover {
+  border-color: rgba(255, 255, 255, 0.38);
+  box-shadow:
+    inset 0 1px 2px rgba(255, 255, 255, 0.5),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.12),
+    0 20px 56px rgba(0, 0, 0, 0.38);
+}
+
+.glass-button:active {
+  transform: scale(0.98);
+}
+
+.glass-button-text {
+  color: inherit;
+}
+
+.glass-button-shadow,
+.glass-panel-shadow {
+  --glass-shadow-cutoff: 1.75rem;
+  position: absolute;
+  z-index: 0;
+  top: calc(0% - var(--glass-shadow-cutoff) / 2);
+  left: calc(0% - var(--glass-shadow-cutoff) / 2);
+  width: calc(100% + var(--glass-shadow-cutoff));
+  height: calc(100% + var(--glass-shadow-cutoff));
+  overflow: visible;
+  pointer-events: none;
+  filter: blur(clamp(10px, 0.65em, 22px));
+  -webkit-filter: blur(clamp(10px, 0.65em, 22px));
+  opacity: 0.9;
+}
+
+.glass-button-shadow::after,
+.glass-panel-shadow::after {
+  content: "";
+  position: absolute;
+  inset: 12%;
+  border-radius: inherit;
+  background: linear-gradient(
+    180deg,
+    rgba(139, 92, 246, 0.45) 0%,
+    rgba(30, 20, 60, 0.55) 55%,
+    rgba(0, 0, 0, 0.4) 100%
+  );
+}
+
+@supports not (backdrop-filter: blur(1px)) {
+  .glass-button,
+  .glass-panel {
+    background: rgba(22, 18, 42, 0.88);
   }
 }
