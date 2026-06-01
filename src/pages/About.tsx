@@ -1,209 +1,87 @@
-import { Card } from "@/components/ui/card";
-import { CheckCircle, Users, Award, TrendingUp, Heart } from "lucide-react";
-import { motion } from "framer-motion";
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
-import MarketingLayout from "@/components/marketing/MarketingLayout";
-import { FadeInSection } from "@/components/marketing/FadeInSection";
-import MarketingPageHero from "@/components/marketing/MarketingPageHero";
-import { MarketingGradientSplitCta } from "@/components/marketing/MarketingGradientSplitCta";
-import { MarketingCollapsibleText } from "@/components/marketing/MarketingCollapsibleText";
+import { Button } from "@/components/ui/button";
+import { MarketingSaasShell } from "@/components/marketing/MarketingSaasShell";
+import { MarketingSaasPageHero } from "@/components/marketing/MarketingSaasPageHero";
+import { MarketingSaasSection } from "@/components/marketing/MarketingSaasSection";
+import { MarketingBrandedBanner } from "@/components/marketing/MarketingBrandedBanner";
+import { MarketingIllustrationFrame } from "@/components/marketing/MarketingIllustrationFrame";
+import { MarketingCartoonArt } from "@/components/marketing/MarketingCartoonArt";
+import { BharatGoPastelFeatureCards } from "@/components/marketing/bharatgo/BharatGoPastelFeatureCards";
+import { BharatGoMarketStats } from "@/components/marketing/bharatgo/BharatGoMarketStats";
+import { BharatGoCoreValues } from "@/components/marketing/bharatgo/BharatGoCoreValues";
+import { BharatGoTeamGrid } from "@/components/marketing/bharatgo/BharatGoTeamGrid";
+import { BharatGoOfficeGallery } from "@/components/marketing/bharatgo/BharatGoOfficeGallery";
+import { BharatGoTestimonials } from "@/components/marketing/bharatgo/BharatGoTestimonials";
+import { BharatGoHowItWorks } from "@/components/marketing/bharatgo/BharatGoHowItWorks";
+import { aboutPastelCards } from "@/lib/marketingPastelContent";
+import { marketingBanners } from "@/lib/marketingPastelColors";
+import { Link } from "react-router-dom";
+import { ArrowRight } from "lucide-react";
 
-const About = () => {
-  return (
-    <MarketingLayout showGeometry>
-      <Navbar />
+const About = () => (
+  <MarketingSaasShell>
+    <MarketingSaasPageHero
+      eyebrow="About us"
+      align="left"
+      illustration={
+        <MarketingIllustrationFrame tone="lavender" className="w-full">
+          <MarketingCartoonArt variant="team" size="hero" />
+        </MarketingIllustrationFrame>
+      }
+      illustrationTone="lavender"
+      title="Empowering ethical, structured hiring"
+      subtitle="We're on a mission to help employers and candidates succeed through transparent recruitment workflows — powered by Ellure NexHire."
+    />
 
-      <MarketingPageHero
-        imageSrc="/about-banner.jpg"
-        align="left"
-        title={<span className="gold-text">About Us</span>}
-        subtitle={<>Building <span className="gold-text">structured, ethical, and scalable</span> hiring experiences.</>}
-      />
-
-      {/* Section 1: Our History */}
-      <section className="marketing-section">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="max-w-4xl mx-auto"
-        >
-          <h2 className="text-3xl font-bold text-center mb-6">Our Journey</h2>
-          <Card className="p-6 sm:p-8 md:p-12 card-hover border-2 border-border shadow-md hover:shadow-xl hover:border-primary/60 transition-all duration-300">
-            <MarketingCollapsibleText className="space-y-4 text-muted-foreground leading-relaxed">
-              <p className="text-lg">
-                Ellure was founded with a clear purpose — to bring structure, transparency, and accountability into hiring processes.
-              </p>
-              <p className="text-lg">
-                Over the years, we have supported organisations across industries by focusing on relevance, coordination, and ethical hiring practices.
-              </p>
-              <p className="text-lg">
-                As hiring needs evolved, Ellure Nexhire was developed as a technology platform to enable scalable, process-driven recruitment workflows.
-              </p>
-            </MarketingCollapsibleText>
-          </Card>
-        </motion.div>
-      </section>
-
-      {/* Section 2: Our Mission */}
-      <section className="relative py-10 overflow-hidden">
-        <div className="absolute inset-0 bg-muted/30" />
-        <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-border to-transparent" />
-        
-        <div className="container relative">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="max-w-3xl mx-auto text-center"
-          >
-            <h2 className="text-3xl font-bold mb-6">Our Mission</h2>
-            <Card className="p-8 card-hover border-2 border-border shadow-md hover:shadow-xl hover:border-primary/60 transition-all duration-300">
-              <p className="text-lg text-muted-foreground leading-relaxed">
-                To enable organisations and candidates to experience efficient, transparent, and ethical hiring through structured workflows and technology-enabled collaboration.
-              </p>
-            </Card>
-          </motion.div>
+    <MarketingSaasSection eyebrow="About us" title="Simplifying recruitment" align="left">
+      <div className="grid gap-8 lg:grid-cols-2 lg:items-center">
+        <div className="space-y-4 text-muted-foreground leading-relaxed">
+          <p>
+            Ellure was founded with a simple belief: hiring should be structured, transparent, and accountable —
+            for employers and candidates alike.
+          </p>
+          <p>
+            In a market where scattered spreadsheets and bulk resumes slow everyone down, we built Ellure NexHire
+            to bring role alignment, screening, and coordination into one platform. No chaos — just clear steps
+            from intake to shortlist.
+          </p>
+          <p>
+            We're proud to support organisations across IT, BFSI, pharma, telecom, retail, and more — combining
+            Ellure Consulting Services' recruitment expertise with technology built for Indian hiring teams.
+          </p>
+          <Button className="rounded-full" variant="outline" asChild>
+            <Link to="/showcase">
+              See platform showcase
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Link>
+          </Button>
         </div>
-      </section>
+        <MarketingIllustrationFrame tone="sky" className="w-full lg:ml-auto">
+          <MarketingCartoonArt variant="recruiter" size="showcase" />
+        </MarketingIllustrationFrame>
+      </div>
+    </MarketingSaasSection>
 
-      {/* Section 3: Our Vision */}
-      <section className="marketing-section">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="max-w-3xl mx-auto text-center"
-        >
-          <h2 className="text-3xl font-bold mb-6">Our Vision</h2>
-          <Card className="p-8 card-hover border-2 border-border shadow-md hover:shadow-xl hover:border-primary/60 transition-all duration-300">
-            <p className="text-lg text-muted-foreground leading-relaxed">
-              To become a trusted hiring ecosystem where employers and candidates engage through clarity, relevance, and long-term value.
-            </p>
-          </Card>
-        </motion.div>
-      </section>
+    <MarketingBrandedBanner imageSrc={marketingBanners.about} alt="About Ellure NexHire" />
 
-      {/* Section 4: Our Values */}
-      <section className="relative py-10 overflow-hidden">
-        <div className="absolute inset-0 bg-muted/30" />
-        <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-border to-transparent" />
-        
-        <div className="container relative">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="max-w-4xl mx-auto"
-          >
-            <h2 className="text-3xl font-bold text-center mb-8">Our Values</h2>
-            <div className="grid md:grid-cols-2 gap-6">
-              {[
-                { title: "Ethical Hiring", desc: "Transparency and fairness at every stage" },
-                { title: "Quality Over Quantity", desc: "Relevance matters more than volume" },
-                { title: "Accountability", desc: "Clear ownership and timely communication" },
-                { title: "Collaboration", desc: "Working closely with clients and candidates" },
-              ].map((value, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
-                >
-                  <Card className="p-6 card-hover border-2 border-border shadow-md hover:shadow-xl hover:border-primary/60 transition-all duration-300">
-                    <h3 className="font-semibold text-lg mb-2">{value.title}</h3>
-                    <p className="text-muted-foreground">{value.desc}</p>
-                  </Card>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-        </div>
-      </section>
+    <BharatGoPastelFeatureCards cards={aboutPastelCards} className="!py-10 sm:!py-12" />
 
-      {/* Section 5: Why Choose Ellure */}
-      <section className="marketing-section">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="max-w-5xl mx-auto"
-        >
-          <h2 className="text-3xl font-bold text-center mb-8">Why Choose Ellure</h2>
-          <div className="grid md:grid-cols-2 gap-6">
-            {[
-              {
-                icon: TrendingUp,
-                title: "10+ Years of Deep Industry Knowledge",
-                description: "Hands-on experience supporting hiring across multiple sectors and roles."
-              },
-              {
-                icon: Users,
-                title: "Strong Process & Platform Approach",
-                description: "Human coordination supported by structured workflows and technology."
-              },
-              {
-                icon: CheckCircle,
-                title: "Quality-Focused Delivery",
-                description: "Shortlists based on relevance, not bulk submissions."
-              },
-              {
-                icon: Award,
-                title: "Higher Success Ratio",
-                description: "Consistent closures driven by clarity, coordination, and follow-through."
-              },
-              {
-                icon: Heart,
-                title: "Ready to Work With You",
-                description: "Flexible, responsive, and aligned to your hiring timelines.",
-                fullWidth: true
-              }
-            ].map((item, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                className={item.fullWidth ? "md:col-span-2" : ""}
-              >
-                <Card className="p-6 card-hover group border-2 border-border shadow-md hover:shadow-xl hover:border-primary/60 transition-all duration-300">
-                  <div className="flex gap-4">
-                    <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 transition-all duration-300 group-hover:scale-110 group-hover:bg-primary/20">
-                      <item.icon className="h-6 w-6 text-primary" />
-                    </div>
-                    <div className="space-y-2">
-                      <h3 className="font-semibold text-lg">{item.title}</h3>
-                      <p className="text-sm text-muted-foreground">{item.description}</p>
-                    </div>
-                  </div>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
-      </section>
+    <BharatGoMarketStats />
 
-      <section className="marketing-section">
-        <MarketingGradientSplitCta
-          headline="Ready to work with us?"
-          subtitle="Structured, ethical, and scalable hiring — for teams hiring talent and professionals building careers."
-          employer={{
-            ctaLabel: "Get in touch",
-            ctaHref: "/contact",
-          }}
-          applicant={{
-            ctaLabel: "Explore opportunities",
-            ctaHref: "/auth/register",
-          }}
-        />
-      </section>
+    <BharatGoCoreValues />
 
-      <Footer />
-    </MarketingLayout>
-  );
-};
+    <BharatGoHowItWorks
+      className="bg-[#FFFBF7]"
+      eyebrow="Process"
+      title="How we work with you"
+      subtitle="Four steps from role alignment to delivery — the same process on our Services page."
+    />
+
+    <BharatGoTeamGrid />
+
+    <BharatGoTestimonials />
+
+    <BharatGoOfficeGallery />
+  </MarketingSaasShell>
+);
 
 export default About;

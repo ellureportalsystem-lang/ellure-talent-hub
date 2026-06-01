@@ -39,18 +39,21 @@ export function TrustLogoMarquee({
 
   return (
     <section
-      className={cn("border-b bg-muted/20 py-6 md:py-8", className)}
+      className={cn(
+        "border-y border-[#d4e2fc] bg-[#E9F0FF] py-8 md:py-10",
+        className
+      )}
       aria-label="Industries we serve"
     >
       <div className="container px-4 sm:px-6">
-        <p className="mb-5 text-center text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+        <p className="mb-6 text-center text-sm font-semibold uppercase tracking-[0.16em] text-primary">
           {title}
         </p>
       </div>
 
       <div className="marketing-logo-marquee relative overflow-hidden">
-        <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-muted/20 to-transparent sm:w-24" />
-        <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-muted/20 to-transparent sm:w-24" />
+        <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-[#E9F0FF] to-transparent sm:w-24" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-[#E9F0FF] to-transparent sm:w-24" />
 
         <div className="marketing-logo-marquee-track flex w-max items-center gap-4 sm:gap-6">
           {track.map((brand, index) => {

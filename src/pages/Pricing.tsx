@@ -1,25 +1,30 @@
-import MarketingLayout from "@/components/marketing/MarketingLayout";
+import { MarketingSaasShell } from "@/components/marketing/MarketingSaasShell";
+import { MarketingSaasPageHero } from "@/components/marketing/MarketingSaasPageHero";
 import { PageMeta } from "@/components/marketing/PageMeta";
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
-import MarketingPageHero from "@/components/marketing/MarketingPageHero";
 import { PricingSection } from "@/components/marketing/PricingSection";
+import { MarketingCartoonArt } from "@/components/marketing/MarketingCartoonArt";
+import { MarketingIllustrationFrame } from "@/components/marketing/MarketingIllustrationFrame";
 
 const Pricing = () => (
-  <MarketingLayout showGeometry>
+  <MarketingSaasShell>
     <PageMeta
       title="Pricing — Ellure NexHire"
       description="Flexible subscription plans for recruiters. CV downloads, job postings, and team collaboration."
     />
-    <Navbar />
-    <MarketingPageHero
-      imageSrc="/services-banner.jpg"
+    <MarketingSaasPageHero
+      eyebrow="Pricing"
+      align="left"
+      illustration={
+        <MarketingIllustrationFrame tone="peach" className="w-full max-w-md">
+          <MarketingCartoonArt variant="candidates" size="hero" />
+        </MarketingIllustrationFrame>
+      }
+      illustrationTone="peach"
       title="Pricing built for growing teams"
       subtitle="Start free, upgrade as you scale. No hidden fees."
     />
-    <PricingSection showComparison />
-    <Footer />
-  </MarketingLayout>
+    <PricingSection />
+  </MarketingSaasShell>
 );
 
 export default Pricing;

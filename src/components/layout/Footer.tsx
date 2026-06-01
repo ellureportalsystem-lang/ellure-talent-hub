@@ -18,6 +18,8 @@ const quickLinks = [
   { to: "/services", label: "Services" },
   { to: "/industries", label: "Industries" },
   { to: "/features", label: "Features" },
+  { to: "/showcase", label: "Showcase" },
+  { to: "/contact", label: "Contact" },
   { to: "/faq", label: "FAQ" },
 ];
 
@@ -36,14 +38,22 @@ const applicantLinks = [
   { to: "/faq", label: "Candidate FAQ" },
 ];
 
-const Footer = () => {
+type FooterProps = {
+  variant?: "dark" | "light";
+};
+
+const Footer = ({ variant = "dark" }: FooterProps) => {
   const { pathname } = useLocation();
-  const hideOnMobile = pathname !== "/";
+  const hideOnMobile = variant === "dark" && pathname !== "/";
+  const isLight = variant === "light";
 
   return (
   <footer
     className={cn(
-      "marketing-footer-dark relative z-[1] border-t border-white/5",
+      "relative z-[1] border-t",
+      isLight
+        ? "border-border bg-muted/30 text-foreground"
+        : "marketing-footer-dark border-white/5",
       hideOnMobile && "hidden md:block"
     )}
   >
@@ -58,11 +68,25 @@ const Footer = () => {
               className="h-11 w-auto object-contain transition-transform duration-300 group-hover:scale-105 sm:h-12"
             />
             <div className="flex flex-col leading-none">
-              <span className="text-lg font-bold text-white">Ellure</span>
-              <span className="-mt-0.5 text-lg font-bold text-[#5eb8e8]">NexHire</span>
+              <span className={cn("text-lg font-bold", isLight ? "text-foreground" : "text-white")}>
+                Ellure
+              </span>
+              <span
+                className={cn(
+                  "-mt-0.5 text-lg font-bold",
+                  isLight ? "text-primary" : "text-[#5eb8e8]"
+                )}
+              >
+                NexHire
+              </span>
             </div>
           </Link>
-          <p className="marketing-footer-muted max-w-xs text-sm leading-relaxed">
+          <p
+            className={cn(
+              "max-w-xs text-sm leading-relaxed",
+              isLight ? "text-muted-foreground" : "marketing-footer-muted"
+            )}
+          >
             Connecting exceptional talent with leading organizations through precision-driven,
             ethical recruitment — across IT, BFSI, pharma, telecom, and more.
           </p>
@@ -98,7 +122,11 @@ const Footer = () => {
                 href={href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`touch-target flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white/80 ring-1 ring-white/10 transition-all duration-300 hover:scale-105 ${className}`}
+                className={`touch-target flex h-11 w-11 items-center justify-center rounded-full transition-all duration-300 hover:scale-105 ${
+                  isLight
+                    ? "bg-muted text-foreground ring-1 ring-border"
+                    : `bg-white/10 text-white/80 ring-1 ring-white/10 ${className}`
+                }`}
                 aria-label={label}
               >
                 <Icon className="h-5 w-5" />
@@ -109,13 +137,23 @@ const Footer = () => {
 
         {/* Quick links */}
         <div className="space-y-4 lg:col-span-2">
-          <h4 className="text-sm font-semibold uppercase tracking-wider text-white">Quick links</h4>
+          <h4
+            className={cn(
+              "text-sm font-semibold uppercase tracking-wider",
+              isLight ? "text-foreground" : "text-white"
+            )}
+          >
+            Quick links
+          </h4>
           <ul className="space-y-2.5">
             {quickLinks.map((link) => (
               <li key={link.to}>
                 <Link
                   to={link.to}
-                  className="marketing-footer-muted group inline-flex text-sm transition-colors"
+                  className={cn(
+                    "group inline-flex text-sm transition-colors",
+                    isLight ? "text-muted-foreground hover:text-primary" : "marketing-footer-muted"
+                  )}
                 >
                   <span className="transition-transform duration-300 group-hover:translate-x-0.5">
                     {link.label}
@@ -128,11 +166,24 @@ const Footer = () => {
 
         {/* Employers */}
         <div className="space-y-4 lg:col-span-2">
-          <h4 className="text-sm font-semibold uppercase tracking-wider text-white">For employers</h4>
+          <h4
+            className={cn(
+              "text-sm font-semibold uppercase tracking-wider",
+              isLight ? "text-foreground" : "text-white"
+            )}
+          >
+            For employers
+          </h4>
           <ul className="space-y-2.5">
             {employerLinks.map((link) => (
               <li key={link.to}>
-                <Link to={link.to} className="marketing-footer-muted text-sm transition-colors">
+                <Link
+                  to={link.to}
+                  className={cn(
+                    "text-sm transition-colors",
+                    isLight ? "text-muted-foreground hover:text-primary" : "marketing-footer-muted"
+                  )}
+                >
                   {link.label}
                 </Link>
               </li>
@@ -142,7 +193,14 @@ const Footer = () => {
 
         {/* Applicants */}
         <div className="space-y-4 lg:col-span-2">
-          <h4 className="text-sm font-semibold uppercase tracking-wider text-white">For applicants</h4>
+          <h4
+            className={cn(
+              "text-sm font-semibold uppercase tracking-wider",
+              isLight ? "text-foreground" : "text-white"
+            )}
+          >
+            For applicants
+          </h4>
           <ul className="space-y-2.5">
             {applicantLinks.map((link) => (
               <li key={link.to}>

@@ -15,6 +15,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 import Landing from "./pages/Landing";
 import About from "./pages/About";
+import Showcase from "./pages/Showcase";
 import Services from "./pages/Services";
 import Features from "./pages/Features";
 import Industries from "./pages/Industries";
@@ -76,6 +77,7 @@ const App = () => (
                 <Routes>
                   <Route path="/" element={<ForceLightTheme><Landing /></ForceLightTheme>} />
                   <Route path="/about" element={<ForceLightTheme><About /></ForceLightTheme>} />
+                  <Route path="/showcase" element={<ForceLightTheme><Showcase /></ForceLightTheme>} />
                   <Route path="/services" element={<ForceLightTheme><Services /></ForceLightTheme>} />
                   <Route path="/features" element={<ForceLightTheme><Features /></ForceLightTheme>} />
                   <Route path="/industries" element={<ForceLightTheme><Industries /></ForceLightTheme>} />

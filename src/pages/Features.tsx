@@ -1,267 +1,133 @@
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { FileCheck, TrendingUp, Users, Shield, Building2, Zap, ArrowRight, CheckCircle, Search, MessageSquare } from "lucide-react";
-import { useState } from "react";
-import { motion } from "framer-motion";
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
-import MarketingLayout from "@/components/marketing/MarketingLayout";
-import MarketingPageHero from "@/components/marketing/MarketingPageHero";
-import { MarketingGradientSplitCta } from "@/components/marketing/MarketingGradientSplitCta";
+import { FileCheck, TrendingUp, Users, Shield, Zap, Search, MessageSquare, LayoutGrid } from "lucide-react";
+import { Link } from "react-router-dom";
+import { MarketingSaasShell } from "@/components/marketing/MarketingSaasShell";
+import { MarketingSaasPageHero } from "@/components/marketing/MarketingSaasPageHero";
+import { MarketingSaasSection } from "@/components/marketing/MarketingSaasSection";
+import { BharatGoFeatureGrid } from "@/components/marketing/bharatgo/BharatGoFeatureGrid";
+import { BharatGoPastelFeatureCards } from "@/components/marketing/bharatgo/BharatGoPastelFeatureCards";
+import { featuresPastelCards } from "@/lib/marketingPastelContent";
 
 const features = [
   {
     icon: FileCheck,
-    title: "Application Lifecycle Management",
-    shortDesc: "Tracks candidate journey end-to-end",
-    fullDesc: "Tracks candidate journey end-to-end. Mandatory for any serious hiring portal. HRs understand this immediately. Complete visibility into every stage of the application process from submission to final decision.",
-    benefits: ["End-to-end candidate tracking", "Stage-by-stage visibility", "HR-friendly interface", "Complete application history"]
+    title: "Application lifecycle management",
+    description:
+      "Tracks the candidate journey end-to-end with stage-by-stage visibility and complete application history.",
   },
   {
     icon: Search,
-    title: "Context-Based Matching Engine",
-    shortDesc: "Matches candidates by relevance, not keywords",
-    fullDesc: "Matches candidates by relevance, not keywords. Strong differentiator when explained properly. Avoids fake 'AI' claims. Intelligent matching that understands context and role requirements for better candidate fit.",
-    benefits: ["Relevance-based matching", "Context understanding", "Better candidate fit", "Transparent process"]
+    title: "Context-based matching",
+    description:
+      "Matches candidates by relevance and role context — not keyword stuffing — for better shortlist quality.",
   },
   {
     icon: MessageSquare,
-    title: "HR–Recruiter Collaboration Workspace",
-    shortDesc: "Private feedback & notes for ethical hiring",
-    fullDesc: "Private feedback & notes. Ethical, transparent hiring. Aligns with Ellure's brand values. Secure workspace for HR and recruiters to collaborate, share feedback, and maintain transparent communication throughout the hiring process.",
-    benefits: ["Private feedback system", "Secure collaboration", "Transparent communication", "Ethical hiring practices"]
+    title: "HR–recruiter collaboration",
+    description:
+      "Private feedback and notes in a secure workspace aligned with ethical, transparent hiring practices.",
   },
   {
     icon: Users,
-    title: "Controlled Bulk Actions",
-    shortDesc: "Saves recruiter time with enterprise-safe limits",
-    fullDesc: "Saves recruiter time. Prevents spam & misuse. Enterprise-safe. Controlled bulk operations with built-in limits to ensure quality and prevent abuse while maintaining efficiency for recruiters.",
-    benefits: ["Time-saving bulk operations", "Spam prevention", "Enterprise-safe limits", "Quality control"]
+    title: "Controlled bulk actions",
+    description:
+      "Enterprise-safe bulk operations with limits that save recruiter time without spam or misuse.",
   },
   {
     icon: TrendingUp,
-    title: "Essential Hiring Analytics",
-    shortDesc: "Actionable metrics without dashboard overload",
-    fullDesc: "Actionable metrics only. No dashboard overload. Builds trust with MNCs. Focused analytics that provide meaningful insights without overwhelming users with unnecessary data.",
-    benefits: ["Actionable insights", "Clean dashboard", "MNC-ready", "Trust-building metrics"]
+    title: "Essential hiring analytics",
+    description:
+      "Actionable metrics without dashboard overload — insights MNC teams can trust.",
   },
   {
     icon: Shield,
-    title: "Enterprise-Grade Security & Compliance",
-    shortDesc: "Non-negotiable for MNC clients",
-    fullDesc: "Non-negotiable for MNC clients. Data protection & access control. Silent credibility booster. Enterprise-grade security with comprehensive data protection, access controls, and compliance features that MNCs require.",
-    benefits: ["Data protection", "Access control", "MNC compliance", "Enterprise security"]
-  }
+    title: "Enterprise security & compliance",
+    description:
+      "Data protection, access control, and compliance-ready practices for sensitive hiring data.",
+  },
 ];
 
 const stats = [
-  { value: "80%", label: "Time Saved", desc: "In recruitment processes" },
+  { value: "80%", label: "Time saved", desc: "In recruitment processes" },
   { value: "95%", label: "Accuracy", desc: "In candidate matching" },
   { value: "50K+", label: "Profiles", desc: "Managed efficiently" },
-  { value: "24/7", label: "Support", desc: "Available when you need" }
+  { value: "24/7", label: "Support", desc: "Available when you need" },
 ];
 
-const Features = () => {
-  const [expandedFeature, setExpandedFeature] = useState<number | null>(null);
+const enterpriseHighlights = [
+  { icon: Shield, title: "Enterprise security", desc: "Encryption and compliance-ready controls" },
+  { icon: Zap, title: "Lightning fast", desc: "Optimized performance at any scale" },
+  { icon: Users, title: "Collaborative", desc: "Built for teams and stakeholders" },
+];
 
-  return (
-    <MarketingLayout showGeometry>
-      <Navbar />
+const Features = () => (
+  <MarketingSaasShell>
+    <MarketingSaasPageHero
+      eyebrow="Platform"
+      align="left"
+      productVisual="resume-search"
+      title="Platform features"
+      subtitle="Everything you need to manage recruitment at scale with efficiency, precision, and accountability."
+    />
 
-      <MarketingPageHero
-        imageSrc="/features-banner.jpg"
-        title={<> <span className="gold-text">Platform Features</span></>}
-        subtitle={<>Everything you need to manage recruitment at scale with <span className="gold-text">efficiency and precision</span></>}
-      />
+    <BharatGoPastelFeatureCards cards={featuresPastelCards} className="!py-10 sm:!py-12" />
 
-      {/* Features Grid */}
-      <section className="marketing-section">
-        <motion.div 
-          className="text-center space-y-4 mb-8"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-        >
-          <span className="text-sm font-medium text-primary uppercase tracking-wider">Explore</span>
-          <h2 className="text-3xl font-bold">Powerful Features</h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            Click on any feature to explore its capabilities and key benefits
-          </p>
-        </motion.div>
-        
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {features.map((feature, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.1 }}
-              onClick={() => setExpandedFeature(expandedFeature === index ? null : index)}
-              className="cursor-pointer"
-            >
-              <Card className={`p-6 h-full card-hover group border-2 transition-all duration-300 shadow-md hover:shadow-xl ${
-                expandedFeature === index 
-                  ? 'border-primary shadow-xl' 
-                  : 'border-border hover:border-primary/60'
-              }`}>
-                <div className="space-y-4">
-                  <div className={`h-14 w-14 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-110 ${
-                    expandedFeature === index ? "bg-primary text-primary-foreground" : "bg-primary/10"
-                  }`}>
-                    <feature.icon className={`h-7 w-7 ${expandedFeature === index ? "" : "text-primary"}`} />
-                  </div>
-                  <h3 className="font-semibold text-xl">{feature.title}</h3>
-                  
-                  <div className="overflow-hidden">
-                    <motion.div
-                      initial={false}
-                      animate={{
-                        height: expandedFeature === index ? "auto" : 0,
-                        opacity: expandedFeature === index ? 1 : 0,
-                      }}
-                      transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-                      className="space-y-4"
-                    >
-                      <p className="text-muted-foreground">{feature.fullDesc}</p>
-                      <div className="space-y-2">
-                        <p className="text-sm font-semibold text-foreground">Key Benefits:</p>
-                        <ul className="space-y-1">
-                          {feature.benefits.map((benefit, idx) => (
-                            <li key={idx} className="text-sm text-muted-foreground flex items-center gap-2">
-                              <CheckCircle className="h-4 w-4 text-success flex-shrink-0" />
-                              {benefit}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    </motion.div>
-                    <motion.p
-                      initial={false}
-                      animate={{
-                        height: expandedFeature === index ? 0 : "auto",
-                        opacity: expandedFeature === index ? 0 : 1,
-                      }}
-                      transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-                      className="text-sm text-muted-foreground"
-                    >
-                      {feature.shortDesc}
-                    </motion.p>
-                  </div>
-                  
-                  <p className="text-xs text-primary font-medium flex items-center gap-1">
-                    {expandedFeature === index ? "Click to collapse" : "Click to expand"}
-                    <ArrowRight className={`h-3 w-3 transition-transform duration-300 ${
-                      expandedFeature === index ? "rotate-90" : ""
-                    }`} />
-                  </p>
-                </div>
-              </Card>
-            </motion.div>
-          ))}
-        </div>
-      </section>
+    <MarketingSaasSection
+      title="Powerful features"
+      subtitle="Applicant tracking, matching, collaboration, analytics, and security — in one platform."
+    >
+      <BharatGoFeatureGrid embedded variant="pastel" features={features} />
+    </MarketingSaasSection>
 
-      {/* Stats Section */}
-      <section className="relative py-10 overflow-hidden">
-        <div className="absolute inset-0 bg-muted/30" />
-        <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-border to-transparent" />
-        
-        <div className="container relative">
-          <motion.div 
-            className="text-center space-y-4 mb-8"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <span className="text-sm font-medium text-primary uppercase tracking-wider">Results</span>
-            <h2 className="text-3xl font-bold">Platform Impact</h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              Real results from organizations using our platform
-            </p>
-          </motion.div>
-          
-          <div className="grid md:grid-cols-4 gap-6">
-            {stats.map((stat, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-              >
-                <Card className="p-6 text-center card-hover group border-2 border-border shadow-md hover:shadow-xl hover:border-primary/60 transition-all duration-300">
-                  <div className="text-4xl font-bold text-primary group-hover:scale-110 transition-transform duration-300">
-                    {stat.value}
-                  </div>
-                  <h3 className="font-semibold mt-2">{stat.label}</h3>
-                  <p className="text-sm text-muted-foreground mt-1">{stat.desc}</p>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
+    <MarketingSaasSection tone="muted" eyebrow="Results" title="Platform impact">
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        {stats.map((stat) => (
+          <Card key={stat.label} className="rounded-2xl border border-border p-6 text-center shadow-sm">
+            <div className="text-3xl font-bold text-primary sm:text-4xl">{stat.value}</div>
+            <h3 className="mt-2 font-semibold">{stat.label}</h3>
+            <p className="mt-1 text-sm text-muted-foreground">{stat.desc}</p>
+          </Card>
+        ))}
+      </div>
+    </MarketingSaasSection>
 
-      {/* Built for Enterprise */}
-      <section className="marketing-section">
-        <motion.div 
-          className="text-center space-y-4 mb-8"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-        >
-          <span className="text-sm font-medium text-primary uppercase tracking-wider">Enterprise Ready</span>
-          <h2 className="text-3xl font-bold">Built for Scale & Security</h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            Enterprise-grade features designed for scale and security
-          </p>
-        </motion.div>
-        
-        <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-          {[
-            { icon: Shield, title: "Enterprise Security", desc: "Bank-level encryption and compliance ready" },
-            { icon: Zap, title: "Lightning Fast", desc: "Optimized performance at any scale" },
-            { icon: Users, title: "Collaborative", desc: "Built for teams and stakeholders" },
-          ].map((item, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.1 }}
-            >
-              <Card className="p-8 text-center card-hover group border-2 border-border shadow-md hover:shadow-xl hover:border-primary/60 transition-all duration-300">
-                <div className="h-14 w-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4 transition-all duration-300 group-hover:scale-110 group-hover:bg-primary/20">
-                  <item.icon className="h-7 w-7 text-primary" />
-                </div>
-                <h3 className="font-semibold text-lg">{item.title}</h3>
-                <p className="text-sm text-muted-foreground mt-2">{item.desc}</p>
-              </Card>
-            </motion.div>
-          ))}
-        </div>
-      </section>
+    <MarketingSaasSection eyebrow="Enterprise ready" title="Built for scale & security">
+      <div className="mx-auto grid max-w-5xl gap-6 md:grid-cols-3">
+        {enterpriseHighlights.map((item) => {
+          const Icon = item.icon;
+          return (
+            <Card key={item.title} className="rounded-2xl border border-border p-8 text-center shadow-sm">
+              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary">
+                <Icon className="h-7 w-7" />
+              </div>
+              <h3 className="font-semibold text-lg">{item.title}</h3>
+              <p className="mt-2 text-sm text-muted-foreground">{item.desc}</p>
+            </Card>
+          );
+        })}
+      </div>
+    </MarketingSaasSection>
 
-      <section className="marketing-section">
-        <MarketingGradientSplitCta
-          headline="Ready to experience the platform?"
-          subtitle="Employers can schedule a walkthrough; candidates can register and access the applicant portal."
-          employer={{
-            title: "See it in action",
-            description: "Schedule a demo and explore analytics, bulk operations, and client collaboration tools.",
-            ctaLabel: "Schedule a demo",
-            ctaHref: "/contact",
-          }}
-          applicant={{
-            ctaLabel: "Create free account",
-            ctaHref: "/auth/register",
-          }}
-        />
-      </section>
-
-      <Footer />
-    </MarketingLayout>
-  );
-};
+    <MarketingSaasSection
+      tone="muted"
+      eyebrow="Explore"
+      title="See the platform in action"
+      subtitle="Walk through screens, workflows, and UI patterns — or talk to our team about your hiring needs."
+    >
+      <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
+        <Button asChild size="lg" className="h-12 rounded-full px-8 font-semibold">
+          <Link to="/showcase">
+            <LayoutGrid className="mr-2 h-4 w-4" />
+            Platform showcase
+          </Link>
+        </Button>
+        <Button asChild size="lg" variant="outline" className="h-12 rounded-full px-8 font-semibold">
+          <Link to="/contact">Contact sales</Link>
+        </Button>
+      </div>
+    </MarketingSaasSection>
+  </MarketingSaasShell>
+);
 
 export default Features;

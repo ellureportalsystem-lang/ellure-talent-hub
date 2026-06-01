@@ -1,39 +1,14 @@
 import { Button } from "@/components/ui/button";
 
-import {
-
-  NavigationMenu,
-
-  NavigationMenuContent,
-
-  NavigationMenuItem,
-
-  NavigationMenuLink,
-
-  NavigationMenuList,
-
-  NavigationMenuTrigger,
-
-  navigationMenuTriggerStyle,
-
-} from "@/components/ui/navigation-menu";
-
-import { MarketingNavMegaPanel } from "@/components/layout/MarketingNavMegaPanel";
+import { MarketingNavMegaDropdown } from "@/components/layout/MarketingNavMegaDropdown";
+import { industriesMegaMenu, servicesMegaMenu } from "@/lib/marketingNavMegaConfig";
 
 import { useNavbarScroll } from "@/hooks/useNavbarScroll";
 
 import { useNavbarScrollHide } from "@/hooks/useNavbarScrollHide";
 import { useIsLgUp } from "@/hooks/useIsLgUp";
 
-import {
-
-  INDUSTRY_NAV_ITEMS,
-
-  PRIMARY_NAV_LINKS,
-
-  SERVICE_NAV_ITEMS,
-
-} from "@/lib/marketingNavData";
+import { INDUSTRY_NAV_ITEMS, NAVBAR_PRIMARY_LINKS, SERVICE_NAV_ITEMS } from "@/lib/marketingNavData";
 
 import { cn } from "@/lib/utils";
 
@@ -42,29 +17,35 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown, Menu, X } from "lucide-react";
 
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 
 import { Link, useLocation } from "react-router-dom";
 
 
 
-const Navbar = () => {
+type NavbarProps = {
+  /** Always-light sticky bar (BharatGo-style homepage) */
+  variant?: "default" | "saas";
+};
 
+const Navbar = ({ variant = "default" }: NavbarProps) => {
   const location = useLocation();
-
-  const scrolled = useNavbarScroll(40);
-
+  const scrolled = useNavbarScroll(32);
   const isLgUp = useIsLgUp();
-  const navHidden = useNavbarScrollHide(72, isLgUp);
-
+  const navHidden = useNavbarScrollHide(72, isLgUp || variant === "saas");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
   const [mobileServicesOpen, setMobileServicesOpen] = useState(false);
-
   const [mobileIndustriesOpen, setMobileIndustriesOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
-
-  const isLightNav = scrolled || mobileMenuOpen;
+  const isSaas = variant === "saas";
+  const forceSolidNav = isSaas && location.pathname === "/contact";
+  const isSolidNav = scrolled || mobileMenuOpen || forceSolidNav;
+  const useLightText = !isSaas && !isSolidNav;
 
 
 
@@ -98,29 +79,22 @@ const Navbar = () => {
 
 
 
-  const linkClass = (href: string, extra?: string) =>
-
-    cn(
-
-      "relative rounded-md px-3 py-2 text-sm font-medium transition-colors duration-300",
-
-      location.pathname === href
-
-        ? isLightNav
-
-          ? "text-primary"
-
-          : "text-white"
-
-        : isLightNav
-
-          ? "text-muted-foreground hover:text-primary"
-
-          : "text-white/85 hover:text-white",
-
+  const linkClass = (href: string, extra?: string) => {
+    const isActive = location.pathname === href;
+    return cn(
+      "relative rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
+      isActive
+        ? useLightText
+          ? "bg-white/15 text-white"
+          : "bg-primary/10 text-primary font-semibold"
+        : useLightText
+          ? "text-white/90 hover:bg-white/10 hover:text-white"
+          : isSaas && !isSolidNav
+            ? "text-slate-800 hover:bg-white/70 hover:text-primary"
+            : "text-foreground/80 hover:bg-muted/80 hover:text-primary",
       extra
-
     );
+  };
 
 
 
@@ -140,21 +114,14 @@ const Navbar = () => {
 
 
 
-  const triggerClass = cn(
-
-    navigationMenuTriggerStyle(),
-
+  const megaTriggerClass = cn(
     "h-9 bg-transparent px-3 text-sm font-medium shadow-none",
-
-    isLightNav
-
-      ? "text-muted-foreground hover:bg-primary/5 hover:text-primary data-[state=open]:bg-primary/5 data-[state=open]:text-primary"
-
-      : "text-white/90 hover:bg-white/10 hover:text-white data-[state=open]:bg-white/10 data-[state=open]:text-white"
-
+    useLightText
+      ? "text-white/90 hover:bg-white/10 hover:text-white"
+      : isSaas && !isSolidNav
+        ? "text-slate-800 hover:bg-white/70 hover:text-primary data-[state=open]:bg-white/80 data-[state=open]:text-primary"
+        : "text-foreground/80 hover:bg-muted/80 hover:text-primary data-[state=open]:bg-primary/10 data-[state=open]:text-primary"
   );
-
-
 
   const closeMobile = () => {
 
@@ -168,293 +135,136 @@ const Navbar = () => {
 
 
 
+  const headerBar = (
+      <motion.header
+        className={cn(
+          "fixed inset-x-0 top-0 z-[200] w-full transition-all duration-300 ease-out pt-[env(safe-area-inset-top,0px)]",
+          isSolidNav
+            ? "border-b border-border/80 bg-white/95 shadow-sm backdrop-blur-xl supports-[backdrop-filter]:bg-white/90"
+            : "border-b border-transparent bg-transparent"
+        )}
+        initial={false}
+        animate={{ y: mobileMenuOpen || !navHidden ? 0 : -100 }}
+        transition={{ duration: 0.28, ease: [0.4, 0, 0.2, 1] }}
+      >
+        <div className="container flex h-14 items-center justify-between gap-4 px-4 sm:h-[4.25rem] sm:px-6">
+          <Link
+            to="/"
+            className="group flex min-w-0 shrink-0 items-center gap-2 sm:gap-2.5"
+          >
+            <img
+              src="/ellure-logo.png"
+              alt="Ellure NexHire"
+              className="h-10 w-10 shrink-0 object-contain transition-transform duration-300 group-hover:scale-105 sm:h-12 sm:w-12"
+            />
+            <span
+              className={cn(
+                "font-poppins whitespace-nowrap text-lg font-bold leading-none tracking-tight transition-colors sm:text-xl",
+                useLightText ? "text-white" : "text-foreground"
+              )}
+            >
+              <span className={useLightText ? "text-white" : "text-[#3d4853]"}>Ellure </span>
+              <span className={useLightText ? "text-white/95" : "text-primary"}>NexHire</span>
+            </span>
+          </Link>
+
+          {/* Desktop */}
+          <div className="hidden items-center gap-0.5 lg:flex">
+            <Link to="/" className={linkClass("/")}>
+              Home
+            </Link>
+            <MarketingNavMegaDropdown
+              label="Services"
+              config={servicesMegaMenu}
+              triggerClassName={megaTriggerClass}
+            />
+            <MarketingNavMegaDropdown
+              label="Industries"
+              config={industriesMegaMenu}
+              triggerClassName={megaTriggerClass}
+            />
+            {NAVBAR_PRIMARY_LINKS.map((item) => (
+              <Link key={item.href} to={item.href} className={linkClass(item.href)}>
+                {item.label}
+              </Link>
+            ))}
+
+            <div className="ml-2 flex items-center gap-2 pl-1">
+              <Button
+                asChild
+                size="sm"
+                variant="outline"
+                className={cn(
+                  "h-9 rounded-full px-4 font-medium transition-all",
+                  useLightText
+                    ? "border-white/35 bg-white/5 text-white hover:bg-white/15 hover:text-white"
+                    : "border-border hover:bg-muted"
+                )}
+              >
+                <Link to="/auth/login">Login</Link>
+              </Button>
+              <Button
+                asChild
+                size="sm"
+                className="h-9 rounded-full px-5 font-semibold shadow-md btn-glow-primary transition-all hover:shadow-lg"
+              >
+                <Link to={isSaas ? "/auth/register" : "/contact"}>
+                  {isSaas ? "Start for FREE" : "Hire Talent"}
+                </Link>
+              </Button>
+            </div>
+          </div>
+
+          {/* Tablet / phone */}
+          <div className="flex items-center gap-2 lg:hidden">
+            <Button
+              asChild
+              size="sm"
+              className={cn(
+                "hidden h-9 rounded-full px-4 text-xs font-semibold sm:inline-flex",
+                useLightText && "shadow-lg"
+              )}
+            >
+              <Link to={isSaas ? "/auth/register" : "/contact"}>
+                {isSaas ? "Start for FREE" : "Hire Talent"}
+              </Link>
+            </Button>
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className={cn(
+                "touch-target flex h-11 w-11 items-center justify-center rounded-full transition-colors active:scale-95",
+                useLightText ? "hover:bg-white/10" : "hover:bg-muted"
+              )}
+              aria-label="Toggle menu"
+              aria-expanded={mobileMenuOpen}
+            >
+              {mobileMenuOpen ? (
+                <X className={cn("h-6 w-6", useLightText ? "text-white" : "text-foreground")} />
+              ) : (
+                <Menu className={cn("h-6 w-6", useLightText ? "text-white" : "text-foreground")} />
+              )}
+            </button>
+          </div>
+        </div>
+      </motion.header>
+  );
+
   return (
 
     <>
 
-      <motion.header
-
-        className={cn(
-
-          "fixed top-0 z-50 w-full transition-all duration-300 ease-out pt-[env(safe-area-inset-top,0px)]",
-
-          isLightNav
-
-            ? "border-b border-border/80 bg-white/95 shadow-sm backdrop-blur-xl supports-[backdrop-filter]:bg-white/90"
-
-            : "border-b border-transparent bg-transparent"
-
+      {mounted
+        ? createPortal(headerBar, document.body)
+        : (
+          <div
+            className="pointer-events-none fixed inset-x-0 top-0 z-[200] h-14 sm:h-[4.25rem]"
+            aria-hidden
+          />
         )}
 
-        initial={false}
-
-        animate={{ y: mobileMenuOpen || !navHidden ? 0 : -100 }}
-
-        transition={{ duration: 0.28, ease: [0.4, 0, 0.2, 1] }}
-
-      >
-
-        <div className="container flex h-14 items-center justify-between gap-4 px-4 sm:h-[4.25rem] sm:px-6">
-
-          <Link to="/" className="group flex min-w-0 shrink-0 items-center gap-1.5">
-
-            <img
-
-              src="/ellure-logo.png"
-
-              alt="Ellure NexHire"
-
-              className="h-9 w-auto shrink-0 object-contain transition-transform duration-300 group-hover:scale-105 sm:h-11"
-
-            />
-
-            <div className="flex flex-col items-start leading-none">
-
-              <span
-
-                className={cn(
-
-                  "text-base font-bold transition-colors sm:text-lg",
-
-                  isLightNav ? "text-[#3d4853]" : "text-white"
-
-                )}
-
-              >
-
-                Ellure
-
-              </span>
-
-              <span
-
-                className={cn(
-
-                  "-mt-0.5 text-base font-bold transition-colors sm:-mt-1 sm:text-lg",
-
-                  isLightNav ? "text-[#0566cd]" : "text-white/95"
-
-                )}
-
-              >
-
-                NexHire
-
-              </span>
-
-            </div>
-
-          </Link>
-
-
-
-          {/* Desktop */}
-
-          <div className="hidden items-center gap-1 lg:flex">
-
-            <NavigationMenu delayDuration={80}>
-
-              <NavigationMenuList className="gap-0.5">
-
-                <NavigationMenuItem>
-
-                  <NavigationMenuLink asChild>
-
-                    <Link to="/" className={linkClass("/")}>
-
-                      Home
-
-                    </Link>
-
-                  </NavigationMenuLink>
-
-                </NavigationMenuItem>
-
-
-
-                <NavigationMenuItem>
-
-                  <NavigationMenuTrigger className={triggerClass}>Services</NavigationMenuTrigger>
-
-                  <NavigationMenuContent>
-
-                    <MarketingNavMegaPanel
-
-                      items={SERVICE_NAV_ITEMS}
-
-                      viewAllHref="/services"
-
-                      viewAllLabel="View all services"
-
-                    />
-
-                  </NavigationMenuContent>
-
-                </NavigationMenuItem>
-
-
-
-                <NavigationMenuItem>
-
-                  <NavigationMenuTrigger className={triggerClass}>Industries</NavigationMenuTrigger>
-
-                  <NavigationMenuContent>
-
-                    <MarketingNavMegaPanel
-
-                      items={INDUSTRY_NAV_ITEMS}
-
-                      viewAllHref="/industries"
-
-                      viewAllLabel="View all industries"
-
-                    />
-
-                  </NavigationMenuContent>
-
-                </NavigationMenuItem>
-
-
-
-                {PRIMARY_NAV_LINKS.filter((item) => item.href !== "/").map((item) => (
-
-                  <NavigationMenuItem key={item.href}>
-
-                    <NavigationMenuLink asChild>
-
-                      <Link to={item.href} className={linkClass(item.href)}>
-
-                        {item.label}
-
-                      </Link>
-
-                    </NavigationMenuLink>
-
-                  </NavigationMenuItem>
-
-                ))}
-
-              </NavigationMenuList>
-
-            </NavigationMenu>
-
-
-
-            <div className="ml-2 flex items-center gap-2 pl-1">
-
-              <Button
-
-                asChild
-
-                size="sm"
-
-                variant="outline"
-
-                className={cn(
-
-                  "h-9 rounded-full px-4 font-medium transition-all",
-
-                  isLightNav
-
-                    ? "border-border hover:bg-muted"
-
-                    : "border-white/35 bg-white/5 text-white hover:bg-white/15 hover:text-white"
-
-                )}
-
-              >
-
-                <Link to="/auth/login">Login</Link>
-
-              </Button>
-
-              <Button
-
-                asChild
-
-                size="sm"
-
-                className="h-9 rounded-full px-5 font-semibold shadow-md btn-glow-primary transition-all hover:shadow-lg"
-
-              >
-
-                <Link to="/contact">Hire Talent</Link>
-
-              </Button>
-
-            </div>
-
-          </div>
-
-
-
-          {/* Tablet / phone */}
-
-          <div className="flex items-center gap-2 lg:hidden">
-
-            <Button
-
-              asChild
-
-              size="sm"
-
-              className={cn(
-
-                "hidden h-9 rounded-full px-4 text-xs font-semibold sm:inline-flex",
-
-                !isLightNav && "shadow-lg"
-
-              )}
-
-            >
-
-              <Link to="/contact">Hire Talent</Link>
-
-            </Button>
-
-            <button
-
-              type="button"
-
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-
-              className={cn(
-
-                "touch-target flex h-11 w-11 items-center justify-center rounded-full transition-colors active:scale-95",
-
-                isLightNav ? "hover:bg-muted" : "hover:bg-white/10"
-
-              )}
-
-              aria-label="Toggle menu"
-
-              aria-expanded={mobileMenuOpen}
-
-            >
-
-              {mobileMenuOpen ? (
-
-                <X className={cn("h-6 w-6", isLightNav ? "text-foreground" : "text-white")} />
-
-              ) : (
-
-                <Menu className={cn("h-6 w-6", isLightNav ? "text-foreground" : "text-white")} />
-
-              )}
-
-            </button>
-
-          </div>
-
-        </div>
-
-      </motion.header>
-
-
-
-      {/* Spacer for fixed navbar */}
-
-      <div className="h-14 sm:h-[4.25rem]" aria-hidden />
+      {/* Spacer reserves space for fixed navbar */}
+      <div className="h-14 shrink-0 sm:h-[4.25rem]" aria-hidden />
 
 
 
@@ -474,7 +284,7 @@ const Navbar = () => {
 
             transition={{ duration: 0.2 }}
 
-            className="fixed inset-0 top-14 z-[100] flex flex-col bg-background/98 backdrop-blur-md sm:top-[4.25rem] lg:hidden"
+            className="fixed inset-0 top-14 z-[210] flex flex-col bg-background/98 backdrop-blur-md sm:top-[4.25rem] lg:hidden"
 
             style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
 
@@ -538,7 +348,7 @@ const Navbar = () => {
 
 
 
-              {PRIMARY_NAV_LINKS.filter((item) => item.href !== "/").map((item, index) => (
+              {NAVBAR_PRIMARY_LINKS.map((item, index) => (
 
                 <motion.div
 
@@ -565,27 +375,26 @@ const Navbar = () => {
 
 
               <div className="mt-auto flex flex-col gap-2 border-t border-border pt-4">
-
                 <Button asChild className="h-12 w-full rounded-full text-base" size="lg">
-
-                  <Link to="/contact" onClick={closeMobile}>
-
-                    Hire Talent
-
+                  <Link to={isSaas ? "/auth/register" : "/contact"} onClick={closeMobile}>
+                    {isSaas ? "Start for FREE" : "Hire Talent"}
                   </Link>
-
                 </Button>
-
                 <Button asChild variant="outline" className="h-12 w-full rounded-full text-base" size="lg">
-
-                  <Link to="/auth/login" onClick={closeMobile}>
-
-                    Login / Register
-
+                  <Link to="/showcase" onClick={closeMobile}>
+                    Platform showcase
                   </Link>
-
                 </Button>
-
+                <Button asChild variant="outline" className="h-12 w-full rounded-full text-base" size="lg">
+                  <Link to="/contact" onClick={closeMobile}>
+                    Contact sales
+                  </Link>
+                </Button>
+                <Button asChild variant="ghost" className="h-12 w-full rounded-full text-base" size="lg">
+                  <Link to="/auth/login" onClick={closeMobile}>
+                    Login / Register
+                  </Link>
+                </Button>
               </div>
 
             </nav>

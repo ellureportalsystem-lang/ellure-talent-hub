@@ -19,7 +19,7 @@ const MarketingPageHero = ({
 }: MarketingPageHeroProps) => (
   <section
     className={cn(
-      "relative bg-gradient-primary text-primary-foreground overflow-hidden marketing-page-hero marketing-hero-under-nav",
+      "relative overflow-hidden bg-gradient-primary text-primary-foreground marketing-page-hero marketing-hero-under-nav",
       className
     )}
   >

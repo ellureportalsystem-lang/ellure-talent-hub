@@ -106,9 +106,15 @@ export const INDUSTRY_NAV_ITEMS: NavMegaItem[] = [
   },
 ];
 
-export const PRIMARY_NAV_LINKS = [
-  { href: "/", label: "Home" },
+/** Top-level links shown in the navbar (keep short — showcase & contact live in footer / features) */
+export const NAVBAR_PRIMARY_LINKS = [
   { href: "/features", label: "Features" },
   { href: "/about", label: "About" },
+] as const;
+
+export const PRIMARY_NAV_LINKS = [
+  { href: "/", label: "Home" },
+  ...NAVBAR_PRIMARY_LINKS,
+  { href: "/showcase", label: "Showcase" },
   { href: "/contact", label: "Contact" },
 ] as const;
