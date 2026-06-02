@@ -22,6 +22,9 @@ type MarketingLayoutProps = {
 
   showMobileCta?: boolean;
 
+  /** Ellura chatbot launcher (independent of bottom CTA) */
+  showChatbot?: boolean;
+
   /** Clean white SaaS landing (BharatGo-style) — no floating geometry */
 
   variant?: "default" | "saas";
@@ -41,6 +44,8 @@ const MarketingLayout = ({
   showGeometry = true,
 
   showMobileCta = false,
+
+  showChatbot = true,
 
   variant = "default",
 
@@ -84,7 +89,7 @@ const MarketingLayout = ({
 
     </motion.div>
 
-    {showMobileCta ? <ElluraChatbot /> : null}
+    {showChatbot ? <ElluraChatbot /> : null}
 
   </div>
 
