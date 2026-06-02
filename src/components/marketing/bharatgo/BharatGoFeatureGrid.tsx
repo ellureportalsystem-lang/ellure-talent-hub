@@ -1,7 +1,9 @@
 import type { LucideIcon } from "lucide-react";
 import { BharatGoSectionHeader } from "./BharatGoSectionHeader";
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
+import { ChevronDown } from "lucide-react";
+import { useState } from "react";
 
 export type BharatGoFeature = {
   icon: LucideIcon;
@@ -37,6 +39,74 @@ export function BharatGoFeatureGrid({
   subtitle = "From applicant tracking to client collaboration, Ellure NexHire covers the full recruitment lifecycle.",
   variant = "default",
 }: BharatGoFeatureGridProps) {
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+
+  const mobileCards = (
+    <div
+      className={cn(
+        "sm:hidden",
+        embedded ? "" : "mt-8",
+        "grid grid-cols-2 gap-3"
+      )}
+    >
+      {features.map((feature, index) => {
+        const Icon = feature.icon;
+        const isOpen = openIndex === index;
+        return (
+          <button
+            key={feature.title}
+            type="button"
+            onClick={() => setOpenIndex((v) => (v === index ? null : index))}
+            className={cn(
+              "bharatgo-feature-card group w-full rounded-2xl border p-3 text-left shadow-sm transition-all active:scale-[0.99]",
+              variant === "pastel"
+                ? pastelCardClass[pastelTones[index % pastelTones.length]]
+                : "border-border/80 bg-card"
+            )}
+            aria-expanded={isOpen}
+          >
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex min-w-0 items-center gap-2.5">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                  <Icon className="h-5 w-5" strokeWidth={1.75} />
+                </span>
+                <span className="min-w-0">
+                  <span className="block text-[13px] font-semibold leading-snug text-foreground">
+                    {feature.title}
+                  </span>
+                </span>
+              </div>
+              <ChevronDown
+                className={cn(
+                  "mt-1 h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200",
+                  isOpen && "rotate-180"
+                )}
+                aria-hidden
+              />
+            </div>
+
+            <AnimatePresence initial={false}>
+              {isOpen ? (
+                <motion.div
+                  key="content"
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.22, ease: [0.4, 0, 0.2, 1] }}
+                  className="overflow-hidden"
+                >
+                  <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground">
+                    {feature.description}
+                  </p>
+                </motion.div>
+              ) : null}
+            </AnimatePresence>
+          </button>
+        );
+      })}
+    </div>
+  );
+
   const grid = (
     <div
       className={
@@ -72,13 +142,21 @@ export function BharatGoFeatureGrid({
     </div>
   );
 
-  if (embedded) return grid;
+  if (embedded) {
+    return (
+      <>
+        {mobileCards}
+        <div className="hidden sm:block">{grid}</div>
+      </>
+    );
+  }
 
   return (
     <section className="bharatgo-section bg-muted/40 py-16 sm:py-20 lg:py-24">
       <div className="container px-4 sm:px-6">
         <BharatGoSectionHeader title={title} subtitle={subtitle} />
-        {grid}
+        {mobileCards}
+        <div className="hidden sm:block">{grid}</div>
       </div>
     </section>
   );

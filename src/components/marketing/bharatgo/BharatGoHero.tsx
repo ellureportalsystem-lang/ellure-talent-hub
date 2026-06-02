@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { ShaderBackground } from "@/components/ui/shader-background";
 import { HeroCandidatePreview } from "@/components/marketing/HeroCandidatePreview";
 import { HeroTypewriterHeadline } from "@/components/marketing/HeroTypewriterHeadline";
+import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight, Play } from "lucide-react";
@@ -31,15 +32,20 @@ export function BharatGoHero() {
             transition={{ duration: 0.5 }}
             className="max-lg:mx-auto max-lg:max-w-xl max-lg:text-center lg:text-left"
           >
-            <h1 className="bharatgo-hero-headline font-poppins text-4xl font-bold leading-[1.12] tracking-tight text-white sm:text-5xl lg:text-[3.25rem]">
+            <h1 className="bharatgo-hero-headline font-poppins text-4xl font-bold leading-[1.12] tracking-tight text-white drop-shadow-[0_10px_22px_rgba(0,0,0,0.45)] sm:text-5xl lg:text-[3.25rem]">
               <span className="block">Hire exceptional talent in</span>
               <span className="mt-1 block min-h-[1.2em] sm:min-h-[1.15em]">
                 <HeroTypewriterHeadline className="text-violet-200" />
               </span>
             </h1>
-            <p className="mt-5 text-lg leading-relaxed text-slate-300/95 sm:text-xl">
-              Ellure NexHire connects employers and candidates through structured hiring workflows.
-              No complex setups — register, search, and hire with confidence.
+            <p className="mt-4 text-base leading-relaxed text-slate-200/95 drop-shadow-[0_8px_18px_rgba(0,0,0,0.45)] sm:mt-5 sm:text-xl">
+              <span className="sm:hidden">
+                Structured hiring workflows for employers & candidates — register and hire with confidence.
+              </span>
+              <span className="hidden sm:inline">
+                Ellure NexHire connects employers and candidates through structured hiring workflows. No complex setups
+                — register, search, and hire with confidence.
+              </span>
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center lg:justify-start">
               <Button
@@ -64,15 +70,19 @@ export function BharatGoHero() {
                 </Link>
               </Button>
             </div>
-            <ul className="mt-8 flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-slate-400 lg:justify-start">
-              {["Free applicant profiles", "No credit card for candidates", "Enterprise-ready security"].map(
-                (item) => (
-                  <li key={item} className="flex items-center gap-2">
-                    <span className="h-1.5 w-1.5 rounded-full bg-violet-400" />
-                    {item}
-                  </li>
-                )
-              )}
+            <ul className="mt-6 grid grid-cols-2 justify-center gap-x-4 gap-y-2 text-xs text-slate-200/80 sm:mt-8 sm:flex sm:flex-wrap sm:gap-x-6 sm:gap-y-2 sm:text-sm lg:justify-start">
+              {["Free applicant profiles", "No credit card for candidates", "Enterprise-ready security"].map((item) => (
+                <li
+                  key={item}
+                  className={cn(
+                    "flex items-center gap-2 sm:shrink-0",
+                    item === "No credit card for candidates" && "col-span-2 sm:col-span-1"
+                  )}
+                >
+                  <span className="h-1.5 w-1.5 rounded-full bg-violet-400" />
+                  <span className="leading-snug">{item}</span>
+                </li>
+              ))}
             </ul>
           </motion.div>
 
@@ -82,7 +92,7 @@ export function BharatGoHero() {
             transition={{ duration: 0.55, delay: 0.1 }}
             className="flex justify-center lg:justify-end"
           >
-            <div className="relative w-full max-w-md sm:max-w-lg lg:max-w-xl">
+            <div className="relative w-full max-w-[22rem] sm:max-w-lg lg:max-w-xl">
               <div
                 className="pointer-events-none absolute -inset-10 rounded-3xl bg-violet-500/28 blur-[48px]"
                 aria-hidden

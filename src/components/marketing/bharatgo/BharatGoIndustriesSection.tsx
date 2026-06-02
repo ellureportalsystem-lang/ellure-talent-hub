@@ -21,7 +21,7 @@ export function BharatGoIndustriesSection() {
         />
         <div className="mt-12 grid items-center gap-10 lg:grid-cols-2 lg:gap-14">
           <div>
-            <div className="marketing-snap-scroll -mx-4 flex flex-wrap gap-2 px-4 sm:mx-0 sm:px-0 lg:flex-col lg:gap-2">
+            <div className="marketing-snap-scroll -mx-4 grid grid-cols-2 gap-2 px-4 sm:mx-0 sm:px-0 sm:grid-cols-3 lg:flex lg:flex-col lg:gap-2">
               {marketingIndustries.map((industry) => {
                 const IndIcon = industry.icon;
                 const isActive = industry.id === activeId;
@@ -31,14 +31,14 @@ export function BharatGoIndustriesSection() {
                     type="button"
                     onClick={() => setActiveId(industry.id)}
                     className={cn(
-                      "flex min-h-[44px] shrink-0 snap-start items-center gap-2 rounded-full border px-4 py-2.5 text-left text-sm font-medium transition-all active:scale-[0.98] lg:w-full lg:rounded-xl lg:px-4 lg:py-3",
+                      "flex min-h-[44px] w-full snap-start items-center gap-2 rounded-2xl border px-3 py-2.5 text-left text-[12px] font-semibold leading-tight transition-all active:scale-[0.98] sm:px-4 sm:text-sm lg:rounded-xl lg:px-4 lg:py-3",
                       isActive
                         ? "border-primary bg-primary text-primary-foreground shadow-md"
                         : "border-border bg-card text-foreground hover:border-primary/30 hover:bg-muted/50"
                     )}
                   >
-                    <IndIcon className="h-4 w-4 shrink-0" />
-                    <span className="truncate">{industry.title}</span>
+                    <IndIcon className="h-4 w-4 shrink-0 opacity-90" />
+                    <span className="line-clamp-2">{industry.title}</span>
                   </button>
                 );
               })}

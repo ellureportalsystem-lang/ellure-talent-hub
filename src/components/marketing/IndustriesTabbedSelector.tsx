@@ -106,8 +106,11 @@ export function IndustriesTabbedSelector() {
       <div className="flex flex-col gap-6 lg:grid lg:grid-cols-[minmax(240px,280px)_1fr] lg:gap-8">
         <TabsList
           className={cn(
-            "marketing-snap-scroll -mx-4 flex h-auto w-full flex-row justify-start gap-2 overflow-x-auto rounded-xl border border-border bg-muted/40 p-2 px-4 touch-pan-x snap-x snap-mandatory scrollbar-hide",
-            "sm:mx-0 sm:px-2 lg:mx-0 lg:flex-col lg:items-stretch lg:overflow-visible lg:snap-none lg:p-2"
+            // Mobile/tablet: normal grid (no sideways scrolling)
+            "-mx-4 grid h-auto w-full grid-cols-2 gap-2 rounded-xl border border-border bg-muted/40 p-2 px-4",
+            "sm:mx-0 sm:grid-cols-3 sm:px-2",
+            // Laptop+: vertical list
+            "lg:mx-0 lg:flex lg:flex-col lg:items-stretch lg:gap-2 lg:overflow-visible lg:p-2"
           )}
         >
           {marketingIndustries.map((industry) => {
@@ -118,7 +121,8 @@ export function IndustriesTabbedSelector() {
                 value={industry.id}
                 ref={triggerRefHandlers[industry.id]}
                 className={cn(
-                  "h-auto min-h-[44px] w-[12.5rem] shrink-0 snap-start gap-2 rounded-lg px-3 py-2.5 active:scale-[0.98] data-[state=active]:bg-background data-[state=active]:shadow-md sm:w-auto",
+                  "h-auto min-h-[44px] w-full items-start gap-2 rounded-lg px-3 py-2.5 text-left active:scale-[0.98] data-[state=active]:bg-background data-[state=active]:shadow-md",
+                  "whitespace-normal",
                   "lg:w-full lg:justify-start lg:gap-3 lg:px-4 lg:py-3.5 lg:text-left",
                   "lg:data-[state=active]:border lg:data-[state=active]:border-primary/20"
                 )}
@@ -131,12 +135,17 @@ export function IndustriesTabbedSelector() {
                 >
                   <Icon className={cn("h-4 w-4 lg:h-5 lg:w-5", industry.accentIcon)} />
                 </span>
-                <span className="hidden min-w-0 flex-col gap-0.5 text-left lg:flex">
-                  <span className="text-sm font-semibold leading-snug">{industry.title}</span>
-                  <span className="truncate text-xs text-muted-foreground">{industry.shortDesc}</span>
+                {/* Laptop+: title only (no subtitle) */}
+                <span className="hidden min-w-0 flex-1 text-left lg:block">
+                  <span className="block break-words text-sm font-semibold leading-snug">
+                    {industry.title}
+                  </span>
                 </span>
-                <span className="max-w-[9.5rem] whitespace-normal text-left text-[12px] font-semibold leading-tight lg:hidden sm:max-w-[13rem] sm:text-sm">
-                  {industry.title}
+                {/* Mobile/tablet: title only */}
+                <span className="min-w-0 flex-1 text-left lg:hidden">
+                  <span className="block break-words text-[12px] font-semibold leading-tight sm:text-sm">
+                    {industry.title}
+                  </span>
                 </span>
               </TabsTrigger>
             );

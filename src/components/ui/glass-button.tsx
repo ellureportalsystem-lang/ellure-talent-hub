@@ -4,7 +4,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const glassButtonVariants = cva(
-  "glass-button relative isolate w-full cursor-pointer rounded-full border-0 transition-all",
+  "glass-button relative isolate cursor-pointer rounded-full border-0 transition-all",
   {
     variants: {
       size: {
@@ -46,7 +46,7 @@ export interface GlassButtonProps
 const GlassButton = React.forwardRef<HTMLButtonElement, GlassButtonProps>(
   ({ className, children, size, contentClassName, ...props }, ref) => {
     return (
-      <div className={cn("glass-button-wrap inline-block rounded-full", className)}>
+      <div className={cn("glass-button-wrap cursor-pointer rounded-full", className)}>
         <button
           type="button"
           className={cn(glassButtonVariants({ size }))}

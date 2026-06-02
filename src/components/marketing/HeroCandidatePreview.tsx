@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
-import { LiquidGlassPanel } from "@/components/ui/liquid-glass-panel";
+import { GlassPanel } from "@/components/ui/glass-panel";
 import {
   Briefcase,
   GraduationCap,
@@ -542,8 +542,8 @@ export function HeroCandidatePreview({
         className="relative"
       >
         {isHero ? (
-          <LiquidGlassPanel cornerClassName="rounded-lg">
-            <div className="px-4 py-3.5">
+          <GlassPanel cornerClassName="rounded-2xl">
+            <div className="px-3 py-3 sm:px-4 sm:py-3.5">
               <div className="mb-2.5 flex items-center justify-between gap-2">
                 <span className="text-[10px] font-semibold uppercase tracking-wider text-white/55">
                   Applicant
@@ -572,7 +572,7 @@ export function HeroCandidatePreview({
                 <ProfileDots profiles={profiles} index={index} setIndex={setIndex} isHero />
               </div>
             </div>
-          </LiquidGlassPanel>
+          </GlassPanel>
         ) : (
           <div className="overflow-hidden rounded-2xl border border-border/80 bg-card p-3.5 shadow-lg ring-1 ring-black/[0.04] sm:p-4">
             <div className="mb-3 flex items-center justify-between gap-2 rounded-lg px-2 py-1.5">

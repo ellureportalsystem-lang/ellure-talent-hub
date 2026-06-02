@@ -31,6 +31,7 @@ export function BharatGoHowItWorks({
   const [autoPlay, setAutoPlay] = useState(true);
   const [paused, setPaused] = useState(false);
   const [progressKey, setProgressKey] = useState(0);
+  const [mobileDetailsOpen, setMobileDetailsOpen] = useState(false);
 
   const active = steps[activeIndex];
   const ActiveIcon = active.icon;
@@ -39,6 +40,7 @@ export function BharatGoHowItWorks({
     (index: number) => {
       setActiveIndex((index + steps.length) % steps.length);
       setProgressKey((k) => k + 1);
+      setMobileDetailsOpen(false);
     },
     [steps.length]
   );
@@ -59,9 +61,9 @@ export function BharatGoHowItWorks({
           <BharatGoSectionHeader eyebrow={eyebrow} title={title} subtitle={subtitle} className="mb-8 lg:mb-10" />
         ) : null}
 
-        {/* Horizontal step pills — single row */}
-        <div className="-mx-1 mb-6 overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          <div className="mx-auto flex w-max max-w-full flex-nowrap items-center justify-center gap-2">
+        {/* Steps: mobile grid, tablet+ horizontal row */}
+        <div className="mb-6">
+          <div className="grid grid-cols-2 gap-2 sm:hidden">
             {steps.map((step, index) => {
               const Icon = step.icon;
               const isActive = index === activeIndex;
@@ -71,7 +73,7 @@ export function BharatGoHowItWorks({
                   type="button"
                   onClick={() => goTo(index)}
                   className={cn(
-                    "inline-flex shrink-0 items-center gap-2 rounded-full border px-3 py-2 text-left transition-all sm:px-4",
+                    "inline-flex w-full items-center gap-2 rounded-2xl border px-3 py-2.5 text-left transition-all active:scale-[0.99]",
                     isActive
                       ? "border-primary bg-primary text-primary-foreground shadow-sm"
                       : "border-border bg-card text-muted-foreground hover:border-primary/40 hover:bg-muted/50"
@@ -80,21 +82,57 @@ export function BharatGoHowItWorks({
                 >
                   <span
                     className={cn(
-                      "flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[10px] font-bold sm:h-8 sm:w-8",
-                      isActive ? "bg-primary-foreground/20" : "bg-muted"
+                      "flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-[10px] font-bold",
+                      isActive ? "bg-primary-foreground/20" : "bg-muted text-foreground"
                     )}
                   >
                     <Icon className="h-3.5 w-3.5 sm:h-4 sm:w-4" strokeWidth={2} />
                   </span>
-                  <span className="whitespace-nowrap">
+                  <span className="min-w-0">
                     <span className="block text-[10px] font-bold uppercase tracking-wider opacity-80">
                       {step.step}
                     </span>
-                    <span className="block text-xs font-semibold sm:text-sm">{step.label}</span>
+                    <span className="block truncate text-sm font-semibold">{step.label}</span>
                   </span>
                 </button>
               );
             })}
+          </div>
+
+          <div className="-mx-1 hidden overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:block">
+            <div className="mx-auto flex w-max max-w-full flex-nowrap items-center justify-center gap-2">
+              {steps.map((step, index) => {
+                const Icon = step.icon;
+                const isActive = index === activeIndex;
+                return (
+                  <button
+                    key={step.id}
+                    type="button"
+                    onClick={() => goTo(index)}
+                    className={cn(
+                      "inline-flex shrink-0 items-center gap-2 rounded-full border px-3 py-2 text-left transition-all sm:px-4",
+                      isActive
+                        ? "border-primary bg-primary text-primary-foreground shadow-sm"
+                        : "border-border bg-card text-muted-foreground hover:border-primary/40 hover:bg-muted/50"
+                    )}
+                    aria-current={isActive ? "step" : undefined}
+                  >
+                    <span
+                      className={cn(
+                        "flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[10px] font-bold sm:h-8 sm:w-8",
+                        isActive ? "bg-primary-foreground/20" : "bg-muted"
+                      )}
+                    >
+                      <Icon className="h-3.5 w-3.5 sm:h-4 sm:w-4" strokeWidth={2} />
+                    </span>
+                    <span className="whitespace-nowrap">
+                      <span className="block text-[10px] font-bold uppercase tracking-wider opacity-80">{step.step}</span>
+                      <span className="block text-xs font-semibold sm:text-sm">{step.label}</span>
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
 
@@ -179,15 +217,90 @@ export function BharatGoHowItWorks({
             </div>
           </div>
 
-          {/* Right: step details (restored) */}
-          <div className="rounded-2xl border border-border bg-card/70 p-5 shadow-sm sm:p-6">
+          {/* Mobile: compact details dropdown */}
+          <div className="lg:hidden">
+            <button
+              type="button"
+              onClick={() => setMobileDetailsOpen((v) => !v)}
+              className={cn(
+                "flex w-full items-center justify-between rounded-2xl border border-border bg-card px-4 py-3 text-left shadow-sm",
+                mobileDetailsOpen && "border-primary/30"
+              )}
+              aria-expanded={mobileDetailsOpen}
+            >
+              <span>
+                <span className="block text-[11px] font-semibold uppercase tracking-widest text-primary">Details</span>
+                <span className="mt-0.5 block font-poppins text-sm font-semibold text-foreground">
+                  {active.title}
+                </span>
+              </span>
+              <ChevronRight
+                className={cn("h-4 w-4 shrink-0 text-muted-foreground transition-transform", mobileDetailsOpen && "rotate-90")}
+                aria-hidden
+              />
+            </button>
+
+            <AnimatePresence initial={false}>
+              {mobileDetailsOpen ? (
+                <motion.div
+                  key="mobile-details"
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+                  className="overflow-hidden"
+                >
+                  <div className="mt-3 rounded-2xl border border-border bg-card/70 p-4 shadow-sm">
+                    <p className="text-sm leading-relaxed text-muted-foreground">{active.description}</p>
+                    <div className="mt-4 grid gap-2">
+                      {steps.map((s, idx) => {
+                        const isActive = idx === activeIndex;
+                        const Icon = s.icon;
+                        return (
+                          <button
+                            key={s.id}
+                            type="button"
+                            onClick={() => goTo(idx)}
+                            className={cn(
+                              "flex items-start gap-3 rounded-xl border p-3 text-left transition-colors",
+                              isActive
+                                ? "border-primary/40 bg-primary/5"
+                                : "border-border bg-background hover:border-primary/25"
+                            )}
+                            aria-current={isActive ? "step" : undefined}
+                          >
+                            <span
+                              className={cn(
+                                "mt-0.5 flex h-9 w-9 items-center justify-center rounded-lg",
+                                isActive ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                              )}
+                            >
+                              <Icon className="h-4 w-4" strokeWidth={2} />
+                            </span>
+                            <span className="min-w-0">
+                              <span className="block text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                                {s.step}
+                              </span>
+                              <span className="block text-sm font-semibold text-foreground">{s.label}</span>
+                              <span className="mt-0.5 block text-xs leading-relaxed text-muted-foreground">
+                                {s.previewSubtitle}
+                              </span>
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </motion.div>
+              ) : null}
+            </AnimatePresence>
+          </div>
+
+          {/* Desktop/tablet: step details panel */}
+          <div className="hidden rounded-2xl border border-border bg-card/70 p-5 shadow-sm sm:p-6 lg:block">
             <p className="text-xs font-semibold uppercase tracking-widest text-primary">Details</p>
-            <h3 className="font-poppins mt-2 text-xl font-bold text-foreground sm:text-2xl">
-              {active.title}
-            </h3>
-            <p className="mt-3 text-sm leading-relaxed text-muted-foreground sm:text-base">
-              {active.description}
-            </p>
+            <h3 className="font-poppins mt-2 text-xl font-bold text-foreground sm:text-2xl">{active.title}</h3>
+            <p className="mt-3 text-sm leading-relaxed text-muted-foreground sm:text-base">{active.description}</p>
 
             <div className="mt-5 grid gap-3 sm:grid-cols-2">
               {steps.map((s, idx) => {
@@ -200,13 +313,16 @@ export function BharatGoHowItWorks({
                     onClick={() => goTo(idx)}
                     className={cn(
                       "flex items-start gap-3 rounded-xl border p-3 text-left transition-colors",
-                      isActive
-                        ? "border-primary/40 bg-primary/5"
-                        : "border-border bg-background hover:border-primary/25"
+                      isActive ? "border-primary/40 bg-primary/5" : "border-border bg-background hover:border-primary/25"
                     )}
                     aria-current={isActive ? "step" : undefined}
                   >
-                    <span className={cn("mt-0.5 flex h-9 w-9 items-center justify-center rounded-lg", isActive ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground")}>
+                    <span
+                      className={cn(
+                        "mt-0.5 flex h-9 w-9 items-center justify-center rounded-lg",
+                        isActive ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                      )}
+                    >
                       <Icon className="h-4 w-4" strokeWidth={2} />
                     </span>
                     <span className="min-w-0">
@@ -214,9 +330,7 @@ export function BharatGoHowItWorks({
                         {s.step}
                       </span>
                       <span className="block text-sm font-semibold text-foreground">{s.label}</span>
-                      <span className="mt-0.5 block text-xs leading-relaxed text-muted-foreground">
-                        {s.previewSubtitle}
-                      </span>
+                      <span className="mt-0.5 block text-xs leading-relaxed text-muted-foreground">{s.previewSubtitle}</span>
                     </span>
                   </button>
                 );
