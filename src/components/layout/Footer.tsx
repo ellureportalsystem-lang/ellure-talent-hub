@@ -58,9 +58,9 @@ const Footer = ({ variant = "dark" }: FooterProps) => {
     )}
   >
     <div className="container px-4 py-12 sm:px-6 md:py-16">
-      <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-12 lg:gap-8 xl:gap-10">
+      <div className="grid grid-cols-2 gap-10 sm:grid-cols-2 lg:grid-cols-12 lg:gap-8 xl:gap-10">
         {/* Brand */}
-        <div className="space-y-5 lg:col-span-3">
+        <div className="col-span-2 space-y-5 lg:col-span-3">
           <Link to="/" className="group flex w-fit items-center gap-2">
             <img
               src="/ellure-logo.png"
@@ -136,7 +136,7 @@ const Footer = ({ variant = "dark" }: FooterProps) => {
         </div>
 
         {/* Quick links */}
-        <div className="space-y-4 lg:col-span-2">
+        <div className="col-span-1 space-y-4 lg:col-span-2">
           <h4
             className={cn(
               "text-sm font-semibold uppercase tracking-wider",
@@ -165,7 +165,7 @@ const Footer = ({ variant = "dark" }: FooterProps) => {
         </div>
 
         {/* Employers */}
-        <div className="space-y-4 lg:col-span-2">
+        <div className="col-span-1 space-y-4 lg:col-span-2">
           <h4
             className={cn(
               "text-sm font-semibold uppercase tracking-wider",
@@ -192,7 +192,7 @@ const Footer = ({ variant = "dark" }: FooterProps) => {
         </div>
 
         {/* Applicants */}
-        <div className="space-y-4 lg:col-span-2">
+        <div className="col-span-1 space-y-4 lg:col-span-2">
           <h4
             className={cn(
               "text-sm font-semibold uppercase tracking-wider",
@@ -233,7 +233,7 @@ const Footer = ({ variant = "dark" }: FooterProps) => {
         </div>
 
         {/* Contact */}
-        <div className="space-y-4 lg:col-span-3">
+        <div className="col-span-2 space-y-4 lg:col-span-3">
           <h4 className="text-sm font-semibold uppercase tracking-wider text-white">Contact</h4>
           <div className="space-y-4">
             <div className="flex items-start gap-3">

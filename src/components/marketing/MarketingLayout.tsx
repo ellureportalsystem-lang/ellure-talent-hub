@@ -40,7 +40,7 @@ const MarketingLayout = ({
 
   showGeometry = true,
 
-  showMobileCta = true,
+  showMobileCta = false,
 
   variant = "default",
 
@@ -83,8 +83,6 @@ const MarketingLayout = ({
       {children}
 
     </motion.div>
-
-    {showMobileCta ? <MarketingMobileCTA /> : null}
 
     {showMobileCta ? <ElluraChatbot /> : null}
 

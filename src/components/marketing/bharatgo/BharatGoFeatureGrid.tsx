@@ -38,7 +38,13 @@ export function BharatGoFeatureGrid({
   variant = "default",
 }: BharatGoFeatureGridProps) {
   const grid = (
-    <div className={embedded ? "grid gap-6 sm:grid-cols-2 lg:grid-cols-3" : "mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3"}>
+    <div
+      className={
+        embedded
+          ? "grid grid-cols-2 gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3"
+          : "mt-12 grid grid-cols-2 gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3"
+      }
+    >
           {features.map((feature, index) => {
             const Icon = feature.icon;
             return (
@@ -49,7 +55,7 @@ export function BharatGoFeatureGrid({
                 viewport={{ once: true, margin: "-40px" }}
                 transition={{ delay: Math.min(index * 0.06, 0.24) }}
                 className={cn(
-                  "bharatgo-feature-card group rounded-2xl border p-6 shadow-sm transition-all duration-300 hover:border-primary/25 hover:shadow-md",
+                  "bharatgo-feature-card group rounded-2xl border p-4 shadow-sm transition-all duration-300 hover:border-primary/25 hover:shadow-md sm:p-6",
                   variant === "pastel"
                     ? pastelCardClass[pastelTones[index % pastelTones.length]]
                     : "border-border/80 bg-card"

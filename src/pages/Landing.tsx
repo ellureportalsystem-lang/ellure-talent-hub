@@ -97,7 +97,7 @@ function HomePlatformAnalyticsBand() {
 
 const Landing = () => {
   return (
-    <MarketingLayout variant="saas" showMobileCta>
+    <MarketingLayout variant="saas">
       <Navbar variant="saas" heroOverlay />
 
       <BharatGoHero />

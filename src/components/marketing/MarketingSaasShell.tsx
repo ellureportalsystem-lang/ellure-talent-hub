@@ -13,7 +13,7 @@ type MarketingSaasShellProps = {
 /** BharatGo-style marketing chrome: light layout, saas nav, light footer */
 export function MarketingSaasShell({
   children,
-  showMobileCta = true,
+  showMobileCta = false,
   showFinalCta = true,
 }: MarketingSaasShellProps) {
   return (
