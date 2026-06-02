@@ -83,8 +83,8 @@ const Features = () => (
     <MarketingSaasSection tone="muted" eyebrow="Results" title="Platform impact">
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat) => (
-          <Card key={stat.label} className="rounded-2xl border border-border p-6 text-center shadow-sm">
-            <div className="text-3xl font-bold text-primary sm:text-4xl">{stat.value}</div>
+          <Card key={stat.label} className="rounded-2xl border border-border p-4 text-center shadow-sm sm:p-5">
+            <div className="text-2xl font-bold text-primary sm:text-3xl">{stat.value}</div>
             <h3 className="mt-2 font-semibold">{stat.label}</h3>
             <p className="mt-1 text-sm text-muted-foreground">{stat.desc}</p>
           </Card>
@@ -97,9 +97,9 @@ const Features = () => (
         {enterpriseHighlights.map((item) => {
           const Icon = item.icon;
           return (
-            <Card key={item.title} className="rounded-2xl border border-border p-8 text-center shadow-sm">
-              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary">
-                <Icon className="h-7 w-7" />
+            <Card key={item.title} className="rounded-2xl border border-border p-5 text-center shadow-sm sm:p-6">
+              <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary sm:mb-4 sm:h-14 sm:w-14">
+                <Icon className="h-6 w-6 sm:h-7 sm:w-7" />
               </div>
               <h3 className="font-semibold text-lg">{item.title}</h3>
               <p className="mt-2 text-sm text-muted-foreground">{item.desc}</p>

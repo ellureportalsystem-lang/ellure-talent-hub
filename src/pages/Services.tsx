@@ -55,7 +55,7 @@ const Services = () => (
       subtitle="For employers and candidates — coordination, screening, and ethical process management without replacing your internal HR ownership."
     />
 
-    <BharatGoPastelFeatureCards cards={servicesPastelCards} className="!py-10 sm:!py-12" />
+    <BharatGoPastelFeatureCards cards={servicesPastelCards} columns={1} className="!py-10 sm:!py-12" />
 
     <MarketingSaasSection
       title="What we do"

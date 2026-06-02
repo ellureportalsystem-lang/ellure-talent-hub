@@ -39,7 +39,7 @@ function WhyChooseStats() {
       <p className="mt-1 text-center font-poppins text-lg font-bold text-foreground lg:text-left">
         Proven recruitment outcomes
       </p>
-      <div className="mt-4 grid grid-cols-2 gap-3">
+      <div className="mt-3 grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-4">
         {defaultTrustedStats.map((stat, index) => {
           const Icon = stat.icon;
           return (
@@ -49,15 +49,15 @@ function WhyChooseStats() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.05 }}
-              className="flex flex-col items-center rounded-xl border border-[#d4e2fc] bg-white px-3 py-4 text-center shadow-sm"
+              className="flex flex-col items-center rounded-xl border border-[#d4e2fc] bg-white px-2.5 py-3 text-center shadow-sm sm:px-3 sm:py-3.5"
             >
-              <div className="mb-1.5 flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-primary">
-                <Icon className="h-4 w-4" strokeWidth={1.75} />
+              <div className="mb-1 flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary sm:mb-1.5 sm:h-9 sm:w-9">
+                <Icon className="h-3.5 w-3.5 sm:h-4 sm:w-4" strokeWidth={1.75} />
               </div>
-              <p className="font-poppins text-xl font-bold text-primary sm:text-2xl">
+              <p className="font-poppins text-lg font-bold text-primary sm:text-xl lg:text-2xl">
                 <AnimatedStatValue value={stat.value} active={inView} />
               </p>
-              <p className="mt-0.5 text-[11px] font-medium leading-snug text-muted-foreground sm:text-xs">
+              <p className="mt-0.5 text-[10px] font-medium leading-snug text-muted-foreground sm:text-[11px]">
                 {stat.label}
               </p>
             </motion.div>

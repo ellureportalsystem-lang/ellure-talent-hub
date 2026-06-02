@@ -39,12 +39,12 @@ const Industries = () => (
         ].map((item) => {
           const Icon = item.icon;
           return (
-            <Card key={item.title} className="rounded-2xl border border-border p-6 text-center shadow-sm">
-              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                <Icon className="h-6 w-6" />
+            <Card key={item.title} className="rounded-2xl border border-border p-4 text-center shadow-sm sm:p-5">
+              <div className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary sm:mb-4 sm:h-12 sm:w-12">
+                <Icon className="h-5 w-5 sm:h-6 sm:w-6" />
               </div>
               <h3 className="font-semibold">{item.title}</h3>
-              <p className="mt-2 text-sm text-muted-foreground">{item.desc}</p>
+              <p className="mt-1.5 text-sm text-muted-foreground">{item.desc}</p>
             </Card>
           );
         })}

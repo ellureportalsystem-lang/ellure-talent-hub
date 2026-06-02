@@ -63,7 +63,7 @@ const About = () => (
 
     <MarketingBrandedBanner imageSrc={marketingBanners.about} alt="About Ellure NexHire" />
 
-    <BharatGoPastelFeatureCards cards={aboutPastelCards} className="!py-10 sm:!py-12" />
+    <BharatGoPastelFeatureCards cards={aboutPastelCards} columns={1} className="!py-10 sm:!py-12" />
 
     <BharatGoMarketStats />
 

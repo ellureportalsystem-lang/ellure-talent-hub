@@ -1694,7 +1694,7 @@ html.dark .portal-glass-header {
 
 .marketing-page-hero--contact .marketing-hero-banner.marketing-hero-banner--page-left {
   background-position: center center;
-  background-size: contain;
+  background-size: cover;
 }
 
 .marketing-page-hero--contact .marketing-hero-overlay {

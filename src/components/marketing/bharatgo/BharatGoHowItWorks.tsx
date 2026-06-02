@@ -98,12 +98,13 @@ export function BharatGoHowItWorks({
           </div>
         </div>
 
-        {/* Compact preview card */}
+        {/* Preview (left) + details (right) */}
         <div
-          className="mx-auto max-w-xl"
+          className="mx-auto grid max-w-5xl items-start gap-6 lg:grid-cols-[minmax(360px,460px)_1fr] lg:gap-10"
           onMouseEnter={() => setPaused(true)}
           onMouseLeave={() => setPaused(false)}
         >
+          {/* Left: compact preview card */}
           <div className="bharatgo-hiw-card overflow-hidden rounded-2xl border border-border bg-card shadow-md">
             <div className="h-0.5 w-full bg-muted" aria-hidden>
               {autoPlay && !prefersReducedMotion && !paused ? (
@@ -132,9 +133,7 @@ export function BharatGoHowItWorks({
                   onClick={() => setAutoPlay((v) => !v)}
                   className={cn(
                     "inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[10px] font-semibold transition-colors",
-                    autoPlay
-                      ? "border-primary/30 bg-primary/5 text-primary"
-                      : "border-border bg-muted/50 text-muted-foreground"
+                    autoPlay ? "border-primary/30 bg-primary/5 text-primary" : "border-border bg-muted/50 text-muted-foreground"
                   )}
                   aria-pressed={autoPlay}
                 >
@@ -177,6 +176,51 @@ export function BharatGoHowItWorks({
                   <ChevronRight className="ml-0.5 h-3.5 w-3.5" />
                 </Button>
               </div>
+            </div>
+          </div>
+
+          {/* Right: step details (restored) */}
+          <div className="rounded-2xl border border-border bg-card/70 p-5 shadow-sm sm:p-6">
+            <p className="text-xs font-semibold uppercase tracking-widest text-primary">Details</p>
+            <h3 className="font-poppins mt-2 text-xl font-bold text-foreground sm:text-2xl">
+              {active.title}
+            </h3>
+            <p className="mt-3 text-sm leading-relaxed text-muted-foreground sm:text-base">
+              {active.description}
+            </p>
+
+            <div className="mt-5 grid gap-3 sm:grid-cols-2">
+              {steps.map((s, idx) => {
+                const isActive = idx === activeIndex;
+                const Icon = s.icon;
+                return (
+                  <button
+                    key={s.id}
+                    type="button"
+                    onClick={() => goTo(idx)}
+                    className={cn(
+                      "flex items-start gap-3 rounded-xl border p-3 text-left transition-colors",
+                      isActive
+                        ? "border-primary/40 bg-primary/5"
+                        : "border-border bg-background hover:border-primary/25"
+                    )}
+                    aria-current={isActive ? "step" : undefined}
+                  >
+                    <span className={cn("mt-0.5 flex h-9 w-9 items-center justify-center rounded-lg", isActive ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground")}>
+                      <Icon className="h-4 w-4" strokeWidth={2} />
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                        {s.step}
+                      </span>
+                      <span className="block text-sm font-semibold text-foreground">{s.label}</span>
+                      <span className="mt-0.5 block text-xs leading-relaxed text-muted-foreground">
+                        {s.previewSubtitle}
+                      </span>
+                    </span>
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>

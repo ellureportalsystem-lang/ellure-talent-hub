@@ -18,7 +18,7 @@ export function MarketingTrustStats({ stats = defaultTrustedStats, className }: 
   return (
     <section
       ref={ref}
-      className={cn("border-y border-[#d4e2fc] bg-[#E9F0FF] py-12 sm:py-14", className)}
+      className={cn("border-y border-[#d4e2fc] bg-[#E9F0FF] py-10 sm:py-12", className)}
       aria-label="Company highlights"
     >
       <div className="container px-4 sm:px-6">
@@ -26,7 +26,7 @@ export function MarketingTrustStats({ stats = defaultTrustedStats, className }: 
         <h2 className="font-poppins mt-2 text-center text-2xl font-bold text-foreground sm:text-3xl">
           Proven recruitment outcomes
         </h2>
-        <div className="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-4 lg:gap-6">
+        <div className="mt-7 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4 lg:gap-5">
           {stats.map((stat, index) => {
             const Icon = stat.icon;
             return (
@@ -36,15 +36,17 @@ export function MarketingTrustStats({ stats = defaultTrustedStats, className }: 
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.06 }}
-                className="flex flex-col items-center rounded-2xl border border-[#d4e2fc] bg-white px-4 py-5 text-center shadow-sm"
+                className="flex flex-col items-center rounded-2xl border border-[#d4e2fc] bg-white px-3 py-3.5 text-center shadow-sm sm:px-4 sm:py-4"
               >
-                <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
-                  <Icon className="h-5 w-5" strokeWidth={1.75} />
+                <div className="mb-1.5 flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-primary sm:mb-2 sm:h-10 sm:w-10">
+                  <Icon className="h-4 w-4 sm:h-5 sm:w-5" strokeWidth={1.75} />
                 </div>
-                <p className="font-poppins text-2xl font-bold text-primary sm:text-3xl">
+                <p className="font-poppins text-xl font-bold text-primary sm:text-2xl lg:text-3xl">
                   <AnimatedStatValue value={stat.value} active={inView} />
                 </p>
-                <p className="mt-1 text-xs font-medium leading-snug text-muted-foreground sm:text-sm">{stat.label}</p>
+                <p className="mt-0.5 text-[11px] font-medium leading-snug text-muted-foreground sm:mt-1 sm:text-xs">
+                  {stat.label}
+                </p>
               </motion.div>
             );
           })}

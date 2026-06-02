@@ -5,6 +5,7 @@ import { marketingIndustries } from "@/lib/marketingIndustries";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
+import { useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 
 function IndustryDetailPanel({ industryId }: { industryId: string }) {
@@ -20,7 +21,7 @@ function IndustryDetailPanel({ industryId }: { industryId: string }) {
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
     >
-      <Card className="h-full border-2 border-border bg-card p-6 shadow-lg sm:p-8 md:p-10">
+      <Card className="h-full border-2 border-border bg-card p-5 shadow-lg sm:p-7 md:p-9">
         <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
           <div
             className={cn(
@@ -72,9 +73,36 @@ function IndustryDetailPanel({ industryId }: { industryId: string }) {
 
 export function IndustriesTabbedSelector() {
   const defaultId = marketingIndustries[0]?.id ?? "it";
+  const [activeId, setActiveId] = useState(defaultId);
+
+  const triggerRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+  const triggerRefHandlers = useMemo(
+    () =>
+      Object.fromEntries(
+        marketingIndustries.map((i) => [
+          i.id,
+          (el: HTMLButtonElement | null) => {
+            triggerRefs.current[i.id] = el;
+          },
+        ])
+      ) as Record<string, (el: HTMLButtonElement | null) => void>,
+    []
+  );
+
+  const scrollActiveIntoView = (id: string) => {
+    const el = triggerRefs.current[id];
+    el?.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+  };
 
   return (
-    <Tabs defaultValue={defaultId} className="w-full">
+    <Tabs
+      value={activeId}
+      onValueChange={(v) => {
+        setActiveId(v);
+        scrollActiveIntoView(v);
+      }}
+      className="w-full"
+    >
       <div className="flex flex-col gap-6 lg:grid lg:grid-cols-[minmax(240px,280px)_1fr] lg:gap-8">
         <TabsList
           className={cn(
@@ -88,8 +116,9 @@ export function IndustriesTabbedSelector() {
               <TabsTrigger
                 key={industry.id}
                 value={industry.id}
+                ref={triggerRefHandlers[industry.id]}
                 className={cn(
-                  "h-auto min-h-[44px] shrink-0 snap-start gap-2 rounded-lg px-3 py-2.5 active:scale-[0.98] data-[state=active]:bg-background data-[state=active]:shadow-md",
+                  "h-auto min-h-[44px] w-[12.5rem] shrink-0 snap-start gap-2 rounded-lg px-3 py-2.5 active:scale-[0.98] data-[state=active]:bg-background data-[state=active]:shadow-md sm:w-auto",
                   "lg:w-full lg:justify-start lg:gap-3 lg:px-4 lg:py-3.5 lg:text-left",
                   "lg:data-[state=active]:border lg:data-[state=active]:border-primary/20"
                 )}
@@ -106,8 +135,8 @@ export function IndustriesTabbedSelector() {
                   <span className="text-sm font-semibold leading-snug">{industry.title}</span>
                   <span className="truncate text-xs text-muted-foreground">{industry.shortDesc}</span>
                 </span>
-                <span className="max-w-[7rem] truncate text-xs font-medium lg:hidden sm:max-w-[10rem] sm:text-sm">
-                  {industry.title.split("&")[0].trim()}
+                <span className="max-w-[9.5rem] whitespace-normal text-left text-[12px] font-semibold leading-tight lg:hidden sm:max-w-[13rem] sm:text-sm">
+                  {industry.title}
                 </span>
               </TabsTrigger>
             );

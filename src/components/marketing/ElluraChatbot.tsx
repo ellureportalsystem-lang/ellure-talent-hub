@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Send, X } from "lucide-react";
+import { ChevronLeft, Send, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,6 +32,7 @@ const INTRO_MESSAGES: { text: string; delay: number }[] = [
 
 export function ElluraChatbot() {
   const [open, setOpen] = useState(false);
+  const [hidden, setHidden] = useState(false);
   const [step, setStep] = useState<ChatStep>("intro");
   const [userName, setUserName] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -134,12 +135,48 @@ export function ElluraChatbot() {
   };
 
   return (
-    <div
-      className={cn(
-        "fixed z-50 flex flex-col items-end gap-3",
-        "bottom-[5.5rem] right-4 md:bottom-6 md:right-6"
-      )}
-    >
+    <>
+      {/* Side tab (visible when Ellura is hidden) */}
+      <AnimatePresence>
+        {hidden && !open && (
+          <motion.button
+            type="button"
+            initial={{ opacity: 0, x: 24 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 24 }}
+            transition={{ type: "spring", stiffness: 520, damping: 32 }}
+            onClick={() => setHidden(false)}
+            className={cn(
+              "fixed z-50",
+              "bottom-[6rem] right-0 md:bottom-10",
+              "flex items-center gap-2 rounded-l-full border border-violet-200 bg-white/95 pl-2 pr-3 py-2 shadow-lg backdrop-blur",
+              "text-xs font-semibold text-violet-900"
+            )}
+            aria-label="Show Ellura"
+          >
+            <ChevronLeft className="h-4 w-4 text-violet-700" aria-hidden />
+            <span>Ellura</span>
+          </motion.button>
+        )}
+      </AnimatePresence>
+
+      <motion.div
+        className={cn(
+          "fixed z-50 flex flex-col items-end gap-3",
+          "bottom-[5.5rem] right-4 md:bottom-6 md:right-6"
+        )}
+        drag={open ? false : "x"}
+        dragConstraints={{ left: -20, right: 92 }}
+        dragElastic={0.12}
+        onDragEnd={(_, info) => {
+          if (open) return;
+          if (info.offset.x > 40) setHidden(true);
+          if (info.offset.x < -30) setHidden(false);
+        }}
+        animate={{ x: hidden && !open ? 92 : 0, opacity: hidden && !open ? 0 : 1 }}
+        transition={{ type: "spring", stiffness: 520, damping: 34 }}
+        style={{ pointerEvents: hidden && !open ? "none" : "auto" }}
+      >
       <AnimatePresence>
         {open && (
           <motion.div
@@ -308,7 +345,8 @@ export function ElluraChatbot() {
           />
         </motion.button>
       </div>
-    </div>
+      </motion.div>
+    </>
   );
 }
 

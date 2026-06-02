@@ -21,19 +21,23 @@ export function BharatGoOfficeGallery() {
           {gallery.map((item) => (
             <figure
               key={item.caption}
-              className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm"
+              className="group overflow-hidden rounded-2xl border border-border bg-card shadow-sm"
             >
               <div className="marketing-banner-bleed aspect-[4/3] overflow-hidden">
                 <img
                   src={item.src}
                   alt={item.caption}
-                  className="marketing-photo-banner marketing-photo-banner--tile h-full w-full transition-transform duration-300"
+                  className="marketing-photo-banner h-full w-full object-contain transition-transform duration-500 group-hover:scale-[1.01]"
                   loading="lazy"
                 />
+                <div
+                  className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/55 to-transparent"
+                  aria-hidden
+                />
+                <div className="pointer-events-none absolute inset-x-0 bottom-0 px-3 py-2">
+                  <p className="text-center text-xs font-semibold text-white/95 drop-shadow">{item.caption}</p>
+                </div>
               </div>
-              <figcaption className="px-3 py-2 text-center text-xs font-medium text-muted-foreground">
-                {item.caption}
-              </figcaption>
             </figure>
           ))}
         </div>

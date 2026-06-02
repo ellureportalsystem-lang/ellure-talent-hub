@@ -30,8 +30,8 @@ const Contact = () => {
       <MarketingPageHero
         className="marketing-page-hero--contact"
         align="left"
-        imageFit="contain"
-        imageSrc="/c1.png"
+        imageFit="cover"
+        imageSrc="/contact-hero.png"
         title={
           <>
             <span className="gold-text">Get in Touch</span>

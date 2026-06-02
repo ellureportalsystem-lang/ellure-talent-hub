@@ -50,6 +50,9 @@ const Navbar = ({ variant = "default", heroOverlay = false }: NavbarProps) => {
   const useLightText = heroOverlay ? !isSolidNav : !isSaas && !isSolidNav;
   const useHeroNavChrome = heroOverlay && !isSolidNav;
 
+  const servicesActive = location.pathname.startsWith("/services");
+  const industriesActive = location.pathname.startsWith("/industries");
+
 
 
   useEffect(() => {
@@ -126,6 +129,8 @@ const Navbar = ({ variant = "default", heroOverlay = false }: NavbarProps) => {
         : "text-foreground/80 hover:bg-muted/80 hover:text-primary data-[state=open]:bg-primary/10 data-[state=open]:text-primary"
   );
 
+  const megaTriggerActiveClass = useLightText ? "bg-white/15 text-white" : "bg-primary/10 text-primary font-semibold";
+
   const closeMobile = () => {
 
     setMobileMenuOpen(false);
@@ -181,12 +186,12 @@ const Navbar = ({ variant = "default", heroOverlay = false }: NavbarProps) => {
             <MarketingNavMegaDropdown
               label="Services"
               config={servicesMegaMenu}
-              triggerClassName={megaTriggerClass}
+              triggerClassName={cn(megaTriggerClass, servicesActive && megaTriggerActiveClass)}
             />
             <MarketingNavMegaDropdown
               label="Industries"
               config={industriesMegaMenu}
-              triggerClassName={megaTriggerClass}
+              triggerClassName={cn(megaTriggerClass, industriesActive && megaTriggerActiveClass)}
             />
             {NAVBAR_PRIMARY_LINKS.map((item) => (
               <Link key={item.href} to={item.href} className={linkClass(item.href)}>

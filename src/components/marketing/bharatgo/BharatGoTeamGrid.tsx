@@ -20,13 +20,13 @@ export function BharatGoTeamGrid() {
               title="The people behind Ellure NexHire"
               subtitle="Innovators and recruitment specialists working together to simplify hiring for businesses and candidates across India."
             />
-            <div className="mt-8 grid gap-4 sm:grid-cols-2">
+            <div className="mt-8 grid gap-3 sm:grid-cols-2 sm:gap-4">
               {team.map((member) => (
                 <div
                   key={member.name}
-                  className="rounded-2xl border border-[#f5ddd0] bg-white p-5 shadow-sm"
+                  className="rounded-2xl border border-[#f5ddd0] bg-white p-4 shadow-sm sm:p-5"
                 >
-                  <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#E9F0FF] text-lg font-bold text-primary">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#E9F0FF] text-base font-bold text-primary sm:h-14 sm:w-14 sm:text-lg">
                     {member.name[0]}
                   </div>
                   <h3 className="mt-3 font-semibold">{member.name}</h3>
@@ -36,13 +36,33 @@ export function BharatGoTeamGrid() {
               ))}
             </div>
           </div>
-          <div className="marketing-banner-bleed mx-auto w-full max-w-md overflow-hidden rounded-2xl border border-[#f5ddd0] shadow-md lg:mx-0">
-            <img
-              src={marketingBanners.gallery[1]}
-              alt=""
-              className="marketing-photo-banner marketing-photo-banner--tile aspect-[4/3] w-full"
-              loading="lazy"
-            />
+          <div className="mx-auto grid w-full max-w-xl gap-4 lg:mx-0">
+            <div className="marketing-banner-bleed overflow-hidden rounded-2xl border border-[#f5ddd0] shadow-md">
+              <img
+                src={marketingBanners.gallery[1]}
+                alt="Team at Ellure NexHire"
+                className="marketing-photo-banner aspect-[16/10] w-full object-contain"
+                loading="lazy"
+              />
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="marketing-banner-bleed overflow-hidden rounded-2xl border border-[#f5ddd0] shadow-md">
+                <img
+                  src={marketingBanners.gallery[0]}
+                  alt="Recruitment collaboration"
+                  className="marketing-photo-banner aspect-[4/3] w-full object-contain"
+                  loading="lazy"
+                />
+              </div>
+              <div className="marketing-banner-bleed overflow-hidden rounded-2xl border border-[#f5ddd0] shadow-md">
+                <img
+                  src={marketingBanners.about}
+                  alt="Client meetings"
+                  className="marketing-photo-banner aspect-[4/3] w-full object-contain"
+                  loading="lazy"
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>
