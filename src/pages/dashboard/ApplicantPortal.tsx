@@ -51,6 +51,7 @@ const ApplicantPortal = () => {
   const isHome = location.pathname === "/dashboard/applicant";
   const pageTitle =
     navItems.find((n) => isDashboardNavActive(location.pathname, n))?.label || "Applicant";
+  const headerShowBack = !isHome;
 
   const handleLogout = async () => {
     await signOut();
@@ -67,6 +68,7 @@ const ApplicantPortal = () => {
   return (
     <PortalDashboardLayout
       role="applicant"
+      shellMode="mobile-first"
       portalSuffix="Applicant"
       portalTagline="Your career workspace"
       navItems={navItems}
@@ -76,8 +78,9 @@ const ApplicantPortal = () => {
       displayName={displayName}
       email={profile?.email}
       initials={initials}
-      headerMode={isHome ? "greeting" : "title"}
-      headerTitle={isHome ? undefined : pageTitle}
+      profileImageUrl={profile?.profile_image}
+      headerShowBack={headerShowBack}
+      headerTitle={headerShowBack ? pageTitle : undefined}
       showUserMenu={false}
       animateMain
       unreadTotal={unreadTotal}

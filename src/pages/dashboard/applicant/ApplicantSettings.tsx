@@ -11,6 +11,10 @@ import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { applyPortalTheme, resolvePortalTheme, setStoredPortalTheme, type PortalTheme } from "@/lib/portalTheme";
+import { DashboardPageShell } from "@/components/dashboard/DashboardPageShell";
+import { PortalPageHeader } from "@/components/portal/portal-ui";
+import { portalPanelClass } from "@/components/portal/portalStyles";
+import { cn } from "@/lib/utils";
 
 const ApplicantSettings = () => {
   const { user, profile, refreshProfile } = useAuth();
@@ -111,13 +115,10 @@ const ApplicantSettings = () => {
   }
 
   return (
-    <div className="p-4 lg:p-6 max-w-2xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Settings</h1>
-        <p className="text-muted-foreground">Account details and password</p>
-      </div>
+    <DashboardPageShell width="narrow" className="space-y-6">
+      <PortalPageHeader title="Settings" subtitle="Account details, appearance, and password" />
 
-      <Card>
+      <Card className={portalPanelClass}>
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
             <Monitor className="h-5 w-5" />
@@ -149,7 +150,7 @@ const ApplicantSettings = () => {
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className={portalPanelClass}>
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
             <User className="h-5 w-5" />
@@ -178,7 +179,7 @@ const ApplicantSettings = () => {
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className={portalPanelClass}>
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
             <Key className="h-5 w-5" />
@@ -208,7 +209,7 @@ const ApplicantSettings = () => {
           </p>
         </CardContent>
       </Card>
-    </div>
+    </DashboardPageShell>
   );
 };
 

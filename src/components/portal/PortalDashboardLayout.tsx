@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -28,6 +28,7 @@ import {
 import { cn } from "@/lib/utils";
 import type { LucideIcon } from "lucide-react";
 import {
+  ArrowLeft,
   ChevronDown,
   LogOut,
   MoreHorizontal,
@@ -67,12 +68,17 @@ export type PortalDashboardLayoutProps = {
   displayName: string;
   email?: string;
   initials: string;
-  headerMode?: "greeting" | "title";
+  headerMode?: "greeting" | "title" | "brand";
   headerTitle?: string;
   headerExtra?: ReactNode;
+  /** MakTree inner pages — back + title */
+  headerShowBack?: boolean;
   showUserMenu?: boolean;
   animateMain?: boolean;
   unreadTotal?: number;
+  /** MR/Manager: no sidebar, brand header, bottom nav always visible */
+  shellMode?: "sidebar" | "mobile-first";
+  profileImageUrl?: string | null;
   children: ReactNode;
 };
 
@@ -99,12 +105,17 @@ export function PortalDashboardLayout({
   headerMode = "greeting",
   headerTitle,
   headerExtra,
+  headerShowBack = false,
   showUserMenu = true,
   animateMain = false,
   unreadTotal = 0,
+  shellMode = "sidebar",
+  profileImageUrl,
   children,
 }: PortalDashboardLayoutProps) {
   const location = useLocation();
+  const navigate = useNavigate();
+  const isMobileFirst = shellMode === "mobile-first";
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [overflowSheetOpen, setOverflowSheetOpen] = useState(false);
 
@@ -146,7 +157,7 @@ export function PortalDashboardLayout({
           portalNavLinkBase,
           inSheet && portalMobileNavLinkClass,
           collapsed && "justify-center px-2",
-          active ? portalNavLinkActive : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
+          active ? portalNavLinkActive : "text-muted-foreground hover:bg-muted hover:text-foreground"
         )}
       >
         <Icon className={cn("h-[18px] w-[18px] shrink-0", active && "text-[hsl(var(--portal-accent))]")} />
@@ -274,10 +285,11 @@ export function PortalDashboardLayout({
         `portal-dashboard--${role}`
       )}
     >
+      {/* Phone: bottom nav (+ overflow sheet). Laptop+: sidebar with full nav (applicant/client mobile-first). */}
       <aside
         className={cn(
           "portal-glass-sidebar relative sticky top-0 hidden h-screen shrink-0 flex-col transition-[width] duration-300 ease-out md:flex",
-          sidebarCollapsed ? "w-20" : "w-[280px]"
+          sidebarCollapsed ? "w-20" : "w-60"
         )}
       >
         <SidebarContent />
@@ -314,17 +326,47 @@ export function PortalDashboardLayout({
       <div className="flex min-h-screen min-w-0 flex-1 flex-col overflow-x-hidden">
         <header
           className={cn(
-            "portal-glass-header sticky top-0 z-40 px-4 pt-[env(safe-area-inset-top,0px)] md:px-6",
-            headerExtra
-              ? "grid grid-cols-[1fr_auto] gap-x-3 gap-y-2 py-3 md:flex md:min-h-16 md:items-center md:justify-between md:py-0"
-              : "flex min-h-16 items-center justify-between gap-3"
+            "portal-glass-header sticky top-0 z-30 shrink-0 border-b border-border/40",
+            "px-4 md:px-8 lg:px-10 pt-[env(safe-area-inset-top,0px)]",
+            isMobileFirst && "flex min-h-[calc(4rem+env(safe-area-inset-top,0px))] items-center justify-between gap-3",
+            !isMobileFirst &&
+              (headerExtra
+                ? "grid grid-cols-[1fr_auto] gap-x-3 gap-y-2 py-3 md:flex md:min-h-16 md:items-center md:justify-between md:py-0"
+                : "flex min-h-16 items-center justify-between gap-3")
           )}
+          style={
+            isMobileFirst
+              ? { minHeight: "calc(4rem + env(safe-area-inset-top, 0px))" }
+              : undefined
+          }
         >
-          <div className="flex min-w-0 items-center gap-2 md:gap-3">
-            {headerMode === "title" ? (
-              <h2 className="truncate text-lg font-semibold tracking-tight md:text-xl">
-                {headerTitle}
-              </h2>
+          <div className="flex min-w-0 flex-1 items-center gap-2">
+            {isMobileFirst && headerShowBack ? (
+              <>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="h-10 w-10 shrink-0 rounded-xl hover:bg-foreground/5 active:scale-95 touch-manipulation"
+                  aria-label="Go back"
+                  onClick={() => navigate(-1)}
+                >
+                  <ArrowLeft className="h-5 w-5" />
+                </Button>
+                <h1 className="truncate text-[15px] font-bold tracking-tight text-foreground">
+                  {headerTitle}
+                </h1>
+              </>
+            ) : isMobileFirst ? (
+              <PortalBrand portalSuffix={portalSuffix} variant="compact" />
+            ) : headerMode === "title" || headerMode === "brand" ? (
+              headerMode === "brand" ? (
+                <PortalBrand portalSuffix={portalSuffix} variant="compact" />
+              ) : (
+                <h2 className="truncate text-lg font-semibold tracking-tight md:text-xl">
+                  {headerTitle}
+                </h2>
+              )
             ) : (
               <div className="min-w-0">
                 <h2 className="truncate text-lg font-semibold tracking-[-0.02em] md:text-xl">
@@ -350,7 +392,25 @@ export function PortalDashboardLayout({
             )}
           >
             <NotificationBell />
-            {showUserMenu ? (
+            {isMobileFirst ? (
+              <Link
+                to={settingsPath}
+                className="touch-manipulation shrink-0"
+                aria-label="Profile and settings"
+              >
+                {profileImageUrl ? (
+                  <img
+                    src={profileImageUrl}
+                    alt=""
+                    className="h-9 w-9 rounded-full object-cover ring-2 ring-foreground/[0.06]"
+                  />
+                ) : (
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-primary/5 ring-2 ring-foreground/[0.04]">
+                    <span className="text-xs font-bold text-primary">{initials}</span>
+                  </div>
+                )}
+              </Link>
+            ) : showUserMenu ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className={cn("gap-2 px-2", headerIconButtonClass)}>
@@ -392,10 +452,9 @@ export function PortalDashboardLayout({
 
         <main
           className={cn(
-            "min-h-0 flex-1 overflow-auto",
-            showBottomNav
-              ? "pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))] md:pb-6"
-              : "md:pb-6"
+            "min-h-0 flex-1 overflow-auto bg-background",
+            showBottomNav &&
+              "pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))] md:pb-6"
           )}
         >
           {mainContent}
@@ -406,7 +465,11 @@ export function PortalDashboardLayout({
             className="portal-bottom-nav fixed inset-x-0 bottom-0 z-40 md:hidden"
             aria-label="Primary"
           >
-            <div className="flex items-stretch justify-around border-t border-border bg-card/95 px-1 pt-1 backdrop-blur-md">
+            <div
+              className={cn(
+                "portal-bottom-nav-inner mx-auto flex max-w-lg items-stretch justify-around px-1 pt-1 md:max-w-2xl lg:max-w-3xl md:px-4"
+              )}
+            >
               {bottomNavItems.map((item) => {
                 const Icon = item.icon;
                 const active = isNavActive(location.pathname, item);
@@ -416,11 +479,17 @@ export function PortalDashboardLayout({
                     to={item.path}
                     aria-current={active ? "page" : undefined}
                     className={cn(
-                      "portal-bottom-nav-item touch-target relative flex min-h-[52px] flex-1 flex-col items-center justify-center gap-0.5 rounded-xl px-1 py-1.5 text-[10px] font-medium active:scale-95 transition-transform",
-                      active ? "text-[hsl(var(--portal-accent))]" : "text-muted-foreground"
+                      "portal-bottom-nav-item touch-target relative flex min-h-[52px] flex-1 flex-col items-center justify-center gap-[3px] px-1 pb-1.5 pt-2 text-[10px] font-semibold active:scale-95 transition-transform md:text-[11px]",
+                      active ? "text-[hsl(var(--portal-accent))]" : "text-muted-foreground/70"
                     )}
                   >
-                    <Icon className={cn("h-5 w-5 shrink-0", active && "stroke-[2.25]")} />
+                    {active ? (
+                      <span
+                        className="absolute top-0 left-1/2 h-[2.5px] w-5 -translate-x-1/2 rounded-full bg-[hsl(var(--portal-accent))]"
+                        aria-hidden
+                      />
+                    ) : null}
+                    <Icon className={cn("h-5 w-5 shrink-0 md:h-6 md:w-6", active && "stroke-[2.5]")} />
                     <span className="max-w-[4.5rem] truncate">{item.label}</span>
                   </Link>
                 );

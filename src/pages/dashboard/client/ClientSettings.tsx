@@ -14,6 +14,9 @@ import { useClientContext } from "@/hooks/useClientContext";
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
 import { applyPortalTheme, resolvePortalTheme, setStoredPortalTheme, type PortalTheme } from "@/lib/portalTheme";
+import { DashboardPageShell } from "@/components/dashboard/DashboardPageShell";
+import { PortalPageHeader } from "@/components/portal/portal-ui";
+import { portalPanelClass } from "@/components/portal/portalStyles";
 
 function formatIsoDate(iso: string | null | undefined): string {
   if (!iso) return "—";
@@ -108,19 +111,18 @@ const ClientSettings = () => {
 
   if (isLoading) {
     return (
-      <div className="space-y-6 p-6">
+      <DashboardPageShell width="narrow" className="space-y-6">
         <Skeleton className="h-8 w-64" />
-        <Skeleton className="h-48 w-full" />
-      </div>
+        <Skeleton className="h-48 w-full rounded-2xl" />
+      </DashboardPageShell>
     );
   }
 
   if (!client) {
     return (
-      <div className="p-6 space-y-2">
-        <h1 className="text-2xl font-bold">Settings</h1>
-        <p className="text-muted-foreground">No client workspace is linked to this account.</p>
-      </div>
+      <DashboardPageShell width="narrow" className="space-y-2">
+        <PortalPageHeader title="Settings" subtitle="No client workspace is linked to this account." />
+      </DashboardPageShell>
     );
   }
 
@@ -128,13 +130,10 @@ const ClientSettings = () => {
     client.subscription_status === "active" ? "default" : client.subscription_status === "past_due" ? "destructive" : "secondary";
 
   return (
-    <div className="space-y-6 p-4 lg:p-6">
-      <div>
-        <h1 className="text-2xl font-bold">Settings</h1>
-        <p className="text-muted-foreground">Manage your company profile and account security</p>
-      </div>
+    <DashboardPageShell width="narrow" className="space-y-6">
+      <PortalPageHeader title="Settings" subtitle="Manage your company profile and account security" />
 
-        <Card className="shadow-sm">
+        <Card className={portalPanelClass}>
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
               <Monitor className="h-5 w-5" />
@@ -165,7 +164,7 @@ const ClientSettings = () => {
           </CardContent>
         </Card>
 
-      <Card className="shadow-sm">
+      <Card className={portalPanelClass}>
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
             <Building2 className="h-5 w-5" />
@@ -198,7 +197,7 @@ const ClientSettings = () => {
         </CardContent>
       </Card>
 
-      <Card className="shadow-sm">
+      <Card className={portalPanelClass}>
         <CardHeader>
           <CardTitle className="text-lg">Subscription</CardTitle>
         </CardHeader>
@@ -234,7 +233,7 @@ const ClientSettings = () => {
         </CardContent>
       </Card>
 
-      <Card className="shadow-sm">
+      <Card className={portalPanelClass}>
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
             <Bell className="h-5 w-5" />
@@ -251,7 +250,7 @@ const ClientSettings = () => {
         </CardContent>
       </Card>
 
-      <Card className="shadow-sm">
+      <Card className={portalPanelClass}>
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
             <Key className="h-5 w-5" />
@@ -274,7 +273,7 @@ const ClientSettings = () => {
         </CardContent>
       </Card>
 
-      <Card className="shadow-sm">
+      <Card className={portalPanelClass}>
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
             <HelpCircle className="h-5 w-5" />
@@ -285,7 +284,7 @@ const ClientSettings = () => {
           <HRFAQs />
         </CardContent>
       </Card>
-    </div>
+    </DashboardPageShell>
   );
 };
 

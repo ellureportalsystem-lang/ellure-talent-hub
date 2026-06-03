@@ -39,6 +39,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Switch } from "@/components/ui/switch";
+import { DashboardPageShell } from "@/components/dashboard/DashboardPageShell";
+import { PortalListRow, PortalPageHeader } from "@/components/portal/portal-ui";
+import { portalPanelClass } from "@/components/portal/portalStyles";
 
 interface UserRow {
   id: string;
@@ -115,13 +118,11 @@ const UsersManagement = () => {
   };
 
   return (
-    <div className="p-4 lg:p-6 space-y-6 max-w-[1600px] mx-auto">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Users & Roles Management</h1>
-          <p className="text-muted-foreground">Manage admin and client accounts</p>
-        </div>
+    <DashboardPageShell width="wide" className="space-y-6">
+      <PortalPageHeader
+        title="Users & roles"
+        subtitle="Manage admin and client accounts"
+        action={
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogTrigger asChild>
             <Button>
@@ -203,11 +204,11 @@ const UsersManagement = () => {
             </div>
           </DialogContent>
         </Dialog>
-      </div>
+        }
+      />
 
-      {/* Stats Cards */}
-      <div className="grid md:grid-cols-3 gap-4">
-        <Card className="shadow-sm">
+      <div className="grid gap-3 sm:grid-cols-3">
+        <Card className={portalPanelClass}>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -221,7 +222,7 @@ const UsersManagement = () => {
           </CardContent>
         </Card>
 
-        <Card className="shadow-sm">
+        <Card className={portalPanelClass}>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -235,7 +236,7 @@ const UsersManagement = () => {
           </CardContent>
         </Card>
 
-        <Card className="shadow-sm">
+        <Card className={portalPanelClass}>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -250,12 +251,11 @@ const UsersManagement = () => {
         </Card>
       </div>
 
-      {/* Users Table */}
-      <Card className="shadow-lg">
+      <Card className={portalPanelClass}>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>All Users</CardTitle>
-            <div className="relative w-64">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <CardTitle className="text-base">All users</CardTitle>
+            <div className="relative w-full sm:w-64">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 placeholder="Search users..."
@@ -267,7 +267,24 @@ const UsersManagement = () => {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="rounded-md border">
+          <div className="space-y-2 md:hidden">
+            {loading ? (
+              <p className="py-8 text-center text-sm text-muted-foreground">Loading…</p>
+            ) : filtered.length === 0 ? (
+              <p className="py-8 text-center text-sm text-muted-foreground">No users found</p>
+            ) : (
+              filtered.map((user, i) => (
+                <PortalListRow
+                  key={user.id}
+                  title={user.name}
+                  subtitle={`${user.email} · ${user.role}`}
+                  alternate={i % 2 === 1}
+                  trailing={<Badge variant={user.status === "Active" ? "default" : "secondary"}>{user.status}</Badge>}
+                />
+              ))
+            )}
+          </div>
+          <div className="hidden md:block rounded-md border">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -349,7 +366,7 @@ const UsersManagement = () => {
           </div>
         </CardContent>
       </Card>
-    </div>
+    </DashboardPageShell>
   );
 };
 

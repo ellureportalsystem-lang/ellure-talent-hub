@@ -1,4 +1,4 @@
-import { Routes, Route, useNavigate } from "react-router-dom";
+import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   Users,
@@ -22,12 +22,14 @@ import ClientTeamPage from "./client/ClientTeamPage";
 import MessagesPage from "./client/MessagesPage";
 import { useClientContext } from "@/hooks/useClientContext";
 import { useUnreadMessageCount } from "@/hooks/useUnreadMessageCount";
+import { isDashboardNavActive } from "@/lib/dashboardNav";
 
 const ClientDashboard = () => {
   const { profile, signOut } = useAuth();
   const { data: clientCtx } = useClientContext();
   const { data: unreadTotal = 0 } = useUnreadMessageCount();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleLogout = async () => {
     await signOut();
@@ -78,8 +80,13 @@ const ClientDashboard = () => {
   const cvAtLimit = cvUsed >= cvLimit;
   const cvWarning = cvUsed > cvLimit * 0.75;
 
+  const isHome = location.pathname === "/dashboard/client";
+  const flatNav = navSections.flatMap((s) => s.items);
+  const pageTitle =
+    flatNav.find((n) => isDashboardNavActive(location.pathname, n))?.label || "Client";
+
   const headerExtra =
-    clientCtx?.client ? (
+    !isHome && clientCtx?.client ? (
       <span
         className={cn(
           "hidden rounded-full border px-2.5 py-1 text-xs font-medium sm:inline",
@@ -97,6 +104,7 @@ const ClientDashboard = () => {
   return (
     <PortalDashboardLayout
       role="client"
+      shellMode="mobile-first"
       portalSuffix="Client"
       portalTagline="Hiring workspace"
       navSections={navSections}
@@ -106,8 +114,12 @@ const ClientDashboard = () => {
       displayName={displayName}
       email={profile?.email || "client@company.com"}
       initials={initials}
+      profileImageUrl={profile?.profile_image}
+      headerShowBack={!isHome}
+      headerTitle={!isHome ? pageTitle : undefined}
+      showUserMenu={false}
       unreadTotal={unreadTotal}
-      headerExtra={headerExtra}
+      headerExtra={isHome ? undefined : headerExtra}
     >
       <Routes>
         <Route index element={<ClientHome />} />

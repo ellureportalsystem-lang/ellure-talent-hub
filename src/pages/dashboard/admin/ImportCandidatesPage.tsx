@@ -14,6 +14,9 @@ import {
   type ImportRow,
   type ImportResult,
 } from "@/services/importService";
+import { DashboardPageShell } from "@/components/dashboard/DashboardPageShell";
+import { PortalPageHeader } from "@/components/portal/portal-ui";
+import { portalPanelClass } from "@/components/portal/portalStyles";
 
 type Step = 1 | 2 | 3 | 4;
 
@@ -140,12 +143,9 @@ const ImportCandidatesPage = () => {
   };
 
   return (
-    <div className="p-4 lg:p-6 space-y-6 max-w-[1200px] mx-auto">
-      <div>
-        <h1 className="text-2xl font-bold">Import Data</h1>
-        <p className="text-muted-foreground">Bulk import candidates from Excel or CSV</p>
-      </div>
-      <div className="flex flex-wrap gap-2 mb-6">
+    <DashboardPageShell width="wide" className="space-y-6">
+      <PortalPageHeader title="Import data" subtitle="Bulk import candidates from Excel or CSV" />
+      <div className="flex flex-wrap gap-2">
         {[1, 2, 3, 4].map((s) => (
           <Badge key={s} variant={step === s ? "default" : "outline"}>
             Step {s}
@@ -154,7 +154,7 @@ const ImportCandidatesPage = () => {
       </div>
 
       {step === 1 && (
-        <Card>
+        <Card className={portalPanelClass}>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Upload className="h-5 w-5" />
@@ -192,19 +192,19 @@ const ImportCandidatesPage = () => {
 
       {step >= 2 && (
         <div className="grid gap-4 lg:grid-cols-3 mb-4">
-          <Card>
+          <Card className={portalPanelClass}>
             <CardContent className="p-4">
               <p className="text-xs text-muted-foreground">Total rows</p>
               <p className="text-2xl font-bold">{parsedRows.length}</p>
             </CardContent>
           </Card>
-          <Card>
+          <Card className={portalPanelClass}>
             <CardContent className="p-4">
               <p className="text-xs text-muted-foreground">Valid</p>
               <p className="text-2xl font-bold text-emerald-600">{validRows.length}</p>
             </CardContent>
           </Card>
-          <Card>
+          <Card className={portalPanelClass}>
             <CardContent className="p-4">
               <p className="text-xs text-muted-foreground">Errors</p>
               <p className="text-2xl font-bold text-destructive">{errorRows.length}</p>
@@ -283,7 +283,7 @@ const ImportCandidatesPage = () => {
       )}
 
       {step === 4 && (
-        <Card>
+        <Card className={portalPanelClass}>
           <CardHeader>
             <CardTitle>Import progress</CardTitle>
           </CardHeader>
@@ -324,7 +324,7 @@ const ImportCandidatesPage = () => {
           </CardContent>
         </Card>
       )}
-    </div>
+    </DashboardPageShell>
   );
 };
 

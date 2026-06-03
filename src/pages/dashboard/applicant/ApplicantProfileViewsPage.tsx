@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { EmptyState } from "@/components/ui/empty-state";
-import { Eye } from "lucide-react";
 import { useRegistrationApplicant } from "@/hooks/useRegistrationApplicant";
 import { fetchApplicantProfileViews } from "@/services/profileViewService";
 import { formatDistanceToNow } from "date-fns";
+import { DashboardPageShell } from "@/components/dashboard/DashboardPageShell";
+import { PortalEmptyState, PortalListRow, PortalPageHeader } from "@/components/portal/portal-ui";
+import { portalPanelClass } from "@/components/portal/portalStyles";
+import { cn } from "@/lib/utils";
 
 const ApplicantProfileViewsPage = () => {
   const { applicantId } = useRegistrationApplicant();
@@ -21,41 +22,51 @@ const ApplicantProfileViewsPage = () => {
   }, [applicantId]);
 
   return (
-    <div className="p-4 lg:p-6 space-y-5 max-w-3xl mx-auto">
-      <div>
-        <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">Profile views</h1>
-        <p className="text-muted-foreground text-sm">Last 30 days · {views.length} view{views.length === 1 ? "" : "s"}</p>
-      </div>
+    <DashboardPageShell width="standard" className="space-y-5">
+      <PortalPageHeader
+        title="Profile views"
+        subtitle={`Last 30 days · ${views.length} view${views.length === 1 ? "" : "s"}`}
+      />
 
-      <Card className="border-[var(--surface-border)] bg-[var(--surface-1)]">
-        <CardHeader><CardTitle className="text-base">Recent views</CardTitle></CardHeader>
-        <CardContent>
-          {loading ? (
-            <div className="space-y-2">{[1, 2, 3].map((i) => <Skeleton key={i} className="h-12" />)}</div>
-          ) : views.length === 0 ? (
-            <EmptyState icon={Eye} title="No profile views yet" description="When recruiters view your profile, they'll appear here." />
-          ) : (
-            <ul className="divide-y divide-[var(--surface-border)]">
-              {views.map((v) => {
-                const profiles = v.profiles as { clients?: { company_name?: string } } | null;
-                const company = profiles?.clients?.company_name || "Recruiter";
-                return (
-                  <li key={String(v.id)} className="py-3 flex justify-between gap-4">
-                    <div>
-                      <p className="font-medium text-sm">{company}</p>
-                      <p className="text-xs text-muted-foreground capitalize">{String(v.viewer_type || "viewer")}</p>
-                    </div>
-                    <p className="text-xs text-muted-foreground shrink-0">
-                      {v.viewed_at ? formatDistanceToNow(new Date(String(v.viewed_at)), { addSuffix: true }) : ""}
-                    </p>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-        </CardContent>
-      </Card>
-    </div>
+      <div className={cn(portalPanelClass, "p-4")}>
+        <h2 className="mb-3 text-sm font-semibold">Recent views</h2>
+        {loading ? (
+          <div className="space-y-2">
+            {[1, 2, 3].map((i) => (
+              <Skeleton key={i} className="h-14 w-full rounded-xl" />
+            ))}
+          </div>
+        ) : views.length === 0 ? (
+          <PortalEmptyState
+            title="No profile views yet"
+            description="When recruiters view your profile, they'll appear here."
+          />
+        ) : (
+          <div className="space-y-2">
+            {views.map((v, i) => {
+              const profiles = v.profiles as { clients?: { company_name?: string } } | null;
+              const company = profiles?.clients?.company_name || "Recruiter";
+              return (
+                <PortalListRow
+                  key={String(v.id)}
+                  title={company}
+                  subtitle={String(v.viewer_type || "viewer")}
+                  initials={company.slice(0, 2).toUpperCase()}
+                  alternate={i % 2 === 1}
+                  trailing={
+                    <span className="text-xs text-muted-foreground shrink-0">
+                      {v.viewed_at
+                        ? formatDistanceToNow(new Date(String(v.viewed_at)), { addSuffix: true })
+                        : ""}
+                    </span>
+                  }
+                />
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </DashboardPageShell>
   );
 };
 

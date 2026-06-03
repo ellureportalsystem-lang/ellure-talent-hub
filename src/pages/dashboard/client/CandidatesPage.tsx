@@ -14,6 +14,7 @@ import { checkAndLogCvDownload, fetchSavedSearches, saveClientSearch, deleteSave
 import { defaultSearchFilters, type SearchFilters } from "@/types/searchFilters";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Users } from "lucide-react";
 import {
@@ -21,8 +22,13 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { DashboardPageShell } from "@/components/dashboard/DashboardPageShell";
+import { PortalListRow, PortalPageHeader } from "@/components/portal/portal-ui";
+import { portalPanelClass } from "@/components/portal/portalStyles";
+import { useNavigate } from "react-router-dom";
 
 const CandidatesPage = () => {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const { data: ctx, refetch: refetchClientCtx } = useClientContext();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -96,20 +102,24 @@ const CandidatesPage = () => {
   }, [filters]);
 
   return (
-    <div className="p-6 space-y-4">
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-lg font-semibold">Candidates</h1>
-          <p className="text-sm text-muted-foreground">
-            {loading ? "Searching..." : `Showing ${totalCount} candidates`}
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={() => setSaveSearchOpen(true)}>Save This Search</Button>
-          <Button variant={view === "cards" ? "default" : "outline"} size="icon" onClick={() => setView("cards")}><LayoutGrid className="h-4 w-4" /></Button>
-          <Button variant={view === "table" ? "default" : "outline"} size="icon" onClick={() => setView("table")}><List className="h-4 w-4" /></Button>
-        </div>
-      </div>
+    <DashboardPageShell width="wide" className="space-y-4">
+      <PortalPageHeader
+        title="Candidates"
+        subtitle={loading ? "Searching…" : `Showing ${totalCount} candidates`}
+        action={
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={() => setSaveSearchOpen(true)}>
+              Save search
+            </Button>
+            <Button variant={view === "cards" ? "default" : "outline"} size="icon" className="hidden sm:inline-flex" onClick={() => setView("cards")}>
+              <LayoutGrid className="h-4 w-4" />
+            </Button>
+            <Button variant={view === "table" ? "default" : "outline"} size="icon" className="hidden md:inline-flex" onClick={() => setView("table")}>
+              <List className="h-4 w-4" />
+            </Button>
+          </div>
+        }
+      />
 
       <BooleanSearchBar value={searchQuery} onChange={handleSearch} onSearch={() => refetch()} />
 
@@ -155,16 +165,10 @@ const CandidatesPage = () => {
             </div>
           ) : applicants.length === 0 ? (
             <EmptyState icon={Users} title="No candidates found" description="Try adjusting your search or filters." actionLabel="Clear Filters" onAction={() => { setFilters(defaultSearchFilters); setSearchQuery(""); }} />
-          ) : view === "cards" ? (
-            <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-4">
-              {applicants.map((a) => (
-                <CandidateCard key={a.id} applicant={a} canSeeContact={canSeeContact} onDownloadCv={handleDownloadCv} />
-              ))}
-            </div>
-          ) : (
-            <div className="dashboard-card overflow-x-auto">
+          ) : view === "table" ? (
+            <div className={cn(portalPanelClass, "hidden md:block overflow-x-auto p-0")}>
               <table className="w-full text-sm">
-                <thead className="bg-[var(--surface-2)] text-xs uppercase text-muted-foreground">
+                <thead className="text-xs uppercase text-muted-foreground">
                   <tr>
                     <th className="text-left p-3">Name</th>
                     <th className="text-left p-3">Experience</th>
@@ -174,7 +178,11 @@ const CandidatesPage = () => {
                 </thead>
                 <tbody>
                   {applicants.map((a) => (
-                    <tr key={a.id} className="border-t hover:bg-[var(--surface-2)] h-[52px]">
+                    <tr
+                      key={a.id}
+                      className="border-t border-border/60 hover:bg-muted/30 h-[52px] cursor-pointer"
+                      onClick={() => navigate(`/dashboard/client/candidates/${a.id}`)}
+                    >
                       <td className="p-3 font-medium">{a.name}</td>
                       <td className="p-3">{a.total_experience_years ?? "—"}y</td>
                       <td className="p-3">{a.city}</td>
@@ -183,6 +191,29 @@ const CandidatesPage = () => {
                   ))}
                 </tbody>
               </table>
+            </div>
+          ) : (
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+              {applicants.map((a) => (
+                <CandidateCard key={a.id} applicant={a} canSeeContact={canSeeContact} onDownloadCv={handleDownloadCv} />
+              ))}
+            </div>
+          )}
+          {view === "table" && applicants.length > 0 && (
+            <div className="space-y-2 md:hidden">
+              {applicants.map((a, i) => (
+                <PortalListRow
+                  key={a.id}
+                  title={a.name}
+                  subtitle={`${a.total_experience_years ?? "—"}y · ${a.city || "—"}`}
+                  initials={a.name?.slice(0, 2).toUpperCase()}
+                  alternate={i % 2 === 1}
+                  trailing={
+                    <Badge variant="outline">{a.profile_complete_percent ?? 0}%</Badge>
+                  }
+                  onClick={() => navigate(`/dashboard/client/candidates/${a.id}`)}
+                />
+              ))}
             </div>
           )}
           {totalCount > 24 && (
@@ -212,7 +243,7 @@ const CandidatesPage = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </DashboardPageShell>
   );
 };
 

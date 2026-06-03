@@ -10,6 +10,9 @@ import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { applyPortalTheme, resolvePortalTheme, setStoredPortalTheme, type PortalTheme } from "@/lib/portalTheme";
+import { DashboardPageShell } from "@/components/dashboard/DashboardPageShell";
+import { PortalPageHeader } from "@/components/portal/portal-ui";
+import { portalPanelClass } from "@/components/portal/portalStyles";
 
 const AdminSettings = () => {
   const { user, profile, refreshProfile } = useAuth();
@@ -105,21 +108,21 @@ const AdminSettings = () => {
 
   if (loading) {
     return (
-      <div className="space-y-6 p-6">
+      <DashboardPageShell width="narrow" className="space-y-6">
         <Skeleton className="h-8 w-48" />
-        <Skeleton className="h-40 w-full max-w-xl" />
-      </div>
+        <Skeleton className="h-40 w-full max-w-xl rounded-2xl" />
+      </DashboardPageShell>
     );
   }
 
   return (
-    <div className="space-y-6 p-4 lg:p-6 max-w-2xl">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Admin settings</h1>
-        <p className="text-muted-foreground">Your administrator profile — automations run through Supabase Edge Functions.</p>
-      </div>
+    <DashboardPageShell width="narrow" className="space-y-6">
+      <PortalPageHeader
+        title="Admin settings"
+        subtitle="Your administrator profile — automations run through Supabase Edge Functions."
+      />
 
-        <Card className="shadow-sm">
+        <Card className={portalPanelClass}>
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
               <Monitor className="h-5 w-5" />
@@ -151,7 +154,7 @@ const AdminSettings = () => {
           </CardContent>
         </Card>
 
-      <Card className="shadow-sm">
+      <Card className={portalPanelClass}>
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
             <User className="h-5 w-5" />
@@ -184,7 +187,7 @@ const AdminSettings = () => {
         </CardContent>
       </Card>
 
-      <Card className="shadow-sm">
+      <Card className={portalPanelClass}>
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
             <Bell className="h-5 w-5" />
@@ -203,7 +206,7 @@ const AdminSettings = () => {
         </CardContent>
       </Card>
 
-      <Card className="shadow-sm">
+      <Card className={portalPanelClass}>
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
             <Key className="h-5 w-5" />
@@ -225,7 +228,7 @@ const AdminSettings = () => {
           </Button>
         </CardContent>
       </Card>
-    </div>
+    </DashboardPageShell>
   );
 };
 

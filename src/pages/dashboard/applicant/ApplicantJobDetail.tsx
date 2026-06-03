@@ -1,20 +1,23 @@
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { fetchJobById, applyToJob } from "@/services/jobService";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/contexts/AuthContext";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SafeHtml } from "@/components/ui/safe-html";
 import { toast } from "sonner";
+import { DashboardPageShell } from "@/components/dashboard/DashboardPageShell";
+import { PortalLoadingBlock } from "@/components/portal/portal-ui";
+import { portalPanelClass } from "@/components/portal/portalStyles";
 
 const ApplicantJobDetail = () => {
   const { id } = useParams();
-  const { user, profile } = useAuth();
+  const { user } = useAuth();
   const [job, setJob] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [applyOpen, setApplyOpen] = useState(false);
@@ -25,18 +28,31 @@ const ApplicantJobDetail = () => {
 
   useEffect(() => {
     if (!id) return;
-    fetchJobById(id).then(setJob).catch(() => toast.error("Job not found")).finally(() => setLoading(false));
+    fetchJobById(id)
+      .then(setJob)
+      .catch(() => toast.error("Job not found"))
+      .finally(() => setLoading(false));
   }, [id]);
 
   useEffect(() => {
     if (!user?.id) return;
-    supabase.from("applicants").select("*").eq("user_id", user.id).maybeSingle().then(({ data }) => {
-      setApplicant(data);
-      if (data && id) {
-        supabase.from("job_applications").select("id").eq("job_id", id).eq("applicant_id", data.id).maybeSingle()
-          .then(({ data: app }) => setHasApplied(!!app));
-      }
-    });
+    supabase
+      .from("applicants")
+      .select("*")
+      .eq("user_id", user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        setApplicant(data);
+        if (data && id) {
+          supabase
+            .from("job_applications")
+            .select("id")
+            .eq("job_id", id)
+            .eq("applicant_id", data.id)
+            .maybeSingle()
+            .then(({ data: app }) => setHasApplied(!!app));
+        }
+      });
   }, [user, id]);
 
   const submitApply = async () => {
@@ -61,54 +77,72 @@ const ApplicantJobDetail = () => {
     }
   };
 
-  if (loading) return <div className="p-4 lg:p-6"><Skeleton className="h-64 w-full" /></div>;
-  if (!job) return <div className="p-4 lg:p-6">Job not found</div>;
+  if (loading) {
+    return (
+      <DashboardPageShell width="standard">
+        <PortalLoadingBlock label="Loading job…" />
+      </DashboardPageShell>
+    );
+  }
+
+  if (!job) {
+    return (
+      <DashboardPageShell width="standard" className="py-12 text-center text-sm text-muted-foreground">
+        Job not found
+      </DashboardPageShell>
+    );
+  }
 
   return (
-    <div className="p-4 lg:p-6 max-w-3xl mx-auto space-y-4">
-      <Button variant="ghost" size="sm" className="h-9 px-2" asChild>
-        <Link to="/dashboard/applicant/jobs">
-          <ArrowLeft className="h-4 w-4 mr-1" />
-          Back
-        </Link>
-      </Button>
-      <Card className="border shadow-sm">
-        <CardContent className="p-4 sm:p-6 space-y-4">
+    <DashboardPageShell width="standard" className="space-y-4">
+      <Card className={portalPanelClass}>
+        <CardContent className="space-y-4 p-4 sm:p-6">
           <div className="space-y-1">
             <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">{job.title}</h1>
             <p className="text-sm text-muted-foreground">
               {(job.clients as { company_name?: string })?.company_name || "Company"}
             </p>
           </div>
-          <SafeHtml html={job.description || ""} className="max-w-none" />
-          {job.requirements && (
+          <SafeHtml html={job.description || ""} className="max-w-none text-sm" />
+          {job.requirements ? (
             <>
-              <h3 className="font-semibold">Requirements</h3>
-              <SafeHtml html={job.requirements} className="max-w-none" />
+              <h3 className="text-sm font-semibold">Requirements</h3>
+              <SafeHtml html={job.requirements} className="max-w-none text-sm" />
             </>
-          )}
+          ) : null}
           {hasApplied ? (
-            <Button disabled className="h-10">Already applied</Button>
+            <Button disabled className="h-10 w-full sm:w-auto">
+              Already applied
+            </Button>
           ) : (
-            <Button onClick={() => setApplyOpen(true)} className="h-10">Apply</Button>
+            <Button onClick={() => setApplyOpen(true)} className="h-10 w-full sm:w-auto">
+              Apply
+            </Button>
           )}
         </CardContent>
       </Card>
 
       <Dialog open={applyOpen} onOpenChange={setApplyOpen}>
         <DialogContent>
-          <DialogHeader><DialogTitle>Apply for {job.title}</DialogTitle></DialogHeader>
-          <p className="text-sm text-muted-foreground">Resume on file: {applicant?.resume_file ? "Yes" : "None — upload in profile first"}</p>
-          <Textarea placeholder="Cover letter (optional, max 500 chars)" value={coverLetter} onChange={(e) => setCoverLetter(e.target.value)} maxLength={500} />
-          <Button onClick={submitApply} disabled={applying || !applicant?.resume_file}>
+          <DialogHeader>
+            <DialogTitle>Apply for {job.title}</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            Resume on file: {applicant?.resume_file ? "Yes" : "None — upload in settings first"}
+          </p>
+          <Textarea
+            placeholder="Cover letter (optional, max 500 chars)"
+            value={coverLetter}
+            onChange={(e) => setCoverLetter(e.target.value)}
+            maxLength={500}
+          />
+          <Button onClick={submitApply} disabled={applying || !applicant?.resume_file} className="w-full">
             {applying ? <Loader2 className="h-4 w-4 animate-spin" /> : "Submit Application"}
           </Button>
         </DialogContent>
       </Dialog>
-    </div>
+    </DashboardPageShell>
   );
 };
 
 export default ApplicantJobDetail;
-
-

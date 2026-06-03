@@ -36,6 +36,10 @@ import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SkeletonTable } from "@/components/ui/skeleton-table";
 import type { Applicant } from "@/hooks/useApplicants";
+import { DashboardPageShell } from "@/components/dashboard/DashboardPageShell";
+import { PortalPageHeader } from "@/components/portal/portal-ui";
+import { portalPanelClass } from "@/components/portal/portalStyles";
+import { cn } from "@/lib/utils";
 
 const currentYear = new Date().getFullYear();
 
@@ -66,7 +70,7 @@ const ApplicantsManagement = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [submittedQuery, setSubmittedQuery] = useState("");
   const [filters, setFilters] = useState<SearchFilters>(defaultFilters);
-  const [filtersCollapsed, setFiltersCollapsed] = useState(false);
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [sortField, setSortField] = useState("created_at");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
@@ -175,91 +179,104 @@ const ApplicantsManagement = () => {
     filters.profileCompleteRange[1] < 100;
 
   return (
-    <div className="p-4 lg:p-6 space-y-4 max-w-[1600px] mx-auto">
-      {/* Header */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="min-w-0">
-          <h1 className="text-xl font-bold flex items-center gap-2">
-            <Search className="h-5 w-5 text-primary" />
-            Resume Search
-          </h1>
-          <p className="text-sm text-muted-foreground mt-0.5">
-            {loading ? 'Searching...' : `${displayTotal.toLocaleString()} candidates in database`}
-          </p>
-        </div>
+    <DashboardPageShell width="wide" className="space-y-4">
+      <PortalPageHeader
+        title="Resume Search"
+        subtitle={loading ? "Searching…" : `${displayTotal.toLocaleString()} candidates in database`}
+        action={
         <div className="flex flex-wrap items-center gap-2 shrink-0">
-          <Button variant="default" size="sm" className="h-8 text-xs" asChild>
+          <Button
+            type="button"
+            variant={filtersOpen ? "default" : "outline"}
+            size="sm"
+            className="h-9 min-h-9 text-xs font-semibold shadow-sm"
+            onClick={() => setFiltersOpen((o) => !o)}
+          >
+            <Filter className="h-4 w-4 mr-1.5 shrink-0" />
+            Filters
+            {isFiltered ? (
+              <Badge variant="secondary" className="ml-1.5 h-5 min-w-5 justify-center px-1.5 text-[10px]">
+                !
+              </Badge>
+            ) : null}
+          </Button>
+          <Button variant="default" size="sm" className="h-9 text-xs" asChild>
             <Link to="/dashboard/admin/applicants/bulk-resumes">
               <Upload className="h-3.5 w-3.5 mr-1.5" />
               Bulk CV upload
             </Link>
           </Button>
-          <Button variant="outline" size="sm" onClick={handleResetFilters} className="h-8 text-xs">
+          <Button variant="outline" size="sm" onClick={handleResetFilters} className="h-9 text-xs">
             <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
             Reset
           </Button>
         </div>
-      </div>
+        }
+      />
 
-      {/* Search Bar */}
-      <Card className="border shadow-sm">
-        <CardContent className="p-4">
-          <BooleanSearchBar
-            value={searchQuery}
-            onChange={setSearchQuery}
-            onSearch={handleSearch}
-          />
+      <Card className={cn(portalPanelClass)}>
+        <CardContent className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center">
+          <div className="min-w-0 flex-1">
+            <BooleanSearchBar
+              value={searchQuery}
+              onChange={setSearchQuery}
+              onSearch={handleSearch}
+            />
+          </div>
+          <Button
+            type="button"
+            variant={filtersOpen ? "default" : "secondary"}
+            className="h-10 w-full shrink-0 gap-2 sm:w-auto sm:min-w-[120px]"
+            onClick={() => setFiltersOpen((o) => !o)}
+          >
+            <Filter className="h-4 w-4" />
+            {filtersOpen ? "Hide filters" : "Show filters"}
+          </Button>
         </CardContent>
       </Card>
 
-      {/* Filters + results */}
-      <div className="space-y-4 lg:grid lg:grid-cols-[360px_minmax(0,1fr)] lg:items-start lg:gap-4 lg:space-y-0">
-        <div className="lg:sticky lg:top-20">
-          <ResumeSearchFilters
-            filters={filters}
-            onFiltersChange={(f) => {
-              setFilters(f);
-              setCurrentPage(1);
-            }}
-            onReset={handleResetFilters}
-            isCollapsed={filtersCollapsed}
-            onToggleCollapse={() => setFiltersCollapsed(!filtersCollapsed)}
-          />
-        </div>
+      {filtersOpen && (
+        <ResumeSearchFilters
+          filters={filters}
+          onFiltersChange={(f) => {
+            setFilters(f);
+            setCurrentPage(1);
+          }}
+          onReset={handleResetFilters}
+          onClose={() => setFiltersOpen(false)}
+          layout="panel"
+        />
+      )}
 
-        {/* Results */}
-        <div className="space-y-3 min-w-0">
-          {/* Results toolbar */}
-          <div className="flex items-center justify-between gap-3 px-1">
-            <div className="flex items-center gap-3">
+      <div className="space-y-3 min-w-0">
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border/60 bg-muted/30 px-3 py-2.5">
+            <div className="flex flex-wrap items-center gap-2">
               <span className="text-sm font-medium tabular-nums">
                 {loading ? (
                   <Skeleton className="h-4 w-12 inline-block" />
                 ) : (
                   <span className="text-primary font-bold">{displayTotal.toLocaleString()}</span>
                 )}
-                <span className="text-muted-foreground ml-1.5">results</span>
+                <span className="text-muted-foreground ml-1.5">candidates</span>
               </span>
               {isFiltered && (
                 <Badge variant="secondary" className="gap-1 text-[10px] h-5">
                   <Filter className="h-3 w-3" />
-                  Filtered
+                  Filters on
                 </Badge>
               )}
             </div>
-            <div className="flex items-center gap-2">
-              <Select value={pageSize.toString()} onValueChange={(v) => { setPageSize(parseInt(v)); setCurrentPage(1); }}>
-                <SelectTrigger className="w-[110px] h-8 text-xs">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="10">10 / page</SelectItem>
-                  <SelectItem value="25">25 / page</SelectItem>
-                  <SelectItem value="50">50 / page</SelectItem>
-                  <SelectItem value="100">100 / page</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            <Select value={pageSize.toString()} onValueChange={(v) => { setPageSize(parseInt(v)); setCurrentPage(1); }}>
+              <SelectTrigger className="w-[110px] h-9 text-xs bg-background">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="10">10 / page</SelectItem>
+                <SelectItem value="25">25 / page</SelectItem>
+                <SelectItem value="50">50 / page</SelectItem>
+                <SelectItem value="100">100 / page</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Error */}
@@ -355,7 +372,6 @@ const ApplicantsManagement = () => {
               </div>
             </div>
           )}
-        </div>
       </div>
 
       <BulkActionsBar
@@ -370,7 +386,7 @@ const ApplicantsManagement = () => {
         onStatusChange={handleStatusChange}
         isAdmin
       />
-    </div>
+    </DashboardPageShell>
   );
 };
 

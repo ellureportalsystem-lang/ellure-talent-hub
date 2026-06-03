@@ -18,6 +18,10 @@ import { TagInput } from "@/components/ui/tag-input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
+import { DashboardPageShell } from "@/components/dashboard/DashboardPageShell";
+import { PortalPageHeader } from "@/components/portal/portal-ui";
+import { portalPanelClass } from "@/components/portal/portalStyles";
+import { cn } from "@/lib/utils";
 
 const JobApplicationsRoute = () => {
   const { jobId } = useParams();
@@ -60,9 +64,11 @@ const JobsList = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div><h1 className="text-2xl font-bold">My Jobs</h1><p className="text-muted-foreground">Manage postings and applications</p></div>
+    <DashboardPageShell width="standard" className="space-y-6">
+      <PortalPageHeader
+        title="My jobs"
+        subtitle="Manage postings and applications"
+        action={
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild><Button><Plus className="h-4 w-4 mr-2" />Post New Job</Button></DialogTrigger>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -78,10 +84,33 @@ const JobsList = () => {
             </div>
           </DialogContent>
         </Dialog>
-      </div>
-      <Card>
+        }
+      />
+      <Card className={portalPanelClass}>
         <CardContent className="p-0 pt-4">
-          {loading ? <Skeleton className="h-40 m-4" /> : (
+          {loading ? <Skeleton className="h-40 m-4 rounded-xl" /> : (
+            <>
+            <div className="space-y-2 p-4 md:hidden">
+              {jobs.map((j, i) => (
+                <div
+                  key={j.id}
+                  className={cn(
+                    portalPanelClass,
+                    "flex items-center justify-between gap-3 p-3 active:scale-[0.99]",
+                    i % 2 === 1 && "bg-card/80"
+                  )}
+                >
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold">{j.title}</p>
+                    <p className="text-xs text-muted-foreground">{j.applications_count ?? 0} applications</p>
+                  </div>
+                  <Button size="sm" variant="outline" className="h-8 shrink-0" asChild>
+                    <Link to={`/dashboard/client/jobs/${j.id}/applications`}>View</Link>
+                  </Button>
+                </div>
+              ))}
+            </div>
+            <div className="hidden md:block">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -107,10 +136,12 @@ const JobsList = () => {
                 ))}
               </TableBody>
             </Table>
+            </div>
+            </>
           )}
         </CardContent>
       </Card>
-    </div>
+    </DashboardPageShell>
   );
 };
 

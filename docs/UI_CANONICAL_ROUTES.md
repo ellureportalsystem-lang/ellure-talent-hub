@@ -56,3 +56,38 @@
 4. **AI sessions** rewiring routes during backend/search work despite dashboard UI lock rules.
 
 **Rule:** Only edit dashboard layout/styling when the user explicitly requests UI changes. Wire features behind existing canonical components.
+
+## Responsive layout notes (MakTree-inspired)
+
+Applied from `docs/PORTAL_UIUX_REFERENCE_EXPORT.md` — visual patterns only, not feature parity.
+
+| Breakpoint | Shell | Content |
+|------------|-------|---------|
+| **Mobile** (&lt;768px) | MakTree glass header with **logo + Ellure NexHire** on home; back + title on inner routes; bottom nav with top active bar | Applicant/client: no sidebar; admin: bottom nav + overflow menu |
+| **Tablet** (768–1023px) | Applicant/client: same mobile-first shell (bottom nav visible) | Card rows, `PortalStatLinkGrid` 3-col on phone |
+| **Desktop** (≥1024px) | Admin: `w-60` sidebar; applicant/client: centered content, bottom nav remains (MR/Manager pattern) | Inter body + Sora brand wordmark in header |
+
+Shared primitives: `src/components/portal/portal-ui.tsx`, `portalStyles.ts`, `DashboardPageShell.tsx`.
+
+## MR/Manager layout donors (MakTree field-hub)
+
+Visual clone per `docs/MR_MANAGER_DASHBOARD_UIUX_EXPORT.md` — Ellure routes and data unchanged.
+
+| MakTree reference | Ellure portal | Shell |
+|-------------------|---------------|-------|
+| MR `/mr/dashboard` | Applicant `/dashboard/applicant` | `shellMode="mobile-first"` — compact logo header, bottom nav |
+| Manager `/manager/dashboard` | Client `/dashboard/client` | Same |
+| Admin sidebar + MR mobile nav | Admin `/dashboard/admin` | Desktop sidebar; mobile bottom nav |
+
+| Ellure route | Layout donor |
+|--------------|--------------|
+| `/dashboard/applicant` | MR home (hero → today → quick actions → 3-col stats → alerts → panels) |
+| `/dashboard/applicant/jobs` | MR master list |
+| `/dashboard/applicant/applications` | MR report history |
+| `/dashboard/applicant/settings` | MakTree profile |
+| `/dashboard/client` | Manager home |
+| `/dashboard/client/candidates` | Manager team list |
+| `/dashboard/client/candidates/:id` | Manager team detail tabs |
+| `/dashboard/admin` | Manager home + admin density |
+| `/dashboard/admin/applicants` | MR master list + admin search |
+| `/dashboard/admin/reports` | MR analytics |

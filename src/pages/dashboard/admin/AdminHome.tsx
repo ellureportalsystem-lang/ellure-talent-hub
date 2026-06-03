@@ -1,85 +1,85 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { EmptyState } from "@/components/ui/empty-state";
+import { Badge } from "@/components/ui/badge";
 import {
-  Users, Building2, Briefcase, Download, UserCheck, FileText, Clock, CheckCircle,
-  AlertCircle, RefreshCw, TrendingUp,
+  Briefcase,
+  AlertCircle,
+  RefreshCw,
+  TrendingUp,
+  Search,
+  Upload,
+  UserCog,
+  BarChart3,
+  CheckCircle,
 } from "lucide-react";
 import {
-  LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
-  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
 } from "recharts";
 import {
   useAdminDashboardStats,
   useProfileRegistrationTrend,
   useTopSkillsFromSearchIndex,
   useExperienceDistribution,
-  useEducationDistribution,
   useCityDistribution,
   usePendingClients,
 } from "@/hooks/useDashboardStats";
 import { approveClient } from "@/services/dashboardService";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
 import { DashboardPageShell } from "@/components/dashboard/DashboardPageShell";
-import { PortalKpiGrid } from "@/components/portal/PortalKpiGrid";
-import { portalMobilePrimaryButtonClass } from "@/components/portal/portalStyles";
+import {
+  PortalListRow,
+  PortalQuickActionGrid,
+  PortalTodayPanel,
+  PortalWelcomeHero,
+} from "@/components/portal/portal-ui";
+import { portalMobilePrimaryButtonClass, portalPanelClass, portalAlertError } from "@/components/portal/portalStyles";
 import { cn } from "@/lib/utils";
 
-const CHART_COLORS = [
-  "hsl(var(--primary))",
-  "hsl(var(--info))",
-  "hsl(var(--success))",
-  "hsl(var(--warning))",
-  "hsl(var(--destructive))",
-  "hsl(var(--secondary))",
-];
-
-function KpiSkeleton() {
+function AdminStatCard({ label, value }: { label: string; value: string | number }) {
   return (
-    <Card className="dashboard-card border-[var(--surface-border)] bg-[var(--surface-1)]">
-      <CardContent className="p-4">
-        <Skeleton className="h-3 w-24 mb-3" />
-        <Skeleton className="h-8 w-16" />
-      </CardContent>
-    </Card>
+    <div className={cn(portalPanelClass, "p-3 md:p-3.5")}>
+      <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground leading-tight">
+        {label}
+      </p>
+      <p className="mt-1 text-xl font-bold tabular-nums tracking-tight sm:text-2xl">{value}</p>
+    </div>
   );
 }
 
-function KpiCard({
-  title, value, icon, accent, delay = 0,
-}: {
-  title: string;
-  value: string | number;
-  icon: React.ReactNode;
-  accent: string;
-  delay?: number;
-}) {
+function AdminStatSkeleton() {
   return (
-    <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay }}>
-      <Card className="dashboard-card border-[var(--surface-border)] bg-[var(--surface-1)] shadow-sm">
-        <CardContent className="p-4 flex items-center justify-between gap-3">
-          <div>
-            <p className="text-xs text-muted-foreground">{title}</p>
-            <p className="text-xl font-bold tabular-nums tracking-tight text-[var(--text-primary)] sm:text-2xl">{value}</p>
-          </div>
-          <div className={`h-10 w-10 rounded-lg flex items-center justify-center ${accent}`}>{icon}</div>
-        </CardContent>
-      </Card>
-    </motion.div>
+    <div className={cn(portalPanelClass, "p-3")}>
+      <Skeleton className="h-3 w-20 mb-2" />
+      <Skeleton className="h-7 w-14" />
+    </div>
   );
 }
 
 const AdminHome = () => {
+  const { profile } = useAuth();
   const [approving, setApproving] = useState<string | null>(null);
+  const displayName = profile?.full_name || profile?.email?.split("@")[0] || "Admin";
+  const initials = displayName
+    .split(" ")
+    .map((n: string) => n[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
   const { stats, loading: statsLoading, error: statsError } = useAdminDashboardStats("7days");
   const { data: registrationData, loading: trendLoading } = useProfileRegistrationTrend(30);
-  const { data: topSkills, loading: skillsLoading } = useTopSkillsFromSearchIndex(10);
+  const { data: topSkills, loading: skillsLoading } = useTopSkillsFromSearchIndex(8);
   const { data: experienceData, loading: expLoading } = useExperienceDistribution();
-  const { data: educationData, loading: eduLoading } = useEducationDistribution();
-  const { data: cityData, loading: cityLoading } = useCityDistribution(10);
+  const { data: cityData, loading: cityLoading } = useCityDistribution(6);
   const { data: pendingClients, loading: pendingLoading, refetch: refetchPending } = usePendingClients(8);
 
   const handleApprove = async (clientId: string) => {
@@ -95,18 +95,44 @@ const AdminHome = () => {
     }
   };
 
-  const expPie = experienceData.map((e) => ({ name: e.range, value: e.count }));
-  const eduPie = educationData.map((e) => ({ name: e.level, value: e.count }));
+  const pendingCount = stats?.pendingApprovals ?? pendingClients.length;
 
   return (
-    <DashboardPageShell className="space-y-6">
-      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-[-0.025em] text-[var(--text-primary)] md:text-3xl">
-            Dashboard Overview
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">Real-time recruitment analytics</p>
+    <DashboardPageShell width="wide" className="space-y-5 md:space-y-6">
+      <PortalWelcomeHero
+        name={displayName.split(" ")[0]}
+        subtitle="Recruitment operations overview"
+        initials={initials}
+        avatarUrl={profile?.profile_image}
+        dateLine={new Date().toLocaleDateString(undefined, {
+          weekday: "long",
+          month: "short",
+          day: "numeric",
+        })}
+      />
+
+      <PortalQuickActionGrid
+        columns={5}
+        actions={[
+          { to: "/dashboard/admin/applicants", label: "Search", icon: <Search className="h-5 w-5" />, tint: "primary" },
+          { to: "/dashboard/admin/applicants/bulk-resumes", label: "Upload", icon: <Upload className="h-5 w-5" />, tint: "sky" },
+          { to: "/dashboard/admin/users", label: "Users", icon: <UserCog className="h-5 w-5" />, tint: "violet" },
+          { to: "/dashboard/admin/jobs", label: "Jobs", icon: <Briefcase className="h-5 w-5" />, tint: "amber" },
+          { to: "/dashboard/admin/reports", label: "Reports", icon: <BarChart3 className="h-5 w-5" />, tint: "primary" },
+        ]}
+      />
+
+      {statsError && (
+        <div className={portalAlertError}>
+          <div className="flex gap-3 text-destructive">
+            <AlertCircle className="h-5 w-5 shrink-0" />
+            <p className="text-sm">{statsError.message || "Failed to load statistics"}</p>
+          </div>
         </div>
+      )}
+
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="text-sm font-semibold tracking-tight text-foreground">Key metrics</h2>
         <Button
           variant="outline"
           size="sm"
@@ -118,180 +144,198 @@ const AdminHome = () => {
         </Button>
       </div>
 
-      {statsError && (
-        <Card className="border-destructive/50 bg-destructive/5">
-          <CardContent className="p-4 flex gap-3 text-destructive">
-            <AlertCircle className="h-5 w-5 shrink-0" />
-            <p className="text-sm">{statsError.message || "Failed to load statistics"}</p>
-          </CardContent>
-        </Card>
-      )}
-
-      <PortalKpiGrid count={8}>
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 xl:grid-cols-8">
         {statsLoading ? (
-          Array.from({ length: 8 }).map((_, i) => <KpiSkeleton key={i} />)
+          Array.from({ length: 8 }).map((_, i) => <AdminStatSkeleton key={i} />)
         ) : (
           <>
-            <KpiCard title="Total Applicants" value={(stats?.totalApplicants ?? 0).toLocaleString()} icon={<Users className="h-5 w-5 text-primary-foreground" />} accent="bg-primary" />
-            <KpiCard title="New This Week" value={stats?.newThisWeek ?? 0} icon={<TrendingUp className="h-5 w-5 text-success-foreground" />} accent="bg-success" delay={0.05} />
-            <KpiCard title="Active Clients" value={stats?.activeClients ?? 0} icon={<Building2 className="h-5 w-5 text-info-foreground" />} accent="bg-info" delay={0.1} />
-            <KpiCard title="Jobs Posted" value={stats?.jobsPosted ?? 0} icon={<Briefcase className="h-5 w-5 text-primary-foreground" />} accent="bg-primary" delay={0.15} />
-            <KpiCard title="CV Downloads" value={stats?.cvDownloadsThisMonth ?? 0} icon={<Download className="h-5 w-5 text-secondary-foreground" />} accent="bg-secondary" />
-            <KpiCard title="Pending Approvals" value={stats?.pendingApprovals ?? 0} icon={<Clock className="h-5 w-5 text-warning-foreground" />} accent="bg-warning" delay={0.05} />
-            <KpiCard title="Verified Profiles" value={stats?.verifiedProfiles ?? 0} icon={<UserCheck className="h-5 w-5 text-success-foreground" />} accent="bg-success" delay={0.1} />
-            <KpiCard title="Applications" value={stats?.applicationsThisMonth ?? 0} icon={<FileText className="h-5 w-5 text-info-foreground" />} accent="bg-info" delay={0.15} />
+            <AdminStatCard title="Total Applicants" value={(stats?.totalApplicants ?? 0).toLocaleString()} />
+            <AdminStatCard title="New This Week" value={stats?.newThisWeek ?? 0} />
+            <AdminStatCard title="Active Clients" value={stats?.activeClients ?? 0} />
+            <AdminStatCard title="Jobs Posted" value={stats?.jobsPosted ?? 0} />
+            <AdminStatCard title="CV Downloads" value={stats?.cvDownloadsThisMonth ?? 0} />
+            <AdminStatCard title="Pending Approvals" value={stats?.pendingApprovals ?? 0} />
+            <AdminStatCard title="Verified Profiles" value={stats?.verifiedProfiles ?? 0} />
+            <AdminStatCard title="Applications" value={stats?.applicationsThisMonth ?? 0} />
           </>
         )}
-      </PortalKpiGrid>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="dashboard-card border-[var(--surface-border)] bg-[var(--surface-1)]">
-          <CardHeader className="pb-2"><CardTitle className="text-base">Registration Trend (30 days)</CardTitle></CardHeader>
-          <CardContent>
-            {trendLoading ? <Skeleton className="h-[280px] w-full" /> : registrationData.length === 0 ? (
-              <EmptyState icon={Users} title="No registrations" description="No profile sign-ups in the last 30 days." className="py-8" />
-            ) : (
-              <div className="h-[280px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={registrationData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                    <XAxis dataKey="date" fontSize={10} tickLine={false} axisLine={false} />
-                    <YAxis fontSize={10} tickLine={false} axisLine={false} />
-                    <Tooltip contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8 }} />
-                    <Line type="monotone" dataKey="applicants" stroke="hsl(var(--primary))" strokeWidth={2} dot={false} />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card className="dashboard-card border-[var(--surface-border)] bg-[var(--surface-1)]">
-          <CardHeader className="pb-2"><CardTitle className="text-base">Top Skills</CardTitle></CardHeader>
-          <CardContent>
-            {skillsLoading ? <Skeleton className="h-[280px] w-full" /> : topSkills.length === 0 ? (
-              <EmptyState icon={FileText} title="No skill data" description="Skills will appear once applicants add key skills." className="py-8" />
-            ) : (
-              <div className="h-[280px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={topSkills} layout="vertical" margin={{ left: 8 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                    <XAxis type="number" fontSize={10} tickLine={false} axisLine={false} />
-                    <YAxis dataKey="name" type="category" width={90} fontSize={10} tickLine={false} axisLine={false} />
-                    <Tooltip contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8 }} />
-                    <Bar dataKey="value" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            )}
-          </CardContent>
-        </Card>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="dashboard-card border-[var(--surface-border)] bg-[var(--surface-1)]">
-          <CardHeader className="pb-2"><CardTitle className="text-base">Experience</CardTitle></CardHeader>
-          <CardContent>
-            {expLoading ? <Skeleton className="h-[220px]" /> : expPie.every((d) => !d.value) ? (
-              <EmptyState icon={Users} title="No data" className="py-6" />
-            ) : (
-              <div className="h-[220px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie data={expPie} dataKey="value" nameKey="name" innerRadius={50} outerRadius={80} paddingAngle={2}>
-                      {expPie.map((_, i) => <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />)}
-                    </Pie>
-                    <Tooltip />
-                    <Legend wrapperStyle={{ fontSize: 10 }} />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-6">
+        <div className="space-y-4 lg:col-span-2">
+          <Card className={portalPanelClass}>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-semibold">New registrations (30 days)</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {trendLoading ? (
+                <Skeleton className="h-[200px] w-full rounded-xl" />
+              ) : registrationData.length === 0 ? (
+                <p className="py-10 text-center text-sm text-muted-foreground">No sign-ups in the last 30 days.</p>
+              ) : (
+                <div className="h-[200px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={registrationData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                      <XAxis dataKey="date" fontSize={10} tickLine={false} axisLine={false} />
+                      <YAxis fontSize={10} tickLine={false} axisLine={false} width={32} />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: "hsl(var(--card))",
+                          border: "1px solid hsl(var(--border))",
+                          borderRadius: 8,
+                          fontSize: 12,
+                        }}
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="applicants"
+                        stroke="hsl(var(--primary))"
+                        strokeWidth={2}
+                        dot={false}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              )}
+            </CardContent>
+          </Card>
 
-        <Card className="dashboard-card border-[var(--surface-border)] bg-[var(--surface-1)]">
-          <CardHeader className="pb-2"><CardTitle className="text-base">Education Level</CardTitle></CardHeader>
-          <CardContent>
-            {eduLoading ? <Skeleton className="h-[220px]" /> : eduPie.every((d) => !d.value) ? (
-              <EmptyState icon={FileText} title="No data" className="py-6" />
-            ) : (
-              <div className="h-[220px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie data={eduPie} dataKey="value" nameKey="name" innerRadius={50} outerRadius={80} paddingAngle={2}>
-                      {eduPie.map((_, i) => <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />)}
-                    </Pie>
-                    <Tooltip />
-                    <Legend wrapperStyle={{ fontSize: 10 }} />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card className="dashboard-card border-[var(--surface-border)] bg-[var(--surface-1)]">
-          <CardHeader className="pb-2"><CardTitle className="text-base">Top Cities</CardTitle></CardHeader>
-          <CardContent>
-            {cityLoading ? <Skeleton className="h-[220px]" /> : cityData.length === 0 ? (
-              <EmptyState icon={Building2} title="No city data" className="py-6" />
-            ) : (
-              <div className="h-[220px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={cityData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                    <XAxis dataKey="city" fontSize={9} angle={-25} textAnchor="end" height={50} />
-                    <YAxis fontSize={10} />
-                    <Tooltip />
-                    <Bar dataKey="count" fill="hsl(var(--info))" radius={[4, 4, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card className="dashboard-card border-[var(--surface-border)] bg-[var(--surface-1)]">
-        <CardHeader>
-          <CardTitle className="text-base flex items-center gap-2">
-            <CheckCircle className="h-4 w-4 text-warning" />
-            Pending Actions — Client Approvals
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {pendingLoading ? (
-            <div className="space-y-2">{[1, 2, 3].map((i) => <Skeleton key={i} className="h-12 w-full" />)}</div>
-          ) : pendingClients.length === 0 ? (
-            <EmptyState icon={CheckCircle} title="All caught up" description="No clients waiting for approval." />
-          ) : (
-            <ul className="divide-y divide-[var(--surface-border)]">
-              {pendingClients.map((c) => (
-                <li
-                  key={c.id}
-                  className="flex flex-col gap-3 py-3 sm:flex-row sm:items-center sm:justify-between"
-                >
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-medium">{c.company_name}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {c.contact_email || "—"} · {new Date(c.created_at).toLocaleDateString()}
-                    </p>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Card className={portalPanelClass}>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-semibold">Top skills</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {skillsLoading ? (
+                  <div className="space-y-2">
+                    {[1, 2, 3, 4].map((i) => (
+                      <Skeleton key={i} className="h-8 w-full rounded-lg" />
+                    ))}
                   </div>
-                  <Button
-                    size="sm"
-                    className={cn("shrink-0", portalMobilePrimaryButtonClass)}
-                    disabled={approving === c.id}
-                    onClick={() => handleApprove(c.id)}
-                  >
-                    {approving === c.id ? "Approving…" : "Approve"}
-                  </Button>
-                </li>
-              ))}
-            </ul>
+                ) : topSkills.length === 0 ? (
+                  <p className="text-sm text-muted-foreground py-4">No skill data yet.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {topSkills.map((s, i) => {
+                      const max = topSkills[0]?.value || 1;
+                      const pct = Math.round((s.value / max) * 100);
+                      return (
+                        <div key={s.name} className="space-y-1">
+                          <div className="flex justify-between text-xs">
+                            <span className="font-medium truncate pr-2">{s.name}</span>
+                            <span className="text-muted-foreground tabular-nums shrink-0">{s.value}</span>
+                          </div>
+                          <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+                            <div
+                              className="h-full rounded-full bg-primary/80"
+                              style={{ width: `${pct}%` }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card className={portalPanelClass}>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-semibold">Experience mix</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {expLoading ? (
+                  <Skeleton className="h-32 w-full" />
+                ) : (
+                  <div className="flex flex-wrap gap-2">
+                    {experienceData.map((e) => (
+                      <Badge key={e.range} variant="secondary" className="text-xs font-normal">
+                        {e.range}: {e.count}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <PortalTodayPanel
+            title="Needs attention"
+            action={
+              pendingCount > 0 ? (
+                <Button variant="ghost" size="sm" className="h-7 px-2 text-xs text-primary" asChild>
+                  <Link to="/dashboard/admin/users">View all</Link>
+                </Button>
+              ) : null
+            }
+          >
+            {pendingLoading ? (
+              <Skeleton className="h-16 w-full" />
+            ) : pendingClients.length === 0 ? (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <CheckCircle className="h-4 w-4 text-success shrink-0" />
+                All caught up — no client approvals waiting.
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {pendingClients.slice(0, 4).map((c, i) => (
+                  <PortalListRow
+                    key={c.id}
+                    title={c.company_name}
+                    subtitle={c.contact_email || "No email"}
+                    alternate={i % 2 === 1}
+                    trailing={
+                      <Button
+                        size="sm"
+                        className="h-8 text-xs"
+                        disabled={approving === c.id}
+                        onClick={() => handleApprove(c.id)}
+                      >
+                        {approving === c.id ? "…" : "Approve"}
+                      </Button>
+                    }
+                  />
+                ))}
+              </div>
+            )}
+          </PortalTodayPanel>
+
+          <Card className={portalPanelClass}>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-semibold">Top cities</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {cityLoading ? (
+                <Skeleton className="h-24 w-full" />
+              ) : cityData.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No city data.</p>
+              ) : (
+                <ul className="space-y-2">
+                  {cityData.map((c) => (
+                    <li key={c.city} className="flex items-center justify-between text-sm">
+                      <span className="truncate font-medium">{c.city}</span>
+                      <span className="text-muted-foreground tabular-nums shrink-0 ml-2">{c.count}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </CardContent>
+          </Card>
+
+          {!statsLoading && (stats?.newThisWeek ?? 0) > 0 && (
+            <div className={cn(portalPanelClass, "p-4 flex items-center gap-3")}>
+              <TrendingUp className="h-8 w-8 text-success shrink-0" />
+              <div>
+                <p className="text-sm font-semibold">+{stats?.newThisWeek} new this week</p>
+                <p className="text-xs text-muted-foreground">Applicant sign-ups in the last 7 days</p>
+              </div>
+            </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </DashboardPageShell>
   );
 };

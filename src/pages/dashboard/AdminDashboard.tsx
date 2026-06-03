@@ -25,6 +25,7 @@ import ImportCandidatesPage from "./admin/ImportCandidatesPage";
 import AdminJobsPage from "./admin/AdminJobsPage";
 import AdminMessagesPage from "./admin/AdminMessagesPage";
 import { useUnreadMessageCount } from "@/hooks/useUnreadMessageCount";
+import { isDashboardNavActive } from "@/lib/dashboardNav";
 
 const AdminDashboard = () => {
   const { profile, signOut } = useAuth();
@@ -78,6 +79,11 @@ const AdminDashboard = () => {
     { path: "/dashboard/admin/messages", label: "Emails", icon: Bell },
   ];
 
+  const isHome = location.pathname === "/dashboard/admin";
+  const flatNav = navSections.flatMap((s) => s.items);
+  const pageTitle =
+    flatNav.find((n) => isDashboardNavActive(location.pathname, n))?.label || "Admin";
+
   return (
     <PortalDashboardLayout
       role="admin"
@@ -90,6 +96,9 @@ const AdminDashboard = () => {
       displayName={displayName}
       email={profile?.email || "admin@ellure.com"}
       initials={initials}
+      headerMode="brand"
+      headerShowBack={!isHome}
+      headerTitle={!isHome ? pageTitle : undefined}
       unreadTotal={unreadTotal}
     >
       <Routes>

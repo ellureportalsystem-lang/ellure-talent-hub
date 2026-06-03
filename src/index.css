@@ -803,26 +803,28 @@ All colors MUST be HSL.
 
 /* —— Portal dashboards (admin / client / applicant) —— */
 html:has(.portal-dashboard) {
-  --portal-accent: 221 55% 46%;
-  --portal-surface-2: 220 14% 95%;
-  --portal-border: 220 13% 88%;
-  --glass-shadow: 15 23 42 / 0.05;
+  --portal-accent: 221 83% 53%;
+  --portal-surface-2: 220 14% 96%;
+  --portal-border: 214 20% 90%;
+  --glass-bg: rgba(255, 255, 255, 0.72);
+  --glass-border: rgba(255, 255, 255, 0.45);
+  --glass-shadow: 0 2px 16px rgba(0, 0, 0, 0.04);
 
-  --background: 220 14% 96.5%;
-  --foreground: 224 18% 14%;
+  --background: 210 17% 97%;
+  --foreground: 220 20% 14%;
   --card: 0 0% 100%;
-  --card-foreground: 224 18% 14%;
+  --card-foreground: 220 20% 14%;
   --popover: 0 0% 100%;
-  --popover-foreground: 224 18% 14%;
-  --muted: 220 13% 93%;
-  --muted-foreground: 220 9% 42%;
-  --primary: 221 55% 46%;
+  --popover-foreground: 220 20% 14%;
+  --muted: 220 14% 96%;
+  --muted-foreground: 220 9% 46%;
+  --primary: 221 83% 53%;
   --primary-foreground: 0 0% 100%;
-  --accent: 221 55% 46%;
-  --accent-foreground: 0 0% 100%;
-  --border: 220 13% 88%;
-  --input: 220 13% 88%;
-  --ring: 221 55% 46%;
+  --accent: 220 14% 96%;
+  --accent-foreground: 221 83% 40%;
+  --border: 214 20% 90%;
+  --input: 214 20% 90%;
+  --ring: 221 83% 53%;
   --destructive: 0 72% 51%;
   --destructive-foreground: 0 0% 100%;
   --radius: 0.75rem;
@@ -896,6 +898,40 @@ html.dark:has(.portal-dashboard--applicant) {
   letter-spacing: -0.011em;
 }
 
+.portal-dashboard.portal-shell-bg {
+  background-image: none;
+}
+
+.portal-glass-card {
+  border-radius: 1rem;
+  border: 1px solid hsl(var(--border) / 0.8);
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px) saturate(110%);
+  -webkit-backdrop-filter: blur(16px) saturate(110%);
+  box-shadow: var(--glass-shadow);
+}
+
+@keyframes portal-fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: portal-fade-in-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in-up {
+    animation: none;
+  }
+}
+
 .portal-dashboard .font-brand {
   font-family: Sora, Inter, system-ui, sans-serif;
 }
@@ -961,9 +997,31 @@ html.dark .portal-glass-header {
   border-radius: 1rem;
   border: 1px solid hsl(var(--border) / 0.8);
   background: hsl(var(--card));
-  box-shadow:
-    0 1px 2px rgba(15, 23, 42, 0.04),
-    0 0 0 1px hsl(var(--portal-accent) / 0.04);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.portal-bottom-nav {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.portal-bottom-nav-inner {
+  border-top: 1px solid hsl(var(--border) / 0.55);
+  background: hsl(var(--card) / 0.86);
+  backdrop-filter: blur(16px) saturate(110%);
+  -webkit-backdrop-filter: blur(16px) saturate(110%);
+  box-shadow: 0 -4px 24px hsl(var(--glass-shadow));
+}
+
+html.dark .portal-bottom-nav-inner {
+  background: hsl(var(--card) / 0.9);
+}
+
+.portal-section-title {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: hsl(var(--muted-foreground));
 }
 
 .portal-dashboard .dashboard-card {
@@ -976,14 +1034,9 @@ html.dark .portal-glass-header {
 }
 
 .portal-nav-link-active {
-  background: linear-gradient(
-    90deg,
-    hsl(var(--portal-accent) / 0.14),
-    hsl(var(--portal-accent) / 0.06)
-  );
-  color: hsl(var(--foreground));
-  font-weight: 600;
-  box-shadow: inset 3px 0 0 hsl(var(--portal-accent));
+  background: hsl(var(--primary) / 0.1);
+  color: hsl(var(--primary));
+  font-weight: 500;
 }
 
 .portal-content-wrap {

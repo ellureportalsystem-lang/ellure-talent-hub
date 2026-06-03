@@ -26,6 +26,10 @@ import { RichTextEditor } from "@/components/editor/RichTextEditor";
 import { TagInput } from "@/components/ui/tag-input";
 import { supabase } from "@/lib/supabase";
 import { Skeleton } from "@/components/ui/skeleton";
+import { DashboardPageShell } from "@/components/dashboard/DashboardPageShell";
+import { PortalPageHeader } from "@/components/portal/portal-ui";
+import { portalPanelClass } from "@/components/portal/portalStyles";
+import { cn } from "@/lib/utils";
 
 const AdminJobKanbanRoute = () => {
   const { jobId } = useParams();
@@ -101,12 +105,11 @@ const AdminJobsList = () => {
   };
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Jobs Management</h1>
-          <p className="text-muted-foreground">All client and Ellure job postings</p>
-        </div>
+    <DashboardPageShell width="wide" className="space-y-6">
+      <PortalPageHeader
+        title="Jobs management"
+        subtitle="All client and Ellure job postings"
+        action={
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button><Plus className="h-4 w-4 mr-2" />Post Job</Button>
@@ -173,7 +176,8 @@ const AdminJobsList = () => {
             </div>
           </DialogContent>
         </Dialog>
-      </div>
+        }
+      />
 
       <Select value={statusFilter} onValueChange={setStatusFilter}>
         <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
@@ -184,12 +188,34 @@ const AdminJobsList = () => {
         </SelectContent>
       </Select>
 
-      <Card>
-        <CardHeader><CardTitle className="flex items-center gap-2"><Briefcase className="h-5 w-5" />All Jobs</CardTitle></CardHeader>
+      <Card className={portalPanelClass}>
+        <CardHeader><CardTitle className="flex items-center gap-2 text-base"><Briefcase className="h-5 w-5" />All jobs</CardTitle></CardHeader>
         <CardContent>
           {loading ? (
-            <div className="space-y-2">{[1, 2, 3].map((i) => <Skeleton key={i} className="h-12 w-full" />)}</div>
+            <div className="space-y-2">{[1, 2, 3].map((i) => <Skeleton key={i} className="h-12 w-full rounded-xl" />)}</div>
           ) : (
+            <>
+            <div className="space-y-2 md:hidden">
+              {jobs.map((job, i) => (
+                <div
+                  key={job.id}
+                  className={cn(
+                    portalPanelClass,
+                    "flex items-center justify-between gap-3 p-3",
+                    i % 2 === 1 && "bg-card/80"
+                  )}
+                >
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold">{job.title}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {(job.clients as { company_name?: string })?.company_name || "Ellure"}
+                    </p>
+                  </div>
+                  <Badge variant={statusColor(job.status)}>{job.status}</Badge>
+                </div>
+              ))}
+            </div>
+            <div className="hidden md:block">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -225,10 +251,12 @@ const AdminJobsList = () => {
                 ))}
               </TableBody>
             </Table>
+            </div>
+            </>
           )}
         </CardContent>
       </Card>
-    </div>
+    </DashboardPageShell>
   );
 };
 

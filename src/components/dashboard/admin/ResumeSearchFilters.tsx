@@ -67,8 +67,46 @@ interface ResumeSearchFiltersProps {
   filters: SearchFilters;
   onFiltersChange: (filters: SearchFilters) => void;
   onReset: () => void;
-  isCollapsed: boolean;
-  onToggleCollapse: () => void;
+  /** @deprecated use layout="panel" + onClose */
+  isCollapsed?: boolean;
+  onToggleCollapse?: () => void;
+  layout?: "sidebar" | "panel";
+  onClose?: () => void;
+}
+
+function RangeFilterBlock({
+  label,
+  hint,
+  value,
+  onChange,
+  min,
+  max,
+  step = 1,
+  formatMin,
+  formatMax,
+}: {
+  label: string;
+  hint?: string;
+  value: [number, number];
+  onChange: (v: [number, number]) => void;
+  min: number;
+  max: number;
+  step?: number;
+  formatMin: (n: number) => string;
+  formatMax: (n: number) => string;
+}) {
+  return (
+    <div className="rounded-xl border border-border/70 bg-muted/25 p-3 space-y-3">
+      <div>
+        <p className="text-sm font-medium text-foreground">{label}</p>
+        {hint ? <p className="text-xs text-muted-foreground mt-0.5">{hint}</p> : null}
+      </div>
+      <Slider value={value} onValueChange={(v) => onChange(v as [number, number])} min={min} max={max} step={step} />
+      <p className="text-center text-xs font-semibold text-foreground tabular-nums">
+        {formatMin(value[0])} – {formatMax(value[1])}
+      </p>
+    </div>
+  );
 }
 
 const FilterSection = ({
@@ -154,8 +192,10 @@ const ResumeSearchFilters = ({
   filters,
   onFiltersChange,
   onReset,
-  isCollapsed,
+  isCollapsed = false,
   onToggleCollapse,
+  layout = "sidebar",
+  onClose,
 }: ResumeSearchFiltersProps) => {
   const [skillOptions, setSkillOptions] = useState<string[]>([]);
   const [cityOptions, setCityOptions] = useState<string[]>([]);
@@ -196,7 +236,9 @@ const ResumeSearchFilters = ({
     filters.profileCompleteRange[0] > 0 || filters.profileCompleteRange[1] < 100,
   ].filter(Boolean).length;
 
-  if (isCollapsed) {
+  const isPanel = layout === "panel";
+
+  if (!isPanel && isCollapsed) {
     return (
       <Card className="w-full border shadow-sm">
         <CardContent className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between">
@@ -221,7 +263,7 @@ const ResumeSearchFilters = ({
               <RotateCcw className="h-3.5 w-3.5 mr-1.5" />
               Reset
             </Button>
-            <Button type="button" size="sm" className="h-8 text-xs" onClick={onToggleCollapse}>
+            <Button type="button" size="sm" className="h-8 text-xs" onClick={() => onToggleCollapse?.()}>
               Show filters
             </Button>
           </div>
@@ -231,13 +273,12 @@ const ResumeSearchFilters = ({
   }
 
   return (
-    <Card className="w-full border shadow-sm">
+    <Card className="w-full rounded-2xl border-border/80 shadow-sm">
       <CardHeader className="space-y-1 pb-3 border-b">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <CardTitle className="text-base flex flex-wrap items-center gap-2">
-              <Filter className="h-4 w-4 shrink-0" />
-              Filters
+              Filter candidates
               {activeFiltersCount > 0 && (
                 <Badge variant="secondary" className="font-normal">
                   {activeFiltersCount} active
@@ -245,7 +286,7 @@ const ResumeSearchFilters = ({
               )}
             </CardTitle>
             <CardDescription className="text-xs sm:text-sm mt-1 max-w-2xl">
-              Adjust filters to narrow results.
+              Narrow the list by experience, salary, location, and status.
             </CardDescription>
           </div>
           <div className="flex items-center gap-1 shrink-0">
@@ -264,7 +305,7 @@ const ResumeSearchFilters = ({
               type="button"
               variant="ghost"
               size="sm"
-              onClick={onToggleCollapse}
+              onClick={isPanel ? onClose : onToggleCollapse}
               className="h-8 w-8 p-0"
               title="Hide filters"
             >
@@ -290,43 +331,29 @@ const ResumeSearchFilters = ({
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="basics" className="mt-4 space-y-1 min-h-[200px]">
-            <FilterSection title="Experience (years)" defaultOpen>
-              <div className="px-1">
-                <Slider
-                  value={filters.experienceRange}
-                  onValueChange={(value) =>
-                    updateFilter("experienceRange", value as [number, number])
-                  }
-                  max={20}
-                  min={0}
-                  step={1}
-                  className="mt-2"
-                />
-                <div className="flex justify-between text-xs text-muted-foreground mt-2">
-                  <span>{filters.experienceRange[0]} yrs</span>
-                  <span>{filters.experienceRange[1]} yrs</span>
-                </div>
-              </div>
-            </FilterSection>
-            <FilterSection title="Salary range (LPA)" defaultOpen>
-              <div className="px-1">
-                <Slider
-                  value={filters.salaryRange}
-                  onValueChange={(value) =>
-                    updateFilter("salaryRange", value as [number, number])
-                  }
-                  max={100}
-                  min={0}
-                  step={1}
-                  className="mt-2"
-                />
-                <div className="flex justify-between text-xs text-muted-foreground mt-2">
-                  <span>₹{filters.salaryRange[0]}L</span>
-                  <span>₹{filters.salaryRange[1]}L</span>
-                </div>
-              </div>
-            </FilterSection>
+          <TabsContent value="basics" className="mt-4 space-y-3 min-h-0">
+            <div className="grid gap-3 sm:grid-cols-2">
+              <RangeFilterBlock
+                label="Years of experience"
+                hint="Total work experience"
+                value={filters.experienceRange}
+                onChange={(v) => updateFilter("experienceRange", v)}
+                min={0}
+                max={20}
+                formatMin={(n) => `${n} yr${n === 1 ? "" : "s"}`}
+                formatMax={(n) => `${n} yr${n === 1 ? "" : "s"}`}
+              />
+              <RangeFilterBlock
+                label="Expected salary (LPA)"
+                hint="Annual CTC in lakhs"
+                value={filters.salaryRange}
+                onChange={(v) => updateFilter("salaryRange", v)}
+                min={0}
+                max={100}
+                formatMin={(n) => `₹${n}L`}
+                formatMax={(n) => `₹${n}L`}
+              />
+            </div>
             <FilterSection title="Application status" defaultOpen>
               <div className="grid grid-cols-2 gap-x-4 gap-y-2">
                 {[...APPLICANT_STATUS_OPTIONS].map((option) => (
@@ -349,24 +376,16 @@ const ResumeSearchFilters = ({
                 ))}
               </div>
             </FilterSection>
-            <FilterSection title="Year of passing" defaultOpen>
-              <div className="px-1">
-                <Slider
-                  value={filters.yearOfPassing}
-                  onValueChange={(value) =>
-                    updateFilter("yearOfPassing", value as [number, number])
-                  }
-                  max={currentYear}
-                  min={2000}
-                  step={1}
-                  className="mt-2"
-                />
-                <div className="flex justify-between text-xs text-muted-foreground mt-2">
-                  <span>{filters.yearOfPassing[0]}</span>
-                  <span>{filters.yearOfPassing[1]}</span>
-                </div>
-              </div>
-            </FilterSection>
+            <RangeFilterBlock
+              label="Year of passing"
+              hint="Graduation / completion year"
+              value={filters.yearOfPassing}
+              onChange={(v) => updateFilter("yearOfPassing", v)}
+              min={2000}
+              max={currentYear}
+              formatMin={(n) => String(n)}
+              formatMax={(n) => String(n)}
+            />
           </TabsContent>
 
           <TabsContent value="place" className="mt-4 space-y-1 min-h-[200px]">

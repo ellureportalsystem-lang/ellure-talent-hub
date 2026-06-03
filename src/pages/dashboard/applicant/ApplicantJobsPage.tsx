@@ -11,6 +11,10 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
+import { DashboardPageShell } from "@/components/dashboard/DashboardPageShell";
+import { PortalPageHeader, PortalEmptyState } from "@/components/portal/portal-ui";
+import { portalPanelClass } from "@/components/portal/portalStyles";
+import { cn } from "@/lib/utils";
 
 const ApplicantJobsPage = () => {
   const { profile, user } = useAuth();
@@ -64,13 +68,10 @@ const ApplicantJobsPage = () => {
   };
 
   return (
-    <div className="p-4 lg:p-6 space-y-5 max-w-5xl mx-auto">
-      <div className="space-y-1">
-        <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">Find jobs</h1>
-        <p className="text-sm text-muted-foreground">Browse active openings matching your profile</p>
-      </div>
+    <DashboardPageShell width="standard" className="space-y-5">
+      <PortalPageHeader title="Find jobs" subtitle="Browse active openings matching your profile" />
 
-      <Card className="border shadow-sm">
+      <Card className={portalPanelClass}>
         <CardContent className="p-3">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
             <div className="relative flex-1">
@@ -95,11 +96,11 @@ const ApplicantJobsPage = () => {
       {loading ? (
         <div className="space-y-3">{[1, 2, 3].map((i) => <Skeleton key={i} className="h-28 w-full" />)}</div>
       ) : jobs.length === 0 ? (
-        <Card><CardContent className="p-8 text-center text-muted-foreground">No active jobs found</CardContent></Card>
+        <PortalEmptyState title="No active jobs" description="Try adjusting search or check back later." />
       ) : (
         <div className="space-y-3">
           {jobs.map((job) => (
-            <Card key={job.id} className="border shadow-sm hover:shadow-md transition-shadow">
+            <Card key={job.id} className={cn(portalPanelClass, "transition-shadow hover:border-primary/20 active:scale-[0.99]")}>
               <CardContent className="p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
@@ -162,7 +163,7 @@ const ApplicantJobsPage = () => {
           ))}
         </div>
       )}
-    </div>
+    </DashboardPageShell>
   );
 };
 

@@ -22,6 +22,16 @@ import { supabase } from "@/lib/supabase";
 import { openResumePreview } from "@/lib/resumePreview";
 import { toast } from "sonner";
 import { CandidateFAQs } from "@/components/CandidateFAQs";
+import {
+  PortalQuickActionGrid,
+  PortalStatLinkCard,
+  PortalStatLinkGrid,
+  PortalTodayPanel,
+  PortalWelcomeHero,
+  portalAlerts,
+} from "@/components/portal/portal-ui";
+import { portalPageCanvas, portalPageWidth, portalPanelClass } from "@/components/portal/portalStyles";
+import { cn } from "@/lib/utils";
 
 const ApplicantDashboard = ({ embedded = false }: { embedded?: boolean }) => {
   const { profile, user, signOut } = useAuth();
@@ -245,15 +255,13 @@ const ApplicantDashboard = ({ embedded = false }: { embedded?: boolean }) => {
     return null;
   }
 
-  const cardClass = embedded
-    ? "rounded-xl border border-border bg-card shadow-sm"
-    : "shadow-lg";
+  const cardClass = embedded ? portalPanelClass : "shadow-lg";
 
   return (
     <div
       className={
         embedded
-          ? "w-full min-w-0 max-w-6xl mx-auto p-4 lg:p-6 text-foreground"
+          ? cn(portalPageCanvas, portalPageWidth.standard, "min-w-0 text-foreground")
           : "min-h-screen bg-gradient-subtle"
       }
     >
@@ -277,16 +285,39 @@ const ApplicantDashboard = ({ embedded = false }: { embedded?: boolean }) => {
 
       <div className={embedded ? "space-y-6" : "container py-8"}>
         {embedded && (
-          <>
-            <section className="rounded-2xl border border-primary/15 bg-gradient-to-br from-primary/10 via-card to-secondary/5 p-4 sm:p-5">
-              <p className="text-[11px] font-semibold uppercase tracking-wide text-primary">Career workspace</p>
-              <h1 className="mt-1 text-xl font-bold tracking-tight sm:text-2xl">
-                {getFullName() === "Not provided" ? "Your dashboard" : getFullName()}
-              </h1>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {getCurrentDesignation()} · {getLocation()}
+          <div className="space-y-4 md:space-y-6 animate-fade-in-up">
+            <PortalWelcomeHero
+              name={getFullName() === "Not provided" ? "there" : getFullName().split(" ")[0]}
+              subtitle={`${getCurrentDesignation()} · ${getLocation()}`}
+              initials={getInitials()}
+              avatarUrl={profile?.profile_image}
+              dateLine={new Date().toLocaleDateString(undefined, {
+                weekday: "long",
+                month: "short",
+                day: "numeric",
+              })}
+            />
+
+            <PortalTodayPanel
+              title="Today"
+              action={
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 px-2 text-xs text-primary"
+                  onClick={() => navigate("/dashboard/applicant/applications")}
+                >
+                  View all
+                </Button>
+              }
+            >
+              <p className="text-sm text-muted-foreground">
+                {applicationStats.pending > 0
+                  ? `${applicationStats.pending} application${applicationStats.pending === 1 ? "" : "s"} awaiting update`
+                  : "No pending applications — browse jobs to apply"}
               </p>
-              <div className="mt-4 flex items-center gap-3">
+              <div className="flex items-center gap-3 pt-1">
                 <div className="flex-1 space-y-1">
                   <div className="flex justify-between text-xs">
                     <span className="text-muted-foreground">Profile strength</span>
@@ -303,31 +334,66 @@ const ApplicantDashboard = ({ embedded = false }: { embedded?: boolean }) => {
                   Improve
                 </Button>
               </div>
-            </section>
+            </PortalTodayPanel>
 
-            <nav
-              className="grid grid-cols-4 gap-2 sm:gap-3"
-              aria-label="Quick actions"
-            >
-              {[
-                { to: "/dashboard/applicant/jobs", label: "Jobs", icon: Briefcase },
-                { to: "/dashboard/applicant/applications", label: "Applications", icon: FileText },
-                { to: "/dashboard/applicant/saved-jobs", label: "Saved", icon: Bookmark },
-                { to: "/dashboard/applicant/messages", label: "Messages", icon: MessageSquare },
-              ].map((item) => (
-                <Link
-                  key={item.to}
-                  to={item.to}
-                  className="flex flex-col items-center gap-1.5 rounded-xl border border-border bg-card p-3 text-center shadow-sm transition-colors hover:bg-muted/40 active:bg-muted/60"
+            <PortalQuickActionGrid
+              columns={4}
+              actions={[
+                { to: "/dashboard/applicant/jobs", label: "Jobs", icon: <Briefcase className="h-5 w-5" />, tint: "primary" },
+                { to: "/dashboard/applicant/applications", label: "Apps", icon: <FileText className="h-5 w-5" />, tint: "sky" },
+                { to: "/dashboard/applicant/saved-jobs", label: "Saved", icon: <Bookmark className="h-5 w-5" />, tint: "violet" },
+                { to: "/dashboard/applicant/messages", label: "Inbox", icon: <MessageSquare className="h-5 w-5" />, tint: "amber" },
+              ]}
+            />
+
+            <PortalStatLinkGrid>
+              <PortalStatLinkCard
+                label="Applications"
+                value={applicationStats.total}
+                icon={<FileText className="h-4 w-4" />}
+                to="/dashboard/applicant/applications"
+              />
+              <PortalStatLinkCard
+                label="Pending"
+                value={applicationStats.pending}
+                icon={<Clock className="h-4 w-4" />}
+                to="/dashboard/applicant/applications"
+              />
+              <PortalStatLinkCard
+                label="Shortlisted"
+                value={applicationStats.shortlisted}
+                icon={<CheckCircle2 className="h-4 w-4" />}
+                to="/dashboard/applicant/applications"
+              />
+            </PortalStatLinkGrid>
+
+            {profileCompletion < 85 && (
+              <div className={portalAlerts.warning}>
+                <p className="text-sm font-medium">Complete your profile</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  Profiles above 85% get more recruiter views.
+                </p>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  className="mt-3 h-9 w-full"
+                  onClick={() => navigate("/dashboard/applicant/settings")}
                 >
-                  <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
-                    <item.icon className="h-5 w-5" />
-                  </span>
-                  <span className="text-[11px] font-medium leading-tight sm:text-xs">{item.label}</span>
-                </Link>
-              ))}
-            </nav>
-          </>
+                  Update profile
+                </Button>
+              </div>
+            )}
+
+            {!getResumeFile() && (
+              <div className={portalAlerts.info}>
+                <p className="text-sm font-medium">Upload your resume</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  Required to apply to most jobs on NexHire.
+                </p>
+              </div>
+            )}
+          </div>
         )}
 
         {/* Profile Header Card — compact on mobile when embedded in portal */}
@@ -436,8 +502,14 @@ const ApplicantDashboard = ({ embedded = false }: { embedded?: boolean }) => {
           </CardContent>
         </Card>
 
-        {/* Quick Stats */}
-        <div className={embedded ? "grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4 mb-6" : "grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4 mb-8"}>
+        {/* Quick Stats — standalone only; embedded uses PortalStatLinkGrid above */}
+        <div
+          className={
+            embedded
+              ? "hidden"
+              : "grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4 mb-8"
+          }
+        >
           <Card className={embedded ? cardClass : undefined}>
             <CardContent className="p-4">
               <div className="flex items-center gap-3">

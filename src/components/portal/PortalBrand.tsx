@@ -5,16 +5,40 @@ type PortalBrandProps = {
   tagline?: string;
   collapsed?: boolean;
   size?: "sm" | "md";
+  /** MakTree PageHeader home — logo + wordmark in one row */
+  variant?: "default" | "compact";
 };
 
-export function PortalBrand({ portalSuffix, tagline, collapsed, size = "md" }: PortalBrandProps) {
+export function PortalBrand({
+  portalSuffix,
+  tagline,
+  collapsed,
+  size = "md",
+  variant = "default",
+}: PortalBrandProps) {
   if (collapsed) {
     return (
-      <img
-        src="/ellure-logo.png"
-        alt="Ellure NexHire"
-        className="h-9 w-9 object-contain"
-      />
+      <img src="/ellure-logo.png" alt="Ellure NexHire" className="h-9 w-9 object-contain" />
+    );
+  }
+
+  if (variant === "compact") {
+    return (
+      <div className="flex min-w-0 items-center gap-2.5">
+        <img
+          src="/ellure-logo.png"
+          alt=""
+          className="h-9 w-9 shrink-0 object-contain"
+        />
+        <div className="min-w-0 leading-tight">
+          <p className="font-brand truncate text-sm font-extrabold tracking-tight text-foreground">
+            Ellure <span className="text-primary">NexHire</span>
+          </p>
+          <p className="truncate text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+            {portalSuffix}
+          </p>
+        </div>
+      </div>
     );
   }
 

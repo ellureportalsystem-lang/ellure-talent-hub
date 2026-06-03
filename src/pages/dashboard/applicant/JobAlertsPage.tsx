@@ -3,13 +3,15 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { Bell, Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/contexts/AuthContext";
 import { upsertJobAlert, deleteJobAlert, fetchJobAlerts } from "@/services/jobService";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
-import { EmptyState } from "@/components/ui/empty-state";
+import { DashboardPageShell } from "@/components/dashboard/DashboardPageShell";
+import { PortalEmptyState, PortalPageHeader } from "@/components/portal/portal-ui";
+import { portalPanelClass } from "@/components/portal/portalStyles";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
@@ -64,25 +66,36 @@ const JobAlertsPage = () => {
   };
 
   return (
-    <div className="p-4 lg:p-6 space-y-5 max-w-3xl mx-auto">
-      <div className="flex items-center justify-between gap-3">
-        <div className="min-w-0">
-          <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">Job alerts</h1>
-          <p className="mt-0.5 text-sm text-muted-foreground">Get notified about roles that match you</p>
-        </div>
-        <Button onClick={() => setOpen(true)} className="h-10 shrink-0">
-          <Plus className="h-4 w-4 mr-2" />
-          New
-        </Button>
-      </div>
+    <DashboardPageShell width="standard" className="space-y-5">
+      <PortalPageHeader
+        title="Job alerts"
+        subtitle="Get notified about roles that match you"
+        action={
+          <Button onClick={() => setOpen(true)} className="h-10 shrink-0">
+            <Plus className="h-4 w-4 mr-2" />
+            New
+          </Button>
+        }
+      />
 
-      {loading ? <Skeleton className="h-32 w-full" /> : alerts.length === 0 ? (
-        <EmptyState icon={Bell} title="No alerts yet" description="Create one to get notified about matching jobs." actionLabel="Create New Alert" onAction={() => setOpen(true)} />
+      {loading ? (
+        <Skeleton className="h-32 w-full rounded-2xl" />
+      ) : alerts.length === 0 ? (
+        <PortalEmptyState
+          title="No alerts yet"
+          description="Create one to get notified about matching jobs."
+          action={
+            <Button onClick={() => setOpen(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Create alert
+            </Button>
+          }
+        />
       ) : (
         <div className="space-y-3">
           {alerts.map((a) => (
-            <Card key={a.id} className="dashboard-card">
-              <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <Card key={a.id} className={portalPanelClass}>
+              <CardContent className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <div className="flex flex-wrap gap-1 mb-2">
                     {(a.keywords || []).map((k: string) => <Badge key={k} variant="secondary">{k}</Badge>)}
@@ -117,7 +130,7 @@ const JobAlertsPage = () => {
           <DialogFooter><Button onClick={createAlert}>Save</Button></DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </DashboardPageShell>
   );
 };
 

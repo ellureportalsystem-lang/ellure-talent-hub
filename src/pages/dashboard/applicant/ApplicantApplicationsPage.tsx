@@ -7,6 +7,10 @@ import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/contexts/AuthContext";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
+import { DashboardPageShell } from "@/components/dashboard/DashboardPageShell";
+import { PortalPageHeader } from "@/components/portal/portal-ui";
+import { portalPanelClass } from "@/components/portal/portalStyles";
+import { cn } from "@/lib/utils";
 
 const stageColors: Record<string, "default" | "secondary" | "outline" | "destructive"> = {
   applied: "outline",
@@ -40,13 +44,10 @@ const ApplicantApplicationsPage = () => {
   }, [user, profile]);
 
   return (
-    <div className="p-4 lg:p-6 space-y-5 max-w-5xl mx-auto">
-      <div className="space-y-1">
-        <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">My applications</h1>
-        <p className="text-sm text-muted-foreground">Track progress across your job applications</p>
-      </div>
+    <DashboardPageShell width="standard" className="space-y-5">
+      <PortalPageHeader title="My applications" subtitle="Track progress across your job applications" />
 
-      <Card className="border shadow-sm">
+      <Card className={portalPanelClass}>
         <CardHeader className="pb-3">
           <CardTitle className="text-base">Application history</CardTitle>
         </CardHeader>
@@ -62,7 +63,7 @@ const ApplicantApplicationsPage = () => {
               {/* Mobile: card list */}
               <div className="space-y-3 md:hidden">
                 {apps.map((a) => (
-                  <div key={a.id} className="rounded-xl border bg-card p-4 shadow-sm">
+                  <div key={a.id} className={cn(portalPanelClass, "p-4 active:scale-[0.99]")}>
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
                         <p className="truncate text-sm font-semibold">{a.jobs?.title || "—"}</p>
@@ -113,7 +114,7 @@ const ApplicantApplicationsPage = () => {
           )}
         </CardContent>
       </Card>
-    </div>
+    </DashboardPageShell>
   );
 };
 

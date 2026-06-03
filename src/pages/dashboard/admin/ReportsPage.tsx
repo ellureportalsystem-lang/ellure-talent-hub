@@ -8,17 +8,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { DashboardPageShell } from "@/components/dashboard/DashboardPageShell";
+import { PortalPageHeader } from "@/components/portal/portal-ui";
+import { portalPanelClass } from "@/components/portal/portalStyles";
 
 const ReportsPage = () => {
   return (
-    <div className="p-4 lg:p-6 space-y-6 max-w-[1600px] mx-auto">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Reports & Analytics</h1>
-          <p className="text-muted-foreground">View insights and export reports</p>
-        </div>
-        <div className="flex gap-2">
+    <DashboardPageShell width="wide" className="space-y-6">
+      <PortalPageHeader
+        title="Reports & analytics"
+        subtitle="View insights and export reports"
+        action={
+        <div className="flex flex-wrap gap-2">
           <Select defaultValue="last30">
             <SelectTrigger className="w-40 h-9">
               <SelectValue />
@@ -35,11 +36,11 @@ const ReportsPage = () => {
             Export All Reports
           </Button>
         </div>
-      </div>
+        }
+      />
 
-      {/* Summary Cards */}
-      <div className="grid md:grid-cols-4 gap-4">
-        <Card className="shadow-sm">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <Card className={portalPanelClass}>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -54,7 +55,7 @@ const ReportsPage = () => {
           </CardContent>
         </Card>
 
-        <Card className="shadow-sm">
+        <Card className={portalPanelClass}>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -69,7 +70,7 @@ const ReportsPage = () => {
           </CardContent>
         </Card>
 
-        <Card className="shadow-sm">
+        <Card className={portalPanelClass}>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -84,7 +85,7 @@ const ReportsPage = () => {
           </CardContent>
         </Card>
 
-        <Card className="shadow-sm">
+        <Card className={portalPanelClass}>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
@@ -103,7 +104,7 @@ const ReportsPage = () => {
       {/* Report Cards Grid */}
       <div className="grid md:grid-cols-2 gap-6">
         {/* Applicant Source Report */}
-        <Card className="shadow-sm">
+        <Card className={portalPanelClass}>
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle className="text-lg">Applicant Source Report</CardTitle>
@@ -121,7 +122,7 @@ const ReportsPage = () => {
         </Card>
 
         {/* Hiring Funnel */}
-        <Card className="shadow-sm">
+        <Card className={portalPanelClass}>
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle className="text-lg">Hiring Funnel</CardTitle>
@@ -139,7 +140,7 @@ const ReportsPage = () => {
         </Card>
 
         {/* Skills Heatmap */}
-        <Card className="shadow-sm">
+        <Card className={portalPanelClass}>
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle className="text-lg">Skills Heatmap</CardTitle>
@@ -157,7 +158,7 @@ const ReportsPage = () => {
         </Card>
 
         {/* Client Activity */}
-        <Card className="shadow-sm">
+        <Card className={portalPanelClass}>
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle className="text-lg">Client Activity</CardTitle>
@@ -174,7 +175,7 @@ const ReportsPage = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </DashboardPageShell>
   );
 };
 

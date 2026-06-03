@@ -11,6 +11,9 @@ import { uploadApplicantResume } from "@/lib/applicantMediaUpload";
 import { matchApplicantByFileName, type ApplicantMatchRow } from "@/lib/bulkResumeMatcher";
 import { ArrowLeft, Loader2, Upload, CheckCircle2, AlertCircle, HelpCircle, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { DashboardPageShell } from "@/components/dashboard/DashboardPageShell";
+import { PortalPageHeader } from "@/components/portal/portal-ui";
+import { portalPanelClass } from "@/components/portal/portalStyles";
 
 type RowStatus = "pending" | "uploading" | "ok" | "error";
 
@@ -233,17 +236,21 @@ const BulkResumeUpload = () => {
   };
 
   return (
-    <div className="p-4 lg:p-6 max-w-4xl mx-auto space-y-6">
-      <div className="flex items-center gap-3">
-        <Button variant="ghost" size="sm" asChild className="gap-1">
-          <Link to="/dashboard/admin/applicants">
-            <ArrowLeft className="h-4 w-4" />
-            Resume Search
-          </Link>
-        </Button>
-      </div>
+    <DashboardPageShell width="standard" className="space-y-6">
+      <PortalPageHeader
+        title="Bulk resume upload"
+        subtitle="Match CVs to applicants by file name and upload to storage"
+        action={
+          <Button variant="outline" size="sm" asChild className="gap-1">
+            <Link to="/dashboard/admin/applicants">
+              <ArrowLeft className="h-4 w-4" />
+              Resume search
+            </Link>
+          </Button>
+        }
+      />
 
-      <Card>
+      <Card className={portalPanelClass}>
         <CardHeader>
           <CardTitle className="text-lg">Bulk resume upload</CardTitle>
           <CardDescription>
@@ -426,7 +433,7 @@ const BulkResumeUpload = () => {
           </Button>
         </CardContent>
       </Card>
-    </div>
+    </DashboardPageShell>
   );
 };
 

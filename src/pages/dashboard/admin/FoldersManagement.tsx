@@ -33,6 +33,9 @@ import { searchApplicantsForFolder, type ApplicantSummary } from "@/services/sho
 import { exportApplicantsToExcel } from "@/utils/applicantExport";
 import type { Applicant } from "@/hooks/useApplicants";
 import { Loader2 } from "lucide-react";
+import { DashboardPageShell } from "@/components/dashboard/DashboardPageShell";
+import { PortalPageHeader } from "@/components/portal/portal-ui";
+import { portalPanelClass } from "@/components/portal/portalStyles";
 
 interface Folder {
   id: string;
@@ -147,16 +150,16 @@ const FoldersManagement = () => {
 
   if (loading && folders.length === 0) {
     return (
-      <div className="flex items-center justify-center p-12">
+      <DashboardPageShell className="flex min-h-[40vh] items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
+      </DashboardPageShell>
     );
   }
 
   // Folder Detail View
   if (selectedFolder) {
     return (
-      <div className="space-y-6 p-6">
+      <DashboardPageShell width="wide" className="space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -374,19 +377,17 @@ const FoldersManagement = () => {
             </div>
           </DialogContent>
         </Dialog>
-      </div>
+      </DashboardPageShell>
     );
   }
 
   // Folders Grid View
   return (
-    <div className="space-y-6 p-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Shortlist Folders</h1>
-          <p className="text-muted-foreground">Organize applicants into folders for easy management</p>
-        </div>
+    <DashboardPageShell width="wide" className="space-y-6">
+      <PortalPageHeader
+        title="Shortlist folders"
+        subtitle="Organize applicants into folders for easy management"
+        action={
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogTrigger asChild>
             <Button>
@@ -446,7 +447,8 @@ const FoldersManagement = () => {
             </div>
           </DialogContent>
         </Dialog>
-      </div>
+        }
+      />
 
       {/* Search */}
       <div className="relative max-w-md">
@@ -653,7 +655,7 @@ const FoldersManagement = () => {
           </CardContent>
         </Card>
       )}
-    </div>
+    </DashboardPageShell>
   );
 };
 

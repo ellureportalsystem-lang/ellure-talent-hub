@@ -12,6 +12,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { useShortlists } from "@/hooks/useShortlists";
 import { Skeleton } from "@/components/ui/skeleton";
+import { DashboardPageShell } from "@/components/dashboard/DashboardPageShell";
+import { PortalPageHeader } from "@/components/portal/portal-ui";
+import { portalPanelClass } from "@/components/portal/portalStyles";
+import { cn } from "@/lib/utils";
 
 const ClientFoldersManagement = () => {
   const navigate = useNavigate();
@@ -34,20 +38,19 @@ const ClientFoldersManagement = () => {
 
   if (loading) {
     return (
-      <div className="p-6 space-y-4">
+      <DashboardPageShell width="wide" className="space-y-4">
         <Skeleton className="h-10 w-48" />
-        <Skeleton className="h-64 w-full" />
-      </div>
+        <Skeleton className="h-64 w-full rounded-2xl" />
+      </DashboardPageShell>
     );
   }
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold">My Shortlists</h1>
-          <p className="text-muted-foreground">Organize candidates into folders</p>
-        </div>
+    <DashboardPageShell width="wide" className="space-y-6">
+      <PortalPageHeader
+        title="My shortlists"
+        subtitle="Organize candidates into folders"
+        action={
         <Dialog open={createOpen} onOpenChange={setCreateOpen}>
           <DialogTrigger asChild>
             <Button><FolderPlus className="h-4 w-4 mr-2" />New Shortlist</Button>
@@ -61,10 +64,11 @@ const ClientFoldersManagement = () => {
             <DialogFooter><Button onClick={handleCreate}>Create</Button></DialogFooter>
           </DialogContent>
         </Dialog>
-      </div>
+        }
+      />
 
-      <div className="grid lg:grid-cols-3 gap-6">
-        <Card className="lg:col-span-1">
+      <div className="grid gap-6 lg:grid-cols-3">
+        <Card className={cn(portalPanelClass, "lg:col-span-1")}>
           <CardHeader><CardTitle className="text-base flex items-center gap-2"><Folder className="h-4 w-4" />Folders</CardTitle></CardHeader>
           <CardContent className="space-y-2">
             {folders.length === 0 ? (
@@ -83,7 +87,7 @@ const ClientFoldersManagement = () => {
           </CardContent>
         </Card>
 
-        <Card className="lg:col-span-2">
+        <Card className={cn(portalPanelClass, "lg:col-span-2")}>
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>{selected?.name || "Select a folder"}</CardTitle>
             {selected && (
@@ -126,7 +130,7 @@ const ClientFoldersManagement = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </DashboardPageShell>
   );
 };
 

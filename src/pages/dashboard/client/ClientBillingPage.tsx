@@ -14,6 +14,9 @@ import { toast } from "sonner";
 import { CreditCard, Receipt } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getClientHomeStats } from "@/services/dashboardService";
+import { DashboardPageShell } from "@/components/dashboard/DashboardPageShell";
+import { PortalPageHeader } from "@/components/portal/portal-ui";
+import { portalPanelClass } from "@/components/portal/portalStyles";
 
 declare global {
   interface Window {
@@ -91,11 +94,11 @@ const ClientBillingPage = () => {
 
   if (isLoading) {
     return (
-      <div className="p-6 space-y-4">
+      <DashboardPageShell width="standard" className="space-y-4">
         <Skeleton className="h-10 w-64" />
-        <Skeleton className="h-48 w-full" />
-        <Skeleton className="h-64 w-full" />
-      </div>
+        <Skeleton className="h-48 w-full rounded-2xl" />
+        <Skeleton className="h-64 w-full rounded-2xl" />
+      </DashboardPageShell>
     );
   }
 
@@ -116,10 +119,10 @@ const ClientBillingPage = () => {
   };
 
   return (
-    <div className="p-4 lg:p-6 space-y-6 max-w-5xl mx-auto">
-      <h1 className="text-2xl font-bold text-[var(--text-primary)]">Billing & Subscription</h1>
+    <DashboardPageShell width="standard" className="space-y-6">
+      <PortalPageHeader title="Billing & subscription" subtitle="Plan, usage, and payment history" />
 
-      <Card className="bg-[var(--surface-1)] border-[var(--surface-border)]">
+      <Card className={portalPanelClass}>
         <CardHeader>
           <CardTitle className="flex flex-wrap items-center gap-2">
             {plan?.name || "No plan"}
@@ -142,7 +145,7 @@ const ClientBillingPage = () => {
         </CardContent>
       </Card>
 
-      <Card className="bg-[var(--surface-1)] border-[var(--surface-border)]">
+      <Card className={portalPanelClass}>
         <CardHeader><CardTitle className="text-base">Usage this period</CardTitle></CardHeader>
         <CardContent className="space-y-5">
           <div>
@@ -169,7 +172,7 @@ const ClientBillingPage = () => {
         <h2 className="text-lg font-semibold mb-3">Compare plans</h2>
         <div className="grid md:grid-cols-3 gap-4">
           {plans.filter((p) => p.slug !== "enterprise").map((p) => (
-            <Card key={p.id} className={cn("bg-[var(--surface-1)]", plan?.id === p.id && "border-primary ring-1 ring-primary")}>
+            <Card key={p.id} className={cn(portalPanelClass, plan?.id === p.id && "border-primary ring-1 ring-primary")}>
               <CardContent className="p-4 space-y-3">
                 <h3 className="font-semibold">{p.name}</h3>
                 {plan?.id === p.id && <Badge>Current</Badge>}
@@ -186,7 +189,7 @@ const ClientBillingPage = () => {
               </CardContent>
             </Card>
           ))}
-          <Card className="bg-[var(--surface-1)]">
+          <Card className={portalPanelClass}>
             <CardContent className="p-4">
               <h3 className="font-semibold">Enterprise</h3>
               <p className="text-sm text-muted-foreground mt-2">Custom limits and support</p>
@@ -196,36 +199,54 @@ const ClientBillingPage = () => {
         </div>
       </div>
 
-      <Card className="bg-[var(--surface-1)] border-[var(--surface-border)]">
+      <Card className={portalPanelClass}>
         <CardHeader><CardTitle className="text-base flex items-center gap-2"><Receipt className="h-4 w-4" /> Transaction History</CardTitle></CardHeader>
         <CardContent>
           {txns.length === 0 ? (
             <EmptyState icon={CreditCard} title="No transactions" description="Your payment history will appear here." />
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Plan</TableHead>
-                  <TableHead>Amount</TableHead>
-                  <TableHead>Status</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+            <>
+              <div className="space-y-2 md:hidden">
                 {txns.map((t) => (
-                  <TableRow key={t.id}>
-                    <TableCell>{new Date(t.created_at).toLocaleDateString()}</TableCell>
-                    <TableCell>{t.subscription_plans?.name || "—"}</TableCell>
-                    <TableCell>₹{t.amount}</TableCell>
-                    <TableCell><Badge variant={statusVariant(t.status)}>{t.status}</Badge></TableCell>
-                  </TableRow>
+                  <div key={t.id} className={cn(portalPanelClass, "flex items-center justify-between gap-3 p-3")}>
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold">{t.subscription_plans?.name || "—"}</p>
+                      <p className="text-xs text-muted-foreground">{new Date(t.created_at).toLocaleDateString()}</p>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <p className="text-sm font-medium">₹{t.amount}</p>
+                      <Badge variant={statusVariant(t.status)} className="mt-1 text-[10px]">{t.status}</Badge>
+                    </div>
+                  </div>
                 ))}
-              </TableBody>
-            </Table>
+              </div>
+              <div className="hidden md:block">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Date</TableHead>
+                      <TableHead>Plan</TableHead>
+                      <TableHead>Amount</TableHead>
+                      <TableHead>Status</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {txns.map((t) => (
+                      <TableRow key={t.id}>
+                        <TableCell>{new Date(t.created_at).toLocaleDateString()}</TableCell>
+                        <TableCell>{t.subscription_plans?.name || "—"}</TableCell>
+                        <TableCell>₹{t.amount}</TableCell>
+                        <TableCell><Badge variant={statusVariant(t.status)}>{t.status}</Badge></TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </>
           )}
         </CardContent>
       </Card>
-    </div>
+    </DashboardPageShell>
   );
 };
 

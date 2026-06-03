@@ -1,9 +1,10 @@
 import { MessagingWorkspace } from "@/components/messages/MessagingWorkspace";
+import { DashboardPageShell } from "@/components/dashboard/DashboardPageShell";
 
 const ApplicantMessagesPage = () => (
-  <div className="p-4 lg:p-6">
+  <DashboardPageShell width="full" className="min-h-0 p-0">
     <MessagingWorkspace dashboardRole="applicant" searchRoles={["admin", "client"]} />
-  </div>
+  </DashboardPageShell>
 );
 
 export default ApplicantMessagesPage;

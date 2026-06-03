@@ -1,26 +1,27 @@
 import type { ReactNode } from "react";
-import { portalContentWrap } from "@/components/portal/portalStyles";
+import { portalPageCanvas, portalPageWidth } from "@/components/portal/portalStyles";
 import { cn } from "@/lib/utils";
+
+export type DashboardPageWidth = keyof typeof portalPageWidth;
 
 type DashboardPageShellProps = {
   children: ReactNode;
   className?: string;
-  /** Narrow pages (e.g. settings) */
+  /** @deprecated use width="narrow" */
   narrow?: boolean;
+  width?: DashboardPageWidth;
 };
 
-/** Consistent padding and max-width for portal dashboard pages */
-export function DashboardPageShell({ children, className, narrow }: DashboardPageShellProps) {
+/** Consistent responsive padding and max-width for portal dashboard pages */
+export function DashboardPageShell({
+  children,
+  className,
+  narrow,
+  width = "wide",
+}: DashboardPageShellProps) {
+  const resolvedWidth = narrow ? "narrow" : width;
+
   return (
-    <div
-      className={cn(
-        portalContentWrap,
-        "w-full px-4 pt-4 pb-6 md:px-8 md:pt-6",
-        narrow && "max-w-3xl",
-        className
-      )}
-    >
-      {children}
-    </div>
+    <div className={cn(portalPageCanvas, portalPageWidth[resolvedWidth], className)}>{children}</div>
   );
 }
