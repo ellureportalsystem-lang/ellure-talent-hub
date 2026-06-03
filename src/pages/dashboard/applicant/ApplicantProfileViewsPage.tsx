@@ -21,9 +21,9 @@ const ApplicantProfileViewsPage = () => {
   }, [applicantId]);
 
   return (
-    <div className="p-4 lg:p-6 space-y-6 max-w-3xl">
+    <div className="p-4 lg:p-6 space-y-5 max-w-3xl mx-auto">
       <div>
-        <h1 className="text-2xl font-bold">Who Viewed My Profile</h1>
+        <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">Profile views</h1>
         <p className="text-muted-foreground text-sm">Last 30 days · {views.length} view{views.length === 1 ? "" : "s"}</p>
       </div>
 

@@ -140,7 +140,7 @@ const ApplicantProfileView = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-subtle">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         {/* Back Button */}
         <Button variant="ghost" onClick={() => navigate("/dashboard/admin/applicants")} className="mb-4">
@@ -157,7 +157,7 @@ const ApplicantProfileView = () => {
                   {applicantData.profileImage ? (
                     <img src={applicantData.profileImage} alt={applicantData.name} />
                   ) : (
-                    <div className="bg-gradient-primary flex items-center justify-center h-full w-full">
+                    <div className="bg-primary text-primary-foreground flex items-center justify-center h-full w-full">
                       <User className="h-16 w-16 text-white" />
                     </div>
                   )}
@@ -342,7 +342,7 @@ const ApplicantProfileView = () => {
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Admin Actions */}
-            <Card className="shadow-sm border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
+            <Card className="shadow-sm border-primary/20 bg-card">
               <CardHeader>
                 <CardTitle className="text-lg">Admin Actions</CardTitle>
               </CardHeader>

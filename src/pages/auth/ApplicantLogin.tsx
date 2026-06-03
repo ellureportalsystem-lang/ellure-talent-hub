@@ -10,6 +10,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { Mail, Phone, ArrowLeft, Eye, EyeOff, Shield, Building2, UserPlus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import { validatePortalAccess } from "@/services/portalAuthService";
+import { normalizeLoginEmail } from "@/lib/resolveSignInEmail";
 
 const ApplicantLogin = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -21,7 +23,7 @@ const ApplicantLogin = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
-  const { signIn, signInWithPhone } = useAuth();
+  const { signIn, signInWithPhone, user, profile, loading: authLoading, signOut, refreshProfile } = useAuth();
 
   useEffect(() => {
     if (searchParams.get("reason") === "timeout") {
@@ -29,45 +31,73 @@ const ApplicantLogin = () => {
     }
   }, [searchParams, toast]);
 
+  useEffect(() => {
+    if (authLoading) return;
+    if (user && profile?.role === "applicant") {
+      navigate("/dashboard/applicant", { replace: true });
+    }
+  }, [authLoading, user, profile, navigate]);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      let result;
       if (activeTab === "email") {
         if (!email || !password) {
           toast({ title: "Missing fields", description: "Please enter both email and password", variant: "destructive" });
           setIsLoading(false);
           return;
         }
-        result = await signIn(email, password);
-      } else {
-        if (!phone || !password) {
-          toast({ title: "Missing fields", description: "Please enter both phone and password", variant: "destructive" });
-          setIsLoading(false);
+
+        const loginEmail = normalizeLoginEmail(email);
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user?.email?.toLowerCase() === loginEmail) {
+          toast({ title: "Welcome back!", description: "Redirecting to your dashboard..." });
+          navigate("/dashboard/applicant", { replace: true });
           return;
         }
-        result = await signInWithPhone(phone, password);
-      }
-
-      if (result.error) {
-        let errorMessage = result.error.message || "Invalid credentials";
-        if (result.error.message?.includes('Invalid login credentials')) {
-          errorMessage = "Invalid email or password. For old applicants, use default password: applicant@123";
-        } else if (result.error.message?.includes('Email not confirmed')) {
-          errorMessage = "Please verify your email first";
-        } else if (result.error.message?.includes('User not found')) {
-          errorMessage = "No account found with this email. Please check your email or register first.";
+        if (session?.user && session.user.email?.toLowerCase() !== loginEmail) {
+          await signOut();
         }
-        toast({ title: "Login failed", description: errorMessage, variant: "destructive" });
+      } else if (!phone || !password) {
+        toast({ title: "Missing fields", description: "Please enter both phone and password", variant: "destructive" });
         setIsLoading(false);
         return;
       }
 
+      const result =
+        activeTab === "email"
+          ? await signIn(email, password, "applicant")
+          : await signInWithPhone(phone, password);
+
+      if (result.error) {
+        toast({
+          title: "Login failed",
+          description: result.error.message || "Invalid credentials",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      const updatedProfile = await refreshProfile();
+      if (updatedProfile) {
+        const access = await validatePortalAccess(updatedProfile, "applicant");
+        if (!access.ok) {
+          await signOut();
+          toast({
+            title: "Wrong portal",
+            description: access.message || "Use the correct login page for this account.",
+            variant: "destructive",
+          });
+          setIsLoading(false);
+          return;
+        }
+      }
+
       toast({ title: "Welcome back!", description: "Redirecting to your dashboard..." });
-      setIsLoading(false);
-      setTimeout(() => navigate("/dashboard/applicant"), 100);
+      navigate("/dashboard/applicant", { replace: true });
     } catch (error: any) {
       toast({ title: "Error", description: error.message || "An error occurred", variant: "destructive" });
     } finally {
@@ -156,7 +186,8 @@ const ApplicantLogin = () => {
                       </Button>
                     </div>
                     <p className="text-[11px] text-muted-foreground">
-                      Default password for imported applicants: <code className="bg-muted px-1 py-0.5 rounded text-foreground font-medium">applicant@123</code>
+                      Bulk-imported accounts may use <code className="bg-muted px-1 py-0.5 rounded text-foreground font-medium">applicant@123</code>.
+                      If you registered online, use the password you set.
                     </p>
                   </div>
                   <Button type="submit" className="w-full h-10" disabled={isLoading}>
@@ -207,7 +238,7 @@ const ApplicantLogin = () => {
                       </Button>
                     </div>
                     <p className="text-[11px] text-muted-foreground">
-                      Default password for imported applicants: <code className="bg-muted px-1 py-0.5 rounded text-foreground font-medium">applicant@123</code>
+                      Use the last 10 digits of your registered mobile number.
                     </p>
                   </div>
                   <Button type="submit" className="w-full h-10" disabled={isLoading}>

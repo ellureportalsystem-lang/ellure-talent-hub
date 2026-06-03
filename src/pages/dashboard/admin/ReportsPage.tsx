@@ -11,7 +11,7 @@ import {
 
 const ReportsPage = () => {
   return (
-    <div className="space-y-6">
+    <div className="p-4 lg:p-6 space-y-6 max-w-[1600px] mx-auto">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -20,7 +20,7 @@ const ReportsPage = () => {
         </div>
         <div className="flex gap-2">
           <Select defaultValue="last30">
-            <SelectTrigger className="w-40">
+            <SelectTrigger className="w-40 h-9">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -30,7 +30,7 @@ const ReportsPage = () => {
               <SelectItem value="custom">Custom Range</SelectItem>
             </SelectContent>
           </Select>
-          <Button>
+          <Button className="h-9">
             <Download className="mr-2 h-4 w-4" />
             Export All Reports
           </Button>

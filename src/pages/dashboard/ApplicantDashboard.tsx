@@ -1,13 +1,25 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Link } from "react-router-dom";
-import { User, FileText, Award, Clock, Download, LogOut, Edit, CheckCircle2, HelpCircle } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import {
+  Briefcase,
+  User,
+  FileText,
+  Award,
+  Clock,
+  Download,
+  LogOut,
+  Edit,
+  CheckCircle2,
+  HelpCircle,
+  Bookmark,
+  MessageSquare,
+} from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { openResumePreview } from "@/lib/resumePreview";
-import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { CandidateFAQs } from "@/components/CandidateFAQs";
 
@@ -264,9 +276,63 @@ const ApplicantDashboard = ({ embedded = false }: { embedded?: boolean }) => {
       )}
 
       <div className={embedded ? "space-y-6" : "container py-8"}>
-        {/* Profile Header Card */}
-        <Card className={embedded ? `mb-6 ${cardClass}` : "mb-8 shadow-lg"}>
-          <CardContent className="p-6">
+        {embedded && (
+          <>
+            <section className="rounded-2xl border border-primary/15 bg-gradient-to-br from-primary/10 via-card to-secondary/5 p-4 sm:p-5">
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-primary">Career workspace</p>
+              <h1 className="mt-1 text-xl font-bold tracking-tight sm:text-2xl">
+                {getFullName() === "Not provided" ? "Your dashboard" : getFullName()}
+              </h1>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {getCurrentDesignation()} · {getLocation()}
+              </p>
+              <div className="mt-4 flex items-center gap-3">
+                <div className="flex-1 space-y-1">
+                  <div className="flex justify-between text-xs">
+                    <span className="text-muted-foreground">Profile strength</span>
+                    <span className="font-semibold text-primary">{profileCompletion}%</span>
+                  </div>
+                  <Progress value={profileCompletion} className="h-2" />
+                </div>
+                <Button
+                  type="button"
+                  size="sm"
+                  className="h-9 shrink-0"
+                  onClick={() => navigate("/dashboard/applicant/settings")}
+                >
+                  Improve
+                </Button>
+              </div>
+            </section>
+
+            <nav
+              className="grid grid-cols-4 gap-2 sm:gap-3"
+              aria-label="Quick actions"
+            >
+              {[
+                { to: "/dashboard/applicant/jobs", label: "Jobs", icon: Briefcase },
+                { to: "/dashboard/applicant/applications", label: "Applications", icon: FileText },
+                { to: "/dashboard/applicant/saved-jobs", label: "Saved", icon: Bookmark },
+                { to: "/dashboard/applicant/messages", label: "Messages", icon: MessageSquare },
+              ].map((item) => (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  className="flex flex-col items-center gap-1.5 rounded-xl border border-border bg-card p-3 text-center shadow-sm transition-colors hover:bg-muted/40 active:bg-muted/60"
+                >
+                  <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+                    <item.icon className="h-5 w-5" />
+                  </span>
+                  <span className="text-[11px] font-medium leading-tight sm:text-xs">{item.label}</span>
+                </Link>
+              ))}
+            </nav>
+          </>
+        )}
+
+        {/* Profile Header Card — compact on mobile when embedded in portal */}
+        <Card className={embedded ? `mb-6 ${cardClass} hidden sm:block` : "mb-8 shadow-lg"}>
+          <CardContent className="p-4 sm:p-6">
             <div className="flex flex-col md:flex-row gap-6 items-start md:items-center">
               {profile?.profile_image ? (
                 <img 
@@ -287,10 +353,10 @@ const ApplicantDashboard = ({ embedded = false }: { embedded?: boolean }) => {
               )}
               <div className="flex-1 space-y-2">
                 <div className="flex items-center gap-2">
-                  <h2 className="text-2xl font-bold">{getFullName()}</h2>
+                  <h2 className="text-lg font-semibold tracking-tight sm:text-2xl">{getFullName()}</h2>
                   <span className="px-2 py-1 text-xs rounded-full bg-success/10 text-success">Active</span>
                 </div>
-                <p className="text-muted-foreground">
+                <p className="text-sm text-muted-foreground">
                   {getCurrentDesignation()} | {getLocation()} | {getExperience()} experience
                 </p>
                 {getSkills().length > 0 && (
@@ -303,14 +369,15 @@ const ApplicantDashboard = ({ embedded = false }: { embedded?: boolean }) => {
                   </div>
                 )}
               </div>
-              <div className="flex flex-col gap-2">
-                <Button size="sm" variant="default" onClick={() => navigate("/dashboard/applicant/settings")}>
+              <div className="grid w-full gap-2 sm:w-auto sm:min-w-[220px]">
+                <Button size="sm" className="h-10" variant="default" onClick={() => navigate("/dashboard/applicant/settings")}>
                   <Edit className="mr-2 h-4 w-4" />
                   Edit settings
                 </Button>
                 <Button
                   size="sm"
                   variant="outline"
+                  className="h-10"
                   onClick={async () => {
                     const u = getResumeFile();
                     if (!u) return;
@@ -329,9 +396,9 @@ const ApplicantDashboard = ({ embedded = false }: { embedded?: boolean }) => {
           </CardContent>
         </Card>
 
-        {/* Profile Completion */}
-        <Card className={embedded ? `mb-6 ${cardClass}` : "mb-8"}>
-          <CardHeader>
+        {/* Profile Completion — desktop / standalone; mobile uses hero strip above */}
+        <Card className={embedded ? `mb-6 ${cardClass} hidden sm:block` : "mb-8"}>
+          <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2">
               <CheckCircle2 className="h-5 w-5 text-primary" />
               Profile Completion
@@ -370,58 +437,58 @@ const ApplicantDashboard = ({ embedded = false }: { embedded?: boolean }) => {
         </Card>
 
         {/* Quick Stats */}
-        <div className={embedded ? "grid md:grid-cols-4 gap-4 mb-6" : "grid md:grid-cols-4 gap-4 mb-8"}>
+        <div className={embedded ? "grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4 mb-6" : "grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4 mb-8"}>
           <Card className={embedded ? cardClass : undefined}>
-            <CardContent className="p-6">
-              <div className="flex items-center gap-4">
-                <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <FileText className="h-6 w-6 text-primary" />
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <FileText className="h-5 w-5 text-primary" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold">{applicationStats.total}</p>
-                  <p className="text-sm text-muted-foreground">Applications</p>
+                  <p className="text-xl font-bold leading-none">{applicationStats.total}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">Applications</p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
           <Card className={embedded ? cardClass : undefined}>
-            <CardContent className="p-6">
-              <div className="flex items-center gap-4">
-                <div className="h-12 w-12 rounded-lg bg-secondary/10 flex items-center justify-center">
-                  <Clock className="h-6 w-6 text-secondary" />
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-lg bg-secondary/10 flex items-center justify-center">
+                  <Clock className="h-5 w-5 text-secondary" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold">{applicationStats.pending}</p>
-                  <p className="text-sm text-muted-foreground">Pending</p>
+                  <p className="text-xl font-bold leading-none">{applicationStats.pending}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">Pending</p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
           <Card className={embedded ? cardClass : undefined}>
-            <CardContent className="p-6">
-              <div className="flex items-center gap-4">
-                <div className="h-12 w-12 rounded-lg bg-success/10 flex items-center justify-center">
-                  <CheckCircle2 className="h-6 w-6 text-success" />
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-lg bg-success/10 flex items-center justify-center">
+                  <CheckCircle2 className="h-5 w-5 text-success" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold">{applicationStats.shortlisted}</p>
-                  <p className="text-sm text-muted-foreground">Shortlisted</p>
+                  <p className="text-xl font-bold leading-none">{applicationStats.shortlisted}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">Shortlisted</p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
           <Card className={embedded ? cardClass : undefined}>
-            <CardContent className="p-6">
-              <div className="flex items-center gap-4">
-                <div className="h-12 w-12 rounded-lg bg-info/10 flex items-center justify-center">
-                  <Award className="h-6 w-6 text-info" />
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-lg bg-info/10 flex items-center justify-center">
+                  <Award className="h-5 w-5 text-info" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold">{applicationStats.interviews}</p>
-                  <p className="text-sm text-muted-foreground">Interviews</p>
+                  <p className="text-xl font-bold leading-none">{applicationStats.interviews}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">Interviews</p>
                 </div>
               </div>
             </CardContent>
@@ -429,116 +496,36 @@ const ApplicantDashboard = ({ embedded = false }: { embedded?: boolean }) => {
         </div>
 
         {/* Main Content Grid */}
-        <div className="grid lg:grid-cols-3 gap-6">
-          {/* Profile Sections */}
-          <div className="lg:col-span-2 space-y-6">
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
+          {/* Main column */}
+          <div className="space-y-6">
+            {/* Resume (primary action card) */}
             <Card className={embedded ? cardClass : undefined}>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <User className="h-5 w-5" />
-                  Basic Information
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Full Name</p>
-                    <p className="font-medium">{getFullName()}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Email</p>
-                    <p className="font-medium">{getEmail()}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Phone</p>
-                    <p className="font-medium">{getPhone()}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">City</p>
-                    <p className="font-medium">{getLocation()}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Experience</p>
-                    <p className="font-medium">{getExperience()}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Current CTC</p>
-                    <p className="font-medium">{getCurrentCTC()}</p>
-                  </div>
-                  {getExpectedCTC() !== "Not specified" && (
-                    <div>
-                      <p className="text-sm text-muted-foreground">Expected CTC</p>
-                      <p className="font-medium">{getExpectedCTC()}</p>
-                    </div>
-                  )}
-                  {applicantData?.current_company && (
-                    <div>
-                      <p className="text-sm text-muted-foreground">Current Company</p>
-                      <p className="font-medium">{applicantData.current_company}</p>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className={embedded ? cardClass : undefined}>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Award className="h-5 w-5" />
-                  Education
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {(() => {
-                    const education = getEducation();
-                    if (education.degree !== "Not specified" || education.university || education.year) {
-                      return (
-                        <div className="border-l-2 border-primary pl-4">
-                          <p className="font-medium">{education.degree}</p>
-                          {applicantData?.highest_qualification && (
-                            <p className="text-sm text-muted-foreground">{applicantData.highest_qualification}</p>
-                          )}
-                          <p className="text-sm text-muted-foreground">
-                            {education.university && `${education.university} • `}
-                            {education.year && `${education.year}${education.percentage ? ` • ${education.percentage}` : ''}`}
-                            {!education.university && !education.year && "Education details not provided"}
-                          </p>
-                        </div>
-                      );
-                    }
-                    return (
-                      <p className="text-sm text-muted-foreground">Education details not provided</p>
-                    );
-                  })()}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className={embedded ? cardClass : undefined}>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2 text-base">
                   <FileText className="h-5 w-5" />
                   Resume
                 </CardTitle>
+                <CardDescription className="text-sm">Keep your resume updated to improve matches</CardDescription>
               </CardHeader>
               <CardContent>
                 {getResumeFile() ? (
-                  <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
-                    <div className="flex items-center gap-3">
-                      <FileText className="h-8 w-8 text-primary" />
-                      <div>
-                        <p className="font-medium">{getResumeFile().split('/').pop() || 'Resume'}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {applicantData?.created_at 
-                            ? `Uploaded ${new Date(applicantData.created_at).toLocaleDateString()}`
-                            : 'Resume available'}
-                        </p>
-                      </div>
+                  <div className="flex items-center justify-between gap-3 rounded-xl border bg-card p-4">
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold">
+                        {getResumeFile().split("/").pop() || "Resume"}
+                      </p>
+                      <p className="mt-0.5 text-xs text-muted-foreground">
+                        {applicantData?.created_at
+                          ? `Uploaded ${new Date(applicantData.created_at).toLocaleDateString()}`
+                          : "Resume available"}
+                      </p>
                     </div>
-                    <Button 
-                      size="sm" 
+                    <Button
+                      type="button"
+                      size="sm"
                       variant="outline"
+                      className="h-10 px-3"
                       onClick={async () => {
                         const u = getResumeFile();
                         if (!u) return;
@@ -549,41 +536,119 @@ const ApplicantDashboard = ({ embedded = false }: { embedded?: boolean }) => {
                         }
                       }}
                     >
-                      <Download className="h-4 w-4" />
+                      <Download className="mr-2 h-4 w-4" />
+                      View
                     </Button>
                   </div>
                 ) : (
-                  <div className="flex items-center justify-center p-8 bg-muted/50 rounded-lg">
-                    <p className="text-sm text-muted-foreground">No resume uploaded</p>
+                  <div className="rounded-xl border bg-muted/20 p-6 text-center">
+                    <p className="text-sm font-medium">No resume uploaded</p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Add a resume in Settings to start applying faster.
+                    </p>
+                    <Button
+                      type="button"
+                      className="mt-4 h-10"
+                      onClick={() => navigate("/dashboard/applicant/settings")}
+                    >
+                      <Edit className="mr-2 h-4 w-4" />
+                      Go to settings
+                    </Button>
                   </div>
                 )}
               </CardContent>
             </Card>
+
+            {/* Profile snapshot (condensed, not a giant form) */}
+            <Card className={embedded ? cardClass : undefined}>
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <User className="h-5 w-5" />
+                  Profile snapshot
+                </CardTitle>
+                <CardDescription className="text-sm">What recruiters see at a glance</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="rounded-xl border bg-card p-3">
+                    <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Location</p>
+                    <p className="mt-1 text-sm font-medium">{getLocation()}</p>
+                  </div>
+                  <div className="rounded-xl border bg-card p-3">
+                    <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Experience</p>
+                    <p className="mt-1 text-sm font-medium">{getExperience()}</p>
+                  </div>
+                  <div className="rounded-xl border bg-card p-3">
+                    <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Current role</p>
+                    <p className="mt-1 text-sm font-medium">{getCurrentDesignation()}</p>
+                  </div>
+                  <div className="rounded-xl border bg-card p-3">
+                    <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Education</p>
+                    {(() => {
+                      const education = getEducation();
+                      return (
+                        <p className="mt-1 text-sm font-medium">
+                          {education.degree !== "Not specified" ? education.degree : "Not specified"}
+                        </p>
+                      );
+                    })()}
+                  </div>
+                </div>
+
+                {getSkills().length ? (
+                  <div>
+                    <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Top skills</p>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {getSkills().map((skill, index) => (
+                        <span key={index} className="px-3 py-1 text-xs rounded-full bg-primary/10 text-primary">
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
+
+                <div className="flex flex-col gap-2 sm:flex-row">
+                  <Button type="button" className="h-10" onClick={() => navigate("/dashboard/applicant/settings")}>
+                    <Edit className="mr-2 h-4 w-4" />
+                    Update profile
+                  </Button>
+                  <Button type="button" variant="outline" className="h-10" onClick={() => navigate("/dashboard/applicant/jobs")}>
+                    Browse jobs
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
           </div>
 
-          {/* Activity Sidebar */}
+          {/* Right rail */}
           <div className="space-y-6">
             <Card className={embedded ? cardClass : undefined}>
-              <CardHeader>
-                <CardTitle>Recent Activity</CardTitle>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base">Activity</CardTitle>
+                <CardDescription className="text-sm">Recent updates from your account</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {[
-                    { action: "Profile viewed by TCS", time: "2 hours ago", type: "info" },
-                    { action: "Shortlisted by Infosys", time: "1 day ago", type: "success" },
+                    { action: "Profile viewed by recruiter", time: "2 hours ago", type: "info" },
+                    { action: "Shortlisted", time: "1 day ago", type: "success" },
                     { action: "Application submitted", time: "2 days ago", type: "default" },
                     { action: "Resume updated", time: "3 days ago", type: "default" },
                   ].map((activity, index) => (
                     <div key={index} className="flex items-start gap-3">
-                      <div className={`h-2 w-2 rounded-full mt-2 ${
-                        activity.type === "success" ? "bg-success" :
-                        activity.type === "info" ? "bg-info" :
-                        "bg-muted-foreground"
-                      }`} />
-                      <div className="flex-1">
-                        <p className="text-sm font-medium">{activity.action}</p>
-                        <p className="text-xs text-muted-foreground">{activity.time}</p>
+                      <div
+                        className={`mt-2 h-2 w-2 rounded-full ${
+                          activity.type === "success"
+                            ? "bg-success"
+                            : activity.type === "info"
+                              ? "bg-info"
+                              : "bg-muted-foreground"
+                        }`}
+                      />
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-medium leading-snug">{activity.action}</p>
+                        <p className="mt-0.5 text-xs text-muted-foreground">{activity.time}</p>
                       </div>
                     </div>
                   ))}
@@ -592,32 +657,46 @@ const ApplicantDashboard = ({ embedded = false }: { embedded?: boolean }) => {
             </Card>
 
             <Card className={embedded ? cardClass : undefined}>
-              <CardHeader>
-                <CardTitle>Recommendations</CardTitle>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base">Next steps</CardTitle>
+                <CardDescription className="text-sm">Improve your chances this week</CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <Button variant="outline" className="w-full justify-start" size="sm">
-                    <FileText className="mr-2 h-4 w-4" />
-                    Update your skills
-                  </Button>
-                  <Button variant="outline" className="w-full justify-start" size="sm">
-                    <Award className="mr-2 h-4 w-4" />
-                    Add certifications
-                  </Button>
-                  <Button variant="outline" className="w-full justify-start" size="sm" onClick={() => navigate("/dashboard/applicant/settings")}>
-                    <User className="mr-2 h-4 w-4" />
-                    Complete profile
-                  </Button>
-                </div>
+              <CardContent className="space-y-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="h-10 w-full justify-start"
+                  onClick={() => navigate("/dashboard/applicant/settings")}
+                >
+                  <User className="mr-2 h-4 w-4" />
+                  Complete profile
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="h-10 w-full justify-start"
+                  onClick={() => navigate("/dashboard/applicant/jobs")}
+                >
+                  <Briefcase className="mr-2 h-4 w-4" />
+                  Apply to 3 jobs
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="h-10 w-full justify-start"
+                  onClick={() => navigate("/dashboard/applicant/applications")}
+                >
+                  <FileText className="mr-2 h-4 w-4" />
+                  Track applications
+                </Button>
               </CardContent>
             </Card>
 
             <Card className={embedded ? cardClass : undefined}>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2 text-base">
                   <HelpCircle className="h-5 w-5" />
-                  Help & Support
+                  Help
                 </CardTitle>
               </CardHeader>
               <CardContent>

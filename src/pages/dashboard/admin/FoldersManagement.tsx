@@ -461,7 +461,7 @@ const FoldersManagement = () => {
 
       {/* Stats Row */}
       <div className="grid grid-cols-4 gap-4">
-        <Card className="bg-gradient-to-br from-blue-500/10 to-transparent">
+        <Card className="bg-card">
           <CardContent className="py-4">
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 rounded-lg bg-blue-500/20 flex items-center justify-center">
@@ -474,7 +474,7 @@ const FoldersManagement = () => {
             </div>
           </CardContent>
         </Card>
-        <Card className="bg-gradient-to-br from-green-500/10 to-transparent">
+        <Card className="bg-card">
           <CardContent className="py-4">
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 rounded-lg bg-green-500/20 flex items-center justify-center">
@@ -487,7 +487,7 @@ const FoldersManagement = () => {
             </div>
           </CardContent>
         </Card>
-        <Card className="bg-gradient-to-br from-purple-500/10 to-transparent">
+        <Card className="bg-card">
           <CardContent className="py-4">
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 rounded-lg bg-purple-500/20 flex items-center justify-center">
@@ -500,7 +500,7 @@ const FoldersManagement = () => {
             </div>
           </CardContent>
         </Card>
-        <Card className="bg-gradient-to-br from-yellow-500/10 to-transparent">
+        <Card className="bg-card">
           <CardContent className="py-4">
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 rounded-lg bg-yellow-500/20 flex items-center justify-center">

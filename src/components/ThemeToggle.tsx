@@ -11,8 +11,8 @@ import {
 import { useTheme } from "@/components/ThemeProvider";
 import {
   applyPortalTheme,
-  getStoredPortalTheme,
   isDashboardPath,
+  resolvePortalTheme,
   setStoredPortalTheme,
   type PortalTheme,
 } from "@/lib/portalTheme";
@@ -28,12 +28,12 @@ export function ThemeToggle({
   const portalMode = usePortalThemeProp ?? isDashboardPath(pathname);
   const { theme, setTheme } = useTheme();
   const [portalTheme, setPortalThemeState] = useState<PortalTheme>(() =>
-    typeof window !== "undefined" ? getStoredPortalTheme() : "light"
+    typeof window !== "undefined" ? resolvePortalTheme() : "light"
   );
 
   useEffect(() => {
     if (portalMode) {
-      setPortalThemeState(getStoredPortalTheme());
+      setPortalThemeState(resolvePortalTheme());
     }
   }, [portalMode, pathname]);
 

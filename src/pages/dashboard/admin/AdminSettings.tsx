@@ -5,10 +5,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Bell, Key, Loader2, User } from "lucide-react";
+import { Bell, Key, Loader2, Monitor, Moon, Sun, User } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { applyPortalTheme, resolvePortalTheme, setStoredPortalTheme, type PortalTheme } from "@/lib/portalTheme";
 
 const AdminSettings = () => {
   const { user, profile, refreshProfile } = useAuth();
@@ -19,6 +20,9 @@ const AdminSettings = () => {
   const [fullName, setFullName] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [phone, setPhone] = useState("");
+  const [portalTheme, setPortalTheme] = useState<PortalTheme>(() =>
+    typeof window !== "undefined" ? resolvePortalTheme() : "light"
+  );
 
   useEffect(() => {
     if (!user?.id) {
@@ -42,6 +46,17 @@ const AdminSettings = () => {
       alive = false;
     };
   }, [user?.id, profile?.full_name, profile?.display_name, profile?.phone]);
+
+  useEffect(() => {
+    setPortalTheme(resolvePortalTheme());
+  }, []);
+
+  const setTheme = (next: PortalTheme) => {
+    setStoredPortalTheme(next);
+    applyPortalTheme(next);
+    setPortalTheme(next);
+    toast.success(`Theme set to ${next}`);
+  };
 
   const saveProfile = async () => {
     if (!user?.id) return;
@@ -103,6 +118,38 @@ const AdminSettings = () => {
         <h1 className="text-2xl font-bold tracking-tight">Admin settings</h1>
         <p className="text-muted-foreground">Your administrator profile — automations run through Supabase Edge Functions.</p>
       </div>
+
+        <Card className="shadow-sm">
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Monitor className="h-5 w-5" />
+              Appearance
+            </CardTitle>
+            <CardDescription>Theme is applied across the admin dashboard.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="grid grid-cols-2 gap-2">
+              <Button
+                type="button"
+                variant={portalTheme === "light" ? "default" : "outline"}
+                className="justify-start"
+                onClick={() => setTheme("light")}
+              >
+                <Sun className="mr-2 h-4 w-4" />
+                Light
+              </Button>
+              <Button
+                type="button"
+                variant={portalTheme === "dark" ? "default" : "outline"}
+                className="justify-start"
+                onClick={() => setTheme("dark")}
+              >
+                <Moon className="mr-2 h-4 w-4" />
+                Dark
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
 
       <Card className="shadow-sm">
         <CardHeader>

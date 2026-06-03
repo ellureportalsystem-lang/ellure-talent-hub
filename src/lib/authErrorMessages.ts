@@ -1,7 +1,15 @@
+type SignInPortal = "applicant" | "admin" | "client" | "default";
+
 /** User-facing auth error text (Supabase returns generic messages). */
-export function getSignInErrorMessage(message: string): string {
+export function getSignInErrorMessage(
+  message: string,
+  portal: SignInPortal = "default"
+): string {
   const m = message.toLowerCase();
   if (m.includes("invalid login credentials") || m.includes("invalid credentials")) {
+    if (portal === "applicant") {
+      return "Incorrect email or password. If you registered online, use the password you chose. Bulk-imported accounts may use applicant@123. Use Forgot password to reset.";
+    }
     return "Incorrect email or password. Use Forgot password, or sign in via Admin Login if this is an admin account.";
   }
   if (

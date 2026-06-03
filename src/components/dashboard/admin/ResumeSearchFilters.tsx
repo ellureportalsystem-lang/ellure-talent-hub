@@ -237,7 +237,7 @@ const ResumeSearchFilters = ({
           <div>
             <CardTitle className="text-base flex flex-wrap items-center gap-2">
               <Filter className="h-4 w-4 shrink-0" />
-              Refine results
+              Filters
               {activeFiltersCount > 0 && (
                 <Badge variant="secondary" className="font-normal">
                   {activeFiltersCount} active
@@ -245,7 +245,7 @@ const ResumeSearchFilters = ({
               )}
             </CardTitle>
             <CardDescription className="text-xs sm:text-sm mt-1 max-w-2xl">
-              Use tabs to move through groups. Sliders and checkboxes apply as soon as you change them.
+              Adjust filters to narrow results.
             </CardDescription>
           </div>
           <div className="flex items-center gap-1 shrink-0">
@@ -280,13 +280,13 @@ const ResumeSearchFilters = ({
               Basics
             </TabsTrigger>
             <TabsTrigger value="place" className="text-xs sm:text-sm">
-              Location & skills
+              Location
             </TabsTrigger>
             <TabsTrigger value="employers" className="text-xs sm:text-sm">
               Employers
             </TabsTrigger>
             <TabsTrigger value="activity" className="text-xs sm:text-sm">
-              Activity & quality
+              Activity
             </TabsTrigger>
           </TabsList>
 
@@ -328,11 +328,26 @@ const ResumeSearchFilters = ({
               </div>
             </FilterSection>
             <FilterSection title="Application status" defaultOpen>
-              <MultiSelectCheckbox
-                options={[...APPLICANT_STATUS_OPTIONS]}
-                selected={filters.status}
-                onChange={(values) => updateFilter("status", values)}
-              />
+              <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+                {[...APPLICANT_STATUS_OPTIONS].map((option) => (
+                  <div key={option} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`status-${option}`}
+                      checked={filters.status.includes(option)}
+                      onCheckedChange={(checked) => {
+                        if (checked) updateFilter("status", [...filters.status, option]);
+                        else updateFilter("status", filters.status.filter((s) => s !== option));
+                      }}
+                    />
+                    <label
+                      htmlFor={`status-${option}`}
+                      className="text-sm text-muted-foreground cursor-pointer hover:text-foreground transition-colors"
+                    >
+                      {option}
+                    </label>
+                  </div>
+                ))}
+              </div>
             </FilterSection>
             <FilterSection title="Year of passing" defaultOpen>
               <div className="px-1">

@@ -212,18 +212,20 @@ const ApplicantsManagement = () => {
         </CardContent>
       </Card>
 
-      {/* Filters + results (stacked: full-width filter panel, then table) */}
-      <div className="space-y-4">
-        <ResumeSearchFilters
-          filters={filters}
-          onFiltersChange={(f) => {
-            setFilters(f);
-            setCurrentPage(1);
-          }}
-          onReset={handleResetFilters}
-          isCollapsed={filtersCollapsed}
-          onToggleCollapse={() => setFiltersCollapsed(!filtersCollapsed)}
-        />
+      {/* Filters + results */}
+      <div className="space-y-4 lg:grid lg:grid-cols-[360px_minmax(0,1fr)] lg:items-start lg:gap-4 lg:space-y-0">
+        <div className="lg:sticky lg:top-20">
+          <ResumeSearchFilters
+            filters={filters}
+            onFiltersChange={(f) => {
+              setFilters(f);
+              setCurrentPage(1);
+            }}
+            onReset={handleResetFilters}
+            isCollapsed={filtersCollapsed}
+            onToggleCollapse={() => setFiltersCollapsed(!filtersCollapsed)}
+          />
+        </div>
 
         {/* Results */}
         <div className="space-y-3 min-w-0">

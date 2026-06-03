@@ -19,12 +19,15 @@ export function getPortalOverflowNavItems(
   pinnedPaths: string[]
 ): PortalNavItemConfig[] {
   const normalizedPinned = pinnedPaths.map((p) => p.replace(/\/$/, ""));
+  const DASHBOARD_HOME_RE = /^\/dashboard\/(admin|client|applicant)$/;
 
   return allItems.filter((item) => {
     const path = item.path.replace(/\/$/, "");
     if (normalizedPinned.includes(path)) return false;
-    return !normalizedPinned.some(
-      (pinned) => path.startsWith(`${pinned}/`) && path !== pinned
-    );
+    return !normalizedPinned.some((pinned) => {
+      // Avoid swallowing the entire portal under "/dashboard/<role>"
+      if (DASHBOARD_HOME_RE.test(pinned)) return false;
+      return path.startsWith(`${pinned}/`) && path !== pinned;
+    });
   });
 }

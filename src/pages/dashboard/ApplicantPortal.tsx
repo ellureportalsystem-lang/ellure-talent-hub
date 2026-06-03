@@ -48,6 +48,7 @@ const ApplicantPortal = () => {
     .slice(0, 2)
     .toUpperCase();
 
+  const isHome = location.pathname === "/dashboard/applicant";
   const pageTitle =
     navItems.find((n) => isDashboardNavActive(location.pathname, n))?.label || "Applicant";
 
@@ -75,8 +76,8 @@ const ApplicantPortal = () => {
       displayName={displayName}
       email={profile?.email}
       initials={initials}
-      headerMode="title"
-      headerTitle={pageTitle}
+      headerMode={isHome ? "greeting" : "title"}
+      headerTitle={isHome ? undefined : pageTitle}
       showUserMenu={false}
       animateMain
       unreadTotal={unreadTotal}

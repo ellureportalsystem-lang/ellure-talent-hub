@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
-import { ThemeToggle } from "@/components/ThemeToggle";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { PortalBrand } from "@/components/portal/PortalBrand";
 import {
@@ -30,7 +29,6 @@ import { cn } from "@/lib/utils";
 import type { LucideIcon } from "lucide-react";
 import {
   ChevronDown,
-  ChevronsLeft,
   LogOut,
   MoreHorizontal,
   Settings,
@@ -83,7 +81,7 @@ function isNavActive(pathname: string, item: DashboardNavItem): boolean {
 }
 
 function hasUnread(item: PortalNavItemConfig, unreadTotal: number): boolean {
-  return unreadTotal > 0 && (item.path.endsWith("/messages") || item.label === "Messages");
+  return unreadTotal > 0 && item.path.endsWith("/messages");
 }
 
 export function PortalDashboardLayout({
@@ -216,10 +214,6 @@ export function PortalDashboardLayout({
 
       {!inSheet && (
         <div className="mt-auto space-y-2 px-3 pb-4">
-          <ThemeToggle
-            variant={sidebarCollapsed && !mobile ? "icon" : "sidebar"}
-            usePortalTheme
-          />
           <Separator className="opacity-60" />
           <div
             className={cn(
@@ -287,19 +281,6 @@ export function PortalDashboardLayout({
         )}
       >
         <SidebarContent />
-        <button
-          type="button"
-          onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-          className="absolute -right-3 top-20 z-10 flex h-6 w-6 items-center justify-center rounded-full border border-border bg-card shadow-sm transition-colors hover:bg-muted"
-          aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-        >
-          <ChevronsLeft
-            className={cn(
-              "h-3.5 w-3.5 text-muted-foreground transition-transform",
-              sidebarCollapsed && "rotate-180"
-            )}
-          />
-        </button>
       </aside>
 
       <Sheet open={overflowSheetOpen} onOpenChange={setOverflowSheetOpen}>
@@ -318,7 +299,6 @@ export function PortalDashboardLayout({
           </button>
           <SidebarContent mobile inSheet />
           <div className="border-t border-border px-3 py-4 md:hidden">
-            <ThemeToggle variant="sidebar" usePortalTheme />
             <Button
               variant="ghost"
               className="mt-2 w-full max-md:h-11 text-muted-foreground hover:text-destructive"
@@ -369,7 +349,6 @@ export function PortalDashboardLayout({
               headerExtra && "col-start-2 row-start-1"
             )}
           >
-            <ThemeToggle usePortalTheme />
             <NotificationBell />
             {showUserMenu ? (
               <DropdownMenu>

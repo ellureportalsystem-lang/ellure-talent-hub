@@ -40,32 +40,76 @@ const ApplicantApplicationsPage = () => {
   }, [user, profile]);
 
   return (
-    <div className="p-6 space-y-6">
-      <h1 className="text-2xl font-bold">My Applications</h1>
-      <Card>
-        <CardHeader><CardTitle>Application History</CardTitle></CardHeader>
+    <div className="p-4 lg:p-6 space-y-5 max-w-5xl mx-auto">
+      <div className="space-y-1">
+        <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">My applications</h1>
+        <p className="text-sm text-muted-foreground">Track progress across your job applications</p>
+      </div>
+
+      <Card className="border shadow-sm">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">Application history</CardTitle>
+        </CardHeader>
         <CardContent>
-          {loading ? <Skeleton className="h-40 w-full" /> : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Job</TableHead>
-                  <TableHead>Company</TableHead>
-                  <TableHead>Applied</TableHead>
-                  <TableHead>Stage</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+          {loading ? (
+            <Skeleton className="h-40 w-full" />
+          ) : apps.length === 0 ? (
+            <div className="rounded-lg border bg-muted/30 p-6 text-center text-sm text-muted-foreground">
+              No applications yet.
+            </div>
+          ) : (
+            <>
+              {/* Mobile: card list */}
+              <div className="space-y-3 md:hidden">
                 {apps.map((a) => (
-                  <TableRow key={a.id}>
-                    <TableCell>{a.jobs?.title || "—"}</TableCell>
-                    <TableCell>{(a.jobs?.clients as { company_name?: string })?.company_name || "—"}</TableCell>
-                    <TableCell>{a.applied_at ? format(new Date(a.applied_at), "dd MMM yyyy") : "—"}</TableCell>
-                    <TableCell><Badge variant={stageColors[a.current_stage] || "outline"}>{a.current_stage}</Badge></TableCell>
-                  </TableRow>
+                  <div key={a.id} className="rounded-xl border bg-card p-4 shadow-sm">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-semibold">{a.jobs?.title || "—"}</p>
+                        <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                          {(a.jobs?.clients as { company_name?: string })?.company_name || "—"}
+                        </p>
+                      </div>
+                      <Badge variant={stageColors[a.current_stage] || "outline"} className="shrink-0">
+                        {a.current_stage}
+                      </Badge>
+                    </div>
+                    <p className="mt-2 text-xs text-muted-foreground">
+                      Applied{" "}
+                      <span className="font-medium text-foreground">
+                        {a.applied_at ? format(new Date(a.applied_at), "dd MMM yyyy") : "—"}
+                      </span>
+                    </p>
+                  </div>
                 ))}
-              </TableBody>
-            </Table>
+              </div>
+
+              {/* Desktop/tablet: table */}
+              <div className="hidden md:block">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Job</TableHead>
+                      <TableHead>Company</TableHead>
+                      <TableHead>Applied</TableHead>
+                      <TableHead>Stage</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {apps.map((a) => (
+                      <TableRow key={a.id}>
+                        <TableCell>{a.jobs?.title || "—"}</TableCell>
+                        <TableCell>{(a.jobs?.clients as { company_name?: string })?.company_name || "—"}</TableCell>
+                        <TableCell>{a.applied_at ? format(new Date(a.applied_at), "dd MMM yyyy") : "—"}</TableCell>
+                        <TableCell>
+                          <Badge variant={stageColors[a.current_stage] || "outline"}>{a.current_stage}</Badge>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </>
           )}
         </CardContent>
       </Card>

@@ -61,16 +61,25 @@ const ApplicantJobDetail = () => {
     }
   };
 
-  if (loading) return <div className="p-6"><Skeleton className="h-64 w-full" /></div>;
-  if (!job) return <div className="p-6">Job not found</div>;
+  if (loading) return <div className="p-4 lg:p-6"><Skeleton className="h-64 w-full" /></div>;
+  if (!job) return <div className="p-4 lg:p-6">Job not found</div>;
 
   return (
-    <div className="p-6 max-w-3xl mx-auto space-y-4">
-      <Button variant="ghost" size="sm" asChild><Link to="/dashboard/applicant/jobs"><ArrowLeft className="h-4 w-4 mr-1" />Back</Link></Button>
-      <Card>
-        <CardContent className="p-6 space-y-4">
-          <h1 className="text-2xl font-bold">{job.title}</h1>
-          <p className="text-muted-foreground">{(job.clients as { company_name?: string })?.company_name}</p>
+    <div className="p-4 lg:p-6 max-w-3xl mx-auto space-y-4">
+      <Button variant="ghost" size="sm" className="h-9 px-2" asChild>
+        <Link to="/dashboard/applicant/jobs">
+          <ArrowLeft className="h-4 w-4 mr-1" />
+          Back
+        </Link>
+      </Button>
+      <Card className="border shadow-sm">
+        <CardContent className="p-4 sm:p-6 space-y-4">
+          <div className="space-y-1">
+            <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">{job.title}</h1>
+            <p className="text-sm text-muted-foreground">
+              {(job.clients as { company_name?: string })?.company_name || "Company"}
+            </p>
+          </div>
           <SafeHtml html={job.description || ""} className="max-w-none" />
           {job.requirements && (
             <>
@@ -79,9 +88,9 @@ const ApplicantJobDetail = () => {
             </>
           )}
           {hasApplied ? (
-            <Button disabled>Already Applied</Button>
+            <Button disabled className="h-10">Already applied</Button>
           ) : (
-            <Button onClick={() => setApplyOpen(true)}>Apply Now</Button>
+            <Button onClick={() => setApplyOpen(true)} className="h-10">Apply</Button>
           )}
         </CardContent>
       </Card>

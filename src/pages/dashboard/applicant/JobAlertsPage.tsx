@@ -64,10 +64,16 @@ const JobAlertsPage = () => {
   };
 
   return (
-    <div className="p-6 space-y-6 max-w-3xl">
-      <div className="flex justify-between items-center">
-        <h1 className="text-lg font-semibold">My Job Alerts</h1>
-        <Button onClick={() => setOpen(true)}><Plus className="h-4 w-4 mr-2" />Create New Alert</Button>
+    <div className="p-4 lg:p-6 space-y-5 max-w-3xl mx-auto">
+      <div className="flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">Job alerts</h1>
+          <p className="mt-0.5 text-sm text-muted-foreground">Get notified about roles that match you</p>
+        </div>
+        <Button onClick={() => setOpen(true)} className="h-10 shrink-0">
+          <Plus className="h-4 w-4 mr-2" />
+          New
+        </Button>
       </div>
 
       {loading ? <Skeleton className="h-32 w-full" /> : alerts.length === 0 ? (

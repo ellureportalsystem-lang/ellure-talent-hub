@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState, ReactNode } from 'react
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import { getSignInErrorMessage } from '@/lib/authErrorMessages';
+import { resolveEmailFromPhone, resolveSignInEmail } from '@/lib/resolveSignInEmail';
 import { Profile } from '@/types/database.types';
 
 interface AuthContextType {
@@ -9,7 +10,7 @@ interface AuthContextType {
   profile: Profile | null;
   session: Session | null;
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<{ error: any }>;
+  signIn: (email: string, password: string, portal?: 'applicant' | 'admin' | 'client') => Promise<{ error: any }>;
   signInWithPhone: (phone: string, password: string) => Promise<{ error: any }>;
   signInWithGoogle: () => Promise<{ error: any }>;
   signOut: () => Promise<void>;
@@ -203,29 +204,46 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = async (
+    email: string,
+    password: string,
+    portal?: 'applicant' | 'admin' | 'client'
+  ) => {
     try {
-      console.log('🔐 Attempting login for:', email);
-      
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: email.trim().toLowerCase(),
-        password: password.trim(),
-      });
+      const resolvedEmail = await resolveSignInEmail(email);
+      console.log('🔐 Attempting login for:', resolvedEmail);
+
+      const passwordsToTry = password === password.trim()
+        ? [password]
+        : [password, password.trim()];
+
+      let data: Awaited<ReturnType<typeof supabase.auth.signInWithPassword>>['data'] | null = null;
+      let error: Awaited<ReturnType<typeof supabase.auth.signInWithPassword>>['error'] | null = null;
+
+      for (const pwd of passwordsToTry) {
+        const result = await supabase.auth.signInWithPassword({
+          email: resolvedEmail,
+          password: pwd,
+        });
+        data = result.data;
+        error = result.error;
+        if (!error) break;
+        if (!/invalid login credentials/i.test(error.message || '')) break;
+      }
 
       if (error) {
         console.error('❌ Login error:', error);
         console.error('Error message:', error.message);
         console.error('Error status:', error.status);
-        // Normalize network/DNS errors (ERR_NAME_NOT_RESOLVED, offline, CORS, etc.) for user-friendly message
         const isNetworkError = error.status === 0 || 
           /failed to fetch|network error|load failed|err_name_not_resolved/i.test(error.message || '');
         const normalizedError = isNetworkError
           ? { ...error, message: 'Cannot reach the server. Check your internet connection and that your Supabase project URL in .env is correct and the project is not paused.' }
-          : { ...error, message: getSignInErrorMessage(error.message || 'Invalid credentials') };
+          : { ...error, message: getSignInErrorMessage(error.message || 'Invalid credentials', portal ?? 'default') };
         return { error: normalizedError };
       }
 
-      if (data.user) {
+      if (data?.user) {
         console.log('✅ Login successful for user:', data.user.id);
         void (async () => {
           const { data: current } = await supabase
@@ -263,25 +281,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signInWithPhone = async (phone: string, password: string) => {
     try {
-      // Supabase requires email for password auth, so we need to find user by phone
-      // First, try to find profile with this phone number
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('email, email_address')
-        .or(`phone.eq.${phone},mobile_number.eq.${phone}`)
-        .single();
-
-      if (!profileData) {
-        return { error: { message: 'No account found with this phone number' } };
+      const resolved = await resolveEmailFromPhone(phone);
+      if ('error' in resolved) {
+        return { error: { message: resolved.error } };
       }
-
-      // Use email to sign in
-      const email = profileData.email || profileData.email_address;
-      if (!email) {
-        return { error: { message: 'No email associated with this phone number' } };
-      }
-
-      return await signIn(email, password);
+      return await signIn(resolved.email, password, 'applicant');
     } catch (error: any) {
       return { error };
     }

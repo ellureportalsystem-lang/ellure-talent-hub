@@ -2,8 +2,8 @@ import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import {
   applyPortalTheme,
-  getStoredPortalTheme,
   isDashboardPath,
+  resolvePortalTheme,
   restoreMarketingTheme,
 } from "@/lib/portalTheme";
 import { useTheme } from "@/components/ThemeProvider";
@@ -17,7 +17,7 @@ export function PortalThemeSync() {
     if (forcedLight) return;
 
     if (isDashboardPath(pathname)) {
-      applyPortalTheme(getStoredPortalTheme());
+      applyPortalTheme(resolvePortalTheme());
     } else {
       restoreMarketingTheme();
     }

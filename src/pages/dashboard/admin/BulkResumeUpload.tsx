@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,7 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/lib/supabase";
 import { uploadApplicantResume } from "@/lib/applicantMediaUpload";
 import { matchApplicantByFileName, type ApplicantMatchRow } from "@/lib/bulkResumeMatcher";
-import { ArrowLeft, Loader2, Upload, CheckCircle2, AlertCircle, HelpCircle } from "lucide-react";
+import { ArrowLeft, Loader2, Upload, CheckCircle2, AlertCircle, HelpCircle, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 type RowStatus = "pending" | "uploading" | "ok" | "error";
@@ -27,6 +27,22 @@ const ALLOWED = new Set([
   "application/msword",
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
 ]);
+
+function buildRows(files: File[]): FileRow[] {
+  const next: FileRow[] = [];
+  for (const file of files) {
+    if (!ALLOWED.has(file.type)) {
+      next.push({ file, status: "error", message: "Only PDF, DOC, or DOCX allowed" });
+      continue;
+    }
+    if (file.size > MAX_BYTES) {
+      next.push({ file, status: "error", message: "Max 15MB per file" });
+      continue;
+    }
+    next.push({ file, status: "pending" });
+  }
+  return next;
+}
 
 async function fetchAllApplicantsForMatch(): Promise<ApplicantMatchRow[]> {
   const pageSize = 1000;
@@ -58,6 +74,7 @@ async function fetchAllApplicantsForMatch(): Promise<ApplicantMatchRow[]> {
 }
 
 const BulkResumeUpload = () => {
+  const inputRef = useRef<HTMLInputElement | null>(null);
   const [rows, setRows] = useState<FileRow[]>([]);
   const [loadingIndex, setLoadingIndex] = useState(false);
   const [running, setRunning] = useState(false);
@@ -92,22 +109,29 @@ const BulkResumeUpload = () => {
     }
   }, []);
 
+  const addFiles = (files: File[]) => {
+    const built = buildRows(files);
+    setRows((prev) => {
+      const seen = new Set(prev.map((r) => `${r.file.name}__${r.file.size}`));
+      const merged = [...prev];
+      for (const r of built) {
+        const key = `${r.file.name}__${r.file.size}`;
+        if (!seen.has(key)) merged.push(r);
+      }
+      return merged;
+    });
+  };
+
   const onPickFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     e.target.value = "";
-    const next: FileRow[] = [];
-    for (const file of files) {
-      if (!ALLOWED.has(file.type)) {
-        next.push({ file, status: "error", message: "Only PDF, DOC, or DOCX allowed" });
-        continue;
-      }
-      if (file.size > MAX_BYTES) {
-        next.push({ file, status: "error", message: "Max 15MB per file" });
-        continue;
-      }
-      next.push({ file, status: "pending" });
-    }
-    setRows(next);
+    if (files.length) addFiles(files);
+  };
+
+  const onDropFiles = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    const files = Array.from(e.dataTransfer.files || []);
+    if (files.length) addFiles(files);
   };
 
   const runBulk = async () => {
@@ -311,15 +335,49 @@ const BulkResumeUpload = () => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="bulk-files">Files</Label>
-            <input
-              id="bulk-files"
-              type="file"
-              multiple
-              accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-              onChange={onPickFiles}
-              className="text-sm"
-            />
+            <Label>Files</Label>
+            <div
+              role="button"
+              tabIndex={0}
+              onClick={() => inputRef.current?.click()}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") inputRef.current?.click();
+              }}
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={onDropFiles}
+              className="cursor-pointer rounded-xl border border-dashed bg-background p-4 transition-colors hover:bg-muted/30 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+            >
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <div className="min-w-0">
+                  <p className="text-sm font-medium">Drag & drop resumes here</p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">
+                    PDF/DOC/DOCX, max 15MB each. Filenames should match name or email.
+                  </p>
+                </div>
+                <Button type="button" variant="outline" size="sm" className="shrink-0">
+                  Select files
+                </Button>
+              </div>
+              <input
+                ref={inputRef}
+                id="bulk-files"
+                type="file"
+                multiple
+                accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                onChange={onPickFiles}
+                className="hidden"
+              />
+            </div>
+            {rows.length > 0 ? (
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className="text-xs text-muted-foreground">
+                  {rows.length} file{rows.length === 1 ? "" : "s"} selected
+                </p>
+                <Button type="button" variant="ghost" size="sm" className="h-8 px-2 text-xs" onClick={() => setRows([])}>
+                  Clear list
+                </Button>
+              </div>
+            ) : null}
           </div>
 
           {rows.length > 0 && (
@@ -328,7 +386,7 @@ const BulkResumeUpload = () => {
                 {rows.map((r, i) => (
                   <div
                     key={`${r.file.name}-${i}`}
-                    className="flex items-start justify-between gap-2 text-sm border-b border-border/60 pb-2 last:border-0"
+                    className="flex items-start justify-between gap-3 text-sm border-b border-border/60 pb-2 last:border-0"
                   >
                     <div className="min-w-0 flex-1">
                       <p className="font-medium truncate">{r.file.name}</p>
@@ -343,6 +401,19 @@ const BulkResumeUpload = () => {
                       {r.status === "ok" && <CheckCircle2 className="h-4 w-4 text-emerald-600" />}
                       {r.status === "error" && <AlertCircle className="h-4 w-4 text-destructive" />}
                     </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                      disabled={running || r.status === "uploading"}
+                      onClick={() =>
+                        setRows((prev) => prev.filter((_, idx) => idx !== i))
+                      }
+                      title="Remove"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
                   </div>
                 ))}
               </div>

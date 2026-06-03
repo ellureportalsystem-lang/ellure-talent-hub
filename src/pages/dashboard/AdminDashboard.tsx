@@ -62,7 +62,7 @@ const AdminDashboard = () => {
         { path: "/dashboard/admin/jobs", label: "Jobs", icon: Briefcase },
         { path: "/dashboard/admin/reports", label: "Reports", icon: BarChart3 },
         { path: "/dashboard/admin/users", label: "Users", icon: UserCog },
-        { path: "/dashboard/admin/messages", label: "Messages", icon: Bell },
+        { path: "/dashboard/admin/messages", label: "Emails", icon: Bell },
       ],
     },
     {
@@ -74,7 +74,8 @@ const AdminDashboard = () => {
   const bottomNavItems = [
     { path: "/dashboard/admin", label: "Home", icon: LayoutDashboard, exact: true },
     { path: "/dashboard/admin/applicants", label: "Search", icon: Search },
-    { path: "/dashboard/admin/messages", label: "Messages", icon: Bell },
+    { path: "/dashboard/admin/applicants/bulk-resumes", label: "Upload", icon: Upload },
+    { path: "/dashboard/admin/messages", label: "Emails", icon: Bell },
   ];
 
   return (

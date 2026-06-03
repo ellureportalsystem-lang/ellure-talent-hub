@@ -50,7 +50,7 @@ const ClientDashboard = () => {
         { path: "/dashboard/client/candidates", label: "Candidates", icon: Users },
         { path: "/dashboard/client/folders", label: "My Shortlists", icon: FolderKanban },
         { path: "/dashboard/client/jobs", label: "Jobs", icon: Briefcase },
-        { path: "/dashboard/client/messages", label: "Messages", icon: MessageSquare },
+        { path: "/dashboard/client/messages", label: "Emails", icon: MessageSquare },
       ],
     },
     {
@@ -69,7 +69,8 @@ const ClientDashboard = () => {
   const bottomNavItems = [
     { path: "/dashboard/client", label: "Home", icon: LayoutDashboard, exact: true },
     { path: "/dashboard/client/candidates", label: "Candidates", icon: Users },
-    { path: "/dashboard/client/messages", label: "Messages", icon: MessageSquare },
+    { path: "/dashboard/client/folders", label: "Shortlists", icon: FolderKanban },
+    { path: "/dashboard/client/messages", label: "Emails", icon: MessageSquare },
   ];
 
   const cvUsed = clientCtx?.client?.cv_downloads_used_this_month ?? 0;
