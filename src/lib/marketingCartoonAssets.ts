@@ -13,7 +13,7 @@ export type MarketingCartoonVariant = keyof typeof marketingCartoonAssets;
 
 export const marketingCartoonAlt: Record<MarketingCartoonVariant, string> = {
   recruiter: "Recruiter using hiring platform tools",
-  candidates: "Candidates building profiles on NexHire",
+  candidates: "Candidates building profiles on TalentHub",
   team: "Hiring team collaborating in the office",
   analytics: "Hiring analytics and pipeline insights",
   services: "Recruitment services coordination",

@@ -296,6 +296,16 @@ export async function fetchApplicantApplications(applicantId: string) {
   return data || [];
 }
 
+export async function fetchApplicationStages(applicationId: string) {
+  const { data, error } = await supabase
+    .from("job_application_stages")
+    .select("id, stage, changed_at, notes")
+    .eq("application_id", applicationId)
+    .order("changed_at", { ascending: true });
+  if (error) throw new Error(error.message);
+  return data || [];
+}
+
 export async function fetchSavedJobs(applicantId: string) {
   const { data, error } = await supabase
     .from("saved_jobs")

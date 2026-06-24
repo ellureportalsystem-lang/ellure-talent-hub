@@ -5,12 +5,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { FolderPlus, Folder, Eye, Trash2, UserPlus } from "lucide-react";
+import { FolderPlus, Folder, Eye, Trash2, UserPlus, Download } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { useShortlists } from "@/hooks/useShortlists";
+import { fetchShortlistApplicantsForExport } from "@/services/shortlistService";
+import { exportApplicantsToExcel } from "@/utils/applicantExport";
+import type { Applicant } from "@/hooks/useApplicants";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DashboardPageShell } from "@/components/dashboard/DashboardPageShell";
 import { PortalPageHeader } from "@/components/portal/portal-ui";
@@ -24,6 +27,24 @@ const ClientFoldersManagement = () => {
   const [createOpen, setCreateOpen] = useState(false);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [exporting, setExporting] = useState(false);
+
+  const handleExport = async (folderId: string, folderName: string) => {
+    setExporting(true);
+    try {
+      const rows = await fetchShortlistApplicantsForExport(folderId);
+      if (!rows.length) {
+        toast.error("No candidates to export");
+        return;
+      }
+      exportApplicantsToExcel(rows as Applicant[], `${folderName.replace(/\s+/g, "-")}-shortlist`);
+      toast.success("Export started");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Export failed");
+    } finally {
+      setExporting(false);
+    }
+  };
 
   const selected = folders.find((f) => f.id === selectedId) || folders[0];
 
@@ -91,9 +112,20 @@ const ClientFoldersManagement = () => {
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>{selected?.name || "Select a folder"}</CardTitle>
             {selected && (
-              <Button variant="ghost" size="sm" className="text-destructive" onClick={() => removeFolder(selected.id)}>
-                <Trash2 className="h-4 w-4" />
-              </Button>
+              <div className="flex gap-1">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={exporting}
+                  onClick={() => void handleExport(selected.id, selected.name)}
+                >
+                  <Download className="h-4 w-4 mr-1" />
+                  Export
+                </Button>
+                <Button variant="ghost" size="sm" className="text-destructive" onClick={() => removeFolder(selected.id)}>
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
             )}
           </CardHeader>
           <CardContent>

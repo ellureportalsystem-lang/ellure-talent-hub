@@ -25,6 +25,7 @@ export function useAdminDashboardStats(dateRange: '7days' | '30days' | 'quarter'
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     async function fetchStats() {
@@ -42,9 +43,9 @@ export function useAdminDashboardStats(dateRange: '7days' | '30days' | 'quarter'
     }
 
     fetchStats();
-  }, [dateRange]);
+  }, [dateRange, refreshKey]);
 
-  return { stats, loading, error };
+  return { stats, loading, error, refetch: () => setRefreshKey((k) => k + 1) };
 }
 
 export function useRegistrationTrend(dateRange: '7days' | '30days' = '7days') {
@@ -96,6 +97,7 @@ export function useSkillDistribution(limit: number = 6) {
 export function useExperienceDistribution() {
   const [data, setData] = useState<ExperienceDistribution[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     async function fetchDistribution() {
@@ -111,9 +113,9 @@ export function useExperienceDistribution() {
     }
 
     fetchDistribution();
-  }, []);
+  }, [refreshKey]);
 
-  return { data, loading };
+  return { data, loading, refetch: () => setRefreshKey((k) => k + 1) };
 }
 
 export function useEducationDistribution() {
@@ -165,28 +167,34 @@ export function useRecentActivity(limit: number = 10) {
 export function useProfileRegistrationTrend(days = 30) {
   const [data, setData] = useState<RegistrationTrend[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshKey, setRefreshKey] = useState(0);
   useEffect(() => {
+    setLoading(true);
     getProfileRegistrationTrend(days).then(setData).finally(() => setLoading(false));
-  }, [days]);
-  return { data, loading };
+  }, [days, refreshKey]);
+  return { data, loading, refetch: () => setRefreshKey((k) => k + 1) };
 }
 
 export function useTopSkillsFromSearchIndex(limit = 10) {
   const [data, setData] = useState<SkillDistribution[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshKey, setRefreshKey] = useState(0);
   useEffect(() => {
+    setLoading(true);
     getTopSkillsFromSearchIndex(limit).then(setData).finally(() => setLoading(false));
-  }, [limit]);
-  return { data, loading };
+  }, [limit, refreshKey]);
+  return { data, loading, refetch: () => setRefreshKey((k) => k + 1) };
 }
 
 export function useCityDistribution(limit = 10) {
   const [data, setData] = useState<CityDistribution[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshKey, setRefreshKey] = useState(0);
   useEffect(() => {
+    setLoading(true);
     getCityDistribution(limit).then(setData).finally(() => setLoading(false));
-  }, [limit]);
-  return { data, loading };
+  }, [limit, refreshKey]);
+  return { data, loading, refetch: () => setRefreshKey((k) => k + 1) };
 }
 
 export function usePendingClients(limit = 10) {

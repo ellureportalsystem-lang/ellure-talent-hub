@@ -9,11 +9,13 @@ import {
   AlertCircle,
   RefreshCw,
   TrendingUp,
-  Search,
   Upload,
   UserCog,
   BarChart3,
   CheckCircle,
+  CreditCard,
+  Users,
+  MessageSquare,
 } from "lucide-react";
 import {
   LineChart,
@@ -43,6 +45,7 @@ import {
   PortalWelcomeHero,
 } from "@/components/portal/portal-ui";
 import { portalMobilePrimaryButtonClass, portalPanelClass, portalAlertError } from "@/components/portal/portalStyles";
+import { AdminOpsInbox } from "@/components/dashboard/admin/AdminOpsInbox";
 import { cn } from "@/lib/utils";
 
 function AdminStatCard({ label, value }: { label: string; value: string | number }) {
@@ -65,7 +68,7 @@ function AdminStatSkeleton() {
   );
 }
 
-const AdminHome = () => {
+const AdminHome = ({ expiringCount = 0 }: { expiringCount?: number }) => {
   const { profile } = useAuth();
   const [approving, setApproving] = useState<string | null>(null);
   const displayName = profile?.full_name || profile?.email?.split("@")[0] || "Admin";
@@ -75,12 +78,24 @@ const AdminHome = () => {
     .join("")
     .slice(0, 2)
     .toUpperCase();
-  const { stats, loading: statsLoading, error: statsError } = useAdminDashboardStats("7days");
-  const { data: registrationData, loading: trendLoading } = useProfileRegistrationTrend(30);
-  const { data: topSkills, loading: skillsLoading } = useTopSkillsFromSearchIndex(8);
-  const { data: experienceData, loading: expLoading } = useExperienceDistribution();
-  const { data: cityData, loading: cityLoading } = useCityDistribution(6);
+  const { stats, loading: statsLoading, error: statsError, refetch: refetchStats } = useAdminDashboardStats("7days");
+  const { data: registrationData, loading: trendLoading, refetch: refetchTrend } = useProfileRegistrationTrend(30);
+  const { data: topSkills, loading: skillsLoading, refetch: refetchSkills } = useTopSkillsFromSearchIndex(8);
+  const { data: experienceData, loading: expLoading, refetch: refetchExp } = useExperienceDistribution();
+  const { data: cityData, loading: cityLoading, refetch: refetchCity } = useCityDistribution(6);
   const { data: pendingClients, loading: pendingLoading, refetch: refetchPending } = usePendingClients(8);
+
+  const handleRefreshAll = () => {
+    refetchStats();
+    refetchTrend();
+    refetchSkills();
+    refetchExp();
+    refetchCity();
+    refetchPending();
+  };
+
+  const isRefreshing =
+    statsLoading || trendLoading || skillsLoading || expLoading || cityLoading || pendingLoading;
 
   const handleApprove = async (clientId: string) => {
     setApproving(clientId);
@@ -112,15 +127,44 @@ const AdminHome = () => {
       />
 
       <PortalQuickActionGrid
-        columns={5}
+        columns={6}
         actions={[
-          { to: "/dashboard/admin/applicants", label: "Search", icon: <Search className="h-5 w-5" />, tint: "primary" },
-          { to: "/dashboard/admin/applicants/bulk-resumes", label: "Upload", icon: <Upload className="h-5 w-5" />, tint: "sky" },
-          { to: "/dashboard/admin/users", label: "Users", icon: <UserCog className="h-5 w-5" />, tint: "violet" },
-          { to: "/dashboard/admin/jobs", label: "Jobs", icon: <Briefcase className="h-5 w-5" />, tint: "amber" },
-          { to: "/dashboard/admin/reports", label: "Reports", icon: <BarChart3 className="h-5 w-5" />, tint: "primary" },
+          { to: "/dashboard/admin/applicants", label: "Candidates", icon: <Users className="h-5 w-5" />, tint: "primary" },
+          { to: "/dashboard/admin/data/import", label: "Import wizard", icon: <Upload className="h-5 w-5" />, tint: "sky" },
+          { to: "/dashboard/admin/recruiters", label: "Recruiters", icon: <UserCog className="h-5 w-5" />, tint: "violet" },
+          { to: "/dashboard/admin/subscriptions", label: "Plans", icon: <CreditCard className="h-5 w-5" />, tint: "amber" },
+          { to: "/dashboard/admin/analytics", label: "Analytics", icon: <BarChart3 className="h-5 w-5" />, tint: "primary" },
+          { to: "/dashboard/admin/messages", label: "Messages", icon: <MessageSquare className="h-5 w-5" />, tint: "sky" },
         ]}
       />
+
+      <div>
+        <h2 className="text-sm font-semibold tracking-tight text-foreground mb-3">Action inbox</h2>
+        <AdminOpsInbox
+          pendingApprovals={pendingCount}
+          totalApplicants={stats?.totalApplicants ?? 0}
+          resumesUploaded={stats?.resumesUploaded ?? 0}
+        />
+      </div>
+
+      {expiringCount > 0 && (
+        <div className={cn(portalPanelClass, "border-amber-200 bg-amber-50/80 p-4")}>
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex gap-3">
+              <AlertCircle className="h-5 w-5 text-amber-600 shrink-0" />
+              <div>
+                <p className="font-semibold text-amber-900">
+                  {expiringCount} recruiter{expiringCount !== 1 ? "s" : ""} near subscription expiry
+                </p>
+                <p className="text-sm text-amber-800">Subscriptions ending in the next 7 days — renew to avoid access loss.</p>
+              </div>
+            </div>
+            <Button asChild variant="outline" size="sm" className="shrink-0 border-amber-300">
+              <Link to="/dashboard/admin/recruiters">View recruiters</Link>
+            </Button>
+          </div>
+        </div>
+      )}
 
       {statsError && (
         <div className={portalAlertError}>
@@ -137,9 +181,10 @@ const AdminHome = () => {
           variant="outline"
           size="sm"
           className={cn("h-9", portalMobilePrimaryButtonClass)}
-          onClick={() => window.location.reload()}
+          onClick={handleRefreshAll}
+          disabled={isRefreshing}
         >
-          <RefreshCw className="mr-2 h-3.5 w-3.5" />
+          <RefreshCw className={cn("mr-2 h-3.5 w-3.5", isRefreshing && "animate-spin")} />
           Refresh
         </Button>
       </div>
@@ -149,14 +194,14 @@ const AdminHome = () => {
           Array.from({ length: 8 }).map((_, i) => <AdminStatSkeleton key={i} />)
         ) : (
           <>
-            <AdminStatCard title="Total Applicants" value={(stats?.totalApplicants ?? 0).toLocaleString()} />
-            <AdminStatCard title="New This Week" value={stats?.newThisWeek ?? 0} />
-            <AdminStatCard title="Active Clients" value={stats?.activeClients ?? 0} />
-            <AdminStatCard title="Jobs Posted" value={stats?.jobsPosted ?? 0} />
-            <AdminStatCard title="CV Downloads" value={stats?.cvDownloadsThisMonth ?? 0} />
-            <AdminStatCard title="Pending Approvals" value={stats?.pendingApprovals ?? 0} />
-            <AdminStatCard title="Verified Profiles" value={stats?.verifiedProfiles ?? 0} />
-            <AdminStatCard title="Applications" value={stats?.applicationsThisMonth ?? 0} />
+            <AdminStatCard label="Total Candidates" value={(stats?.totalApplicants ?? 0).toLocaleString()} />
+            <AdminStatCard label="Active Clients" value={stats?.activeClients ?? 0} />
+            <AdminStatCard label="Jobs Posted" value={stats?.jobsPosted ?? 0} />
+            <AdminStatCard label="Applications Today" value={stats?.applicationsToday ?? 0} />
+            <AdminStatCard label="Pending Approvals" value={stats?.pendingApprovals ?? 0} />
+            <AdminStatCard label="Resumes Uploaded" value={stats?.resumesUploaded ?? 0} />
+            <AdminStatCard label="Profile Views (7d)" value={stats?.profileViews7Days ?? 0} />
+            <AdminStatCard label="Verified Candidates" value={stats?.verifiedProfiles ?? 0} />
           </>
         )}
       </div>
@@ -267,7 +312,7 @@ const AdminHome = () => {
             action={
               pendingCount > 0 ? (
                 <Button variant="ghost" size="sm" className="h-7 px-2 text-xs text-primary" asChild>
-                  <Link to="/dashboard/admin/users">View all</Link>
+                  <Link to="/dashboard/admin/clients">View all</Link>
                 </Button>
               ) : null
             }

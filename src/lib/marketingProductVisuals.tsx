@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
 import { MarketingProductMockup } from "@/components/marketing/MarketingProductMockup";
-import { NexHireResumeSearchMockup } from "@/components/marketing/product-mockups/NexHireResumeSearchMockup";
-import { NexHireClientWorkspaceMockup } from "@/components/marketing/product-mockups/NexHireClientWorkspaceMockup";
-import { NexHireAnalyticsMockup } from "@/components/marketing/product-mockups/NexHireAnalyticsMockup";
+import { TalentHubResumeSearchMockup } from "@/components/marketing/product-mockups/TalentHubResumeSearchMockup";
+import { TalentHubClientWorkspaceMockup } from "@/components/marketing/product-mockups/TalentHubClientWorkspaceMockup";
+import { TalentHubAnalyticsMockup } from "@/components/marketing/product-mockups/TalentHubAnalyticsMockup";
 
 export type ProductVisualVariant = "resume-search" | "client-workspace" | "analytics";
 
@@ -14,11 +14,11 @@ export function renderProductVisual(
 
   const inner =
     variant === "resume-search" ? (
-      <NexHireResumeSearchMockup className={illoClass} />
+      <TalentHubResumeSearchMockup className={illoClass} />
     ) : variant === "client-workspace" ? (
-      <NexHireClientWorkspaceMockup className={illoClass} />
+      <TalentHubClientWorkspaceMockup className={illoClass} />
     ) : (
-      <NexHireAnalyticsMockup className={illoClass} />
+      <TalentHubAnalyticsMockup className={illoClass} />
     );
 
   return <MarketingProductMockup size={size}>{inner}</MarketingProductMockup>;

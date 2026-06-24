@@ -12,7 +12,7 @@ export type ElluraAvatarProps = {
   showHoverShadow?: boolean;
 };
 
-/** NexHire mascot — transparent PNG from `public/mascot.png` */
+/** TalentHub mascot — transparent PNG from `public/mascot.png` */
 export function ElluraAvatar({
   size = 56,
   mood: _mood = "idle",

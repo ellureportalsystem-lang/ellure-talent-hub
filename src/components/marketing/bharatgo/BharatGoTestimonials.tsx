@@ -21,7 +21,7 @@ export function BharatGoTestimonials() {
         <BharatGoSectionHeader
           eyebrow="Testimonial"
           title="Loved by hiring teams & candidates"
-          subtitle="Join organizations and professionals who trust Ellure NexHire to grow their hiring outcomes."
+          subtitle="Join organizations and professionals who trust Ellure TalentHub to grow their hiring outcomes."
         />
         <TestimonialSection testimonials={testimonials} className="mt-2" />
       </div>

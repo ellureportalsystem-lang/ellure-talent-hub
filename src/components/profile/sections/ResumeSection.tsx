@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { FileText, Download, Upload, Eye, Clock, Sparkles, FileWarning, Loader2, Trash2 } from "lucide-react";
+import { FileText, Download, Upload, Eye, Clock, FileWarning, Loader2, Trash2 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { useState, useRef, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
@@ -8,6 +8,7 @@ import { uploadApplicantResume } from "@/lib/applicantMediaUpload";
 import { openResumePreview, triggerResumeDownload } from "@/lib/resumePreview";
 import { toast } from "sonner";
 import { deleteApplicantResume } from "@/services/applicantProfileMutations";
+import { applicantProfileTouchFields } from "@/lib/applicantProfileTimestamps";
 
 interface ResumeSectionProps {
   applicant: any;
@@ -83,7 +84,11 @@ const ResumeSection = ({ applicant, viewMode, onUpdateHeadline, onResumeUploaded
 
       const { error: updateError } = await supabase
         .from('applicants')
-        .update({ resume_file: publicUrl, upload_cv_any_format: publicUrl, updated_at: new Date().toISOString() })
+        .update({
+          resume_file: publicUrl,
+          upload_cv_any_format: publicUrl,
+          ...applicantProfileTouchFields(),
+        })
         .eq('id', applicant.id);
 
       if (updateError) {
@@ -168,7 +173,7 @@ const ResumeSection = ({ applicant, viewMode, onUpdateHeadline, onResumeUploaded
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <h4 className="text-sm font-semibold flex items-center gap-2">
-            <Sparkles className="h-3.5 w-3.5 text-primary" />
+            <FileText className="h-3.5 w-3.5 text-primary" />
             Resume Headline
           </h4>
           <Badge variant="outline" className="text-[10px] font-normal">

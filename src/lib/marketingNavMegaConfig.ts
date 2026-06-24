@@ -28,7 +28,7 @@ export const servicesMegaMenu: MegaMenuConfig = {
   label: "Services",
   eyebrow: "For employers",
   title: "Hiring services",
-  description: "Structured coordination, screening, and ethical process support — powered by Ellure NexHire.",
+  description: "Structured coordination, screening, and ethical process support — powered by Ellure TalentHub.",
   viewAllHref: "/services",
   viewAllLabel: "Explore all services",
   featured: {

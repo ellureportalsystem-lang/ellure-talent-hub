@@ -13,7 +13,7 @@ const sizeClass = {
   hero: "max-w-lg",
 };
 
-/** Framed NexHire UI collage — product screens, not external reference images */
+/** Framed TalentHub UI collage — product screens, not external reference images */
 export function MarketingProductMockup({
   children,
   className,

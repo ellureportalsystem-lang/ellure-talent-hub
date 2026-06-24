@@ -8,7 +8,7 @@ const vsSource = `
   }
 `;
 
-/** Original dark plasma grid — deep indigo / violet (hero) */
+/** Original dark plasma grid — deep cobalt / teal (hero) */
 const fsSourceDark = `
   precision highp float;
   uniform vec2 iResolution;
@@ -22,7 +22,7 @@ const fsSourceDark = `
   const float majorLineFrequency = 5.0;
   const float minorLineFrequency = 1.0;
   const float scale = 5.0;
-  const vec4 lineColor = vec4(0.5, 0.3, 0.92, 0.9);
+  const vec4 lineColor = vec4(0.15, 0.55, 0.92, 0.88);
   const float minLineWidth = 0.01;
   const float maxLineWidth = 0.18;
   const float lineSpeed = 1.0 * overallSpeed;
@@ -61,8 +61,8 @@ const fsSourceDark = `
     space.x += random(space.y * warpFrequency + iTime * warpSpeed + 2.0) * warpAmplitude * horizontalFade;
 
     vec4 lines = vec4(0.0);
-    vec4 bgColor1 = vec4(0.08, 0.09, 0.22, 1.0);
-    vec4 bgColor2 = vec4(0.24, 0.11, 0.46, 1.0);
+    vec4 bgColor1 = vec4(0.01, 0.04, 0.22, 1.0);
+    vec4 bgColor2 = vec4(0.02, 0.28, 0.58, 1.0);
 
     for(int l = 0; l < linesPerGroup; l++) {
       float normalizedLineIndex = float(l) / float(linesPerGroup);
@@ -84,7 +84,7 @@ const fsSourceDark = `
 
     vec4 fragColor = mix(bgColor1, bgColor2, uv.x);
     float textScrim = smoothstep(0.0, 0.55, uv.x);
-    fragColor = mix(fragColor, vec4(0.05, 0.06, 0.14, 1.0), textScrim * 0.3);
+    fragColor = mix(fragColor, vec4(0.01, 0.05, 0.18, 1.0), textScrim * 0.32);
     fragColor *= verticalFade * 0.92 + 0.08;
     fragColor.a = 1.0;
     fragColor += lines;
@@ -214,7 +214,7 @@ type ShaderBackgroundProps = {
 };
 
 const FALLBACK: Record<ShaderBackgroundVariant, string> = {
-  dark: "bg-gradient-to-br from-[#0a0a24] via-[#14082e] to-[#1e0a3a]",
+  dark: "bg-gradient-to-br from-[#010c7d] via-[#023d7a] to-[#0566CD]",
   light: "bg-gradient-to-br from-[#f7f8ff] via-[#f0f2fa] to-[#e8ecfa]",
 };
 

@@ -43,7 +43,7 @@ th{background:#f5f7fa}
 .total{font-size:18px;font-weight:700;text-align:right;margin-top:16px}
 </style></head><body>
 <div class="header">
-  <div class="logo">Ellure NexHire</div>
+  <div class="logo">Ellure TalentHub</div>
   <div><strong>INVOICE</strong><br/>${invoiceNo}<br/>Date: ${date}</div>
 </div>
 <p><strong>Bill to:</strong><br/>${client?.company_name || "Client"}<br/>${client?.contact_email || ""}</p>
@@ -54,7 +54,7 @@ th{background:#f5f7fa}
 </table>
 <p class="total">Total: ₹${total.toLocaleString("en-IN")}</p>
 <p>Payment ID: ${txn.razorpay_payment_id || txn.id}<br/>Status: ${txn.status}</p>
-<p style="font-size:12px;color:#666;margin-top:40px">Ellure NexHire · This is a computer-generated invoice.</p>
+<p style="font-size:12px;color:#666;margin-top:40px">Ellure TalentHub · This is a computer-generated invoice.</p>
 </body></html>`;
 
   return jsonResponse({ html, invoiceNo });

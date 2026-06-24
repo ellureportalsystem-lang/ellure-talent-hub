@@ -22,7 +22,7 @@ function formatName(raw: string) {
 }
 
 const INTRO_MESSAGES: { text: string; delay: number }[] = [
-  { text: "Hi! I'm Ellura — your NexHire guide.", delay: 0 },
+  { text: "Hi! I'm Ellura — your TalentHub guide.", delay: 0 },
   {
     text: "I can help with hiring, plans, and how the platform works.",
     delay: 500,
@@ -149,12 +149,12 @@ export function ElluraChatbot() {
             className={cn(
               "fixed z-50",
               "bottom-[6rem] right-0 md:bottom-10",
-              "flex items-center gap-2 rounded-l-full border border-violet-200 bg-white/95 pl-2 pr-3 py-2 shadow-lg backdrop-blur",
-              "text-xs font-semibold text-violet-900"
+              "flex items-center gap-2 rounded-l-full border border-sky-200 bg-white/95 pl-2 pr-3 py-2 shadow-lg backdrop-blur",
+              "text-xs font-semibold text-sky-900"
             )}
             aria-label="Show Ellura"
           >
-            <ChevronLeft className="h-4 w-4 text-violet-700" aria-hidden />
+            <ChevronLeft className="h-4 w-4 text-sky-700" aria-hidden />
             <span>Ellura</span>
           </motion.button>
         )}
@@ -189,12 +189,12 @@ export function ElluraChatbot() {
             transition={{ type: "spring", stiffness: 420, damping: 34 }}
             className={cn(
               "flex w-[min(100vw-2rem,380px)] flex-col overflow-hidden",
-              "rounded-3xl border border-violet-100 bg-white",
-              "shadow-[0_20px_60px_-12px_rgba(91,33,182,0.35)]",
+              "rounded-3xl border border-sky-100 bg-white",
+              "shadow-[0_20px_60px_-12px_rgba(5,102,205,0.28)]",
               "h-[min(520px,calc(100dvh-9.5rem))]"
             )}
           >
-            <header className="flex items-center gap-3 border-b border-violet-100 bg-gradient-to-br from-violet-600 via-violet-700 to-indigo-800 px-4 py-3">
+            <header className="flex items-center gap-3 border-b border-sky-100 bg-gradient-to-br from-[#0566CD] via-[#0566CD] to-[#010c7d] px-4 py-3">
               <ElluraAvatar
                 size={58}
                 mood={headerMood}
@@ -203,7 +203,7 @@ export function ElluraChatbot() {
               />
               <div className="min-w-0 flex-1">
                 <p className="font-semibold text-white">Ellura</p>
-                <p className="text-xs text-violet-100/95">At your service</p>
+                <p className="text-xs text-sky-100/95">At your service</p>
               </div>
               <span className="rounded-full bg-white/15 px-2 py-0.5 text-[10px] font-medium text-emerald-100">
                 Online
@@ -250,7 +250,7 @@ export function ElluraChatbot() {
                       "rounded-2xl px-3 py-2 text-[13px] leading-relaxed",
                       msg.role === "bot"
                         ? "bg-white text-slate-700 shadow-sm ring-1 ring-slate-200/60"
-                        : "bg-violet-600 text-white shadow-sm"
+                        : "bg-primary text-white shadow-sm"
                     )}
                   >
                     {msg.text}
@@ -259,9 +259,9 @@ export function ElluraChatbot() {
               ))}
               {step === "intro" && !introDone && (
                 <div className="flex gap-1 pl-9">
-                  <span className="ellura-typing-dot h-1.5 w-1.5 rounded-full bg-violet-400" />
-                  <span className="ellura-typing-dot ellura-typing-dot-2 h-1.5 w-1.5 rounded-full bg-violet-400" />
-                  <span className="ellura-typing-dot ellura-typing-dot-3 h-1.5 w-1.5 rounded-full bg-violet-400" />
+                  <span className="ellura-typing-dot h-1.5 w-1.5 rounded-full bg-sky-400" />
+                  <span className="ellura-typing-dot ellura-typing-dot-2 h-1.5 w-1.5 rounded-full bg-sky-400" />
+                  <span className="ellura-typing-dot ellura-typing-dot-3 h-1.5 w-1.5 rounded-full bg-sky-400" />
                 </div>
               )}
               <div ref={messagesEndRef} />
@@ -269,9 +269,9 @@ export function ElluraChatbot() {
 
             <form
               onSubmit={handleSubmit}
-              className="border-t border-violet-100 bg-white p-3"
+              className="border-t border-sky-100 bg-white p-3"
             >
-              <div className="flex gap-2 rounded-xl border border-violet-200 bg-slate-50 p-1 pl-3 focus-within:border-violet-400 focus-within:ring-2 focus-within:ring-violet-400/15">
+              <div className="flex gap-2 rounded-xl border border-sky-200 bg-slate-50 p-1 pl-3 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/15">
                 <Input
                   ref={inputRef}
                   value={input}
@@ -287,7 +287,7 @@ export function ElluraChatbot() {
                   type="submit"
                   size="icon"
                   disabled={step === "intro" || !input.trim()}
-                  className="h-9 w-9 shrink-0 rounded-lg bg-violet-600 hover:bg-violet-700"
+                  className="h-9 w-9 shrink-0 rounded-lg bg-primary hover:bg-primary/90"
                   aria-label="Send"
                 >
                   <Send className="h-3.5 w-3.5" />
@@ -309,11 +309,11 @@ export function ElluraChatbot() {
               className="absolute bottom-4 right-[calc(100%+12px)] z-10 w-[min(15.5rem,calc(100vw-6.5rem))]"
             >
               <div className="ellura-invite-bubble relative rounded-2xl rounded-tr-sm px-3.5 py-2.5 text-left">
-                <p className="text-sm font-semibold text-violet-950">
+                <p className="text-sm font-semibold text-slate-900">
                   Need help with hiring?
                 </p>
-                <p className="mt-0.5 text-xs text-violet-700/90">
-                  Chat with Ellura — your NexHire guide.
+                <p className="mt-0.5 text-xs text-sky-700/90">
+                  Chat with Ellura — your TalentHub guide.
                 </p>
               </div>
             </motion.div>

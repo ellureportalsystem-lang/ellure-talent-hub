@@ -8,7 +8,7 @@ import { MarketingIllustrationFrame } from "@/components/marketing/MarketingIllu
 const Pricing = () => (
   <MarketingSaasShell>
     <PageMeta
-      title="Pricing — Ellure NexHire"
+      title="Pricing — Ellure TalentHub"
       description="Flexible subscription plans for recruiters. CV downloads, job postings, and team collaboration."
     />
     <MarketingSaasPageHero

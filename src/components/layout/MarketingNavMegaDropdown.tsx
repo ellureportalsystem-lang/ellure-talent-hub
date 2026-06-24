@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { ChevronDown } from "lucide-react";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover";
 import { MarketingNavMegaPanel } from "@/components/layout/MarketingNavMegaPanel";
 import type { MegaMenuConfig } from "@/lib/marketingNavMegaConfig";
 import { cn } from "@/lib/utils";
@@ -13,7 +14,7 @@ type MarketingNavMegaDropdownProps = {
 
 const CLOSE_DELAY_MS = 180;
 
-/** Hover mega menu anchored to navbar (Popover — avoids transform/ viewport bugs) */
+/** Hover mega menu; clicking the label navigates to the section page */
 export function MarketingNavMegaDropdown({ label, config, triggerClassName }: MarketingNavMegaDropdownProps) {
   const [open, setOpen] = useState(false);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -31,7 +32,13 @@ export function MarketingNavMegaDropdown({ label, config, triggerClassName }: Ma
   };
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover
+      open={open}
+      modal={false}
+      onOpenChange={(nextOpen) => {
+        if (!nextOpen) setOpen(false);
+      }}
+    >
       <div
         className="relative"
         onMouseEnter={() => {
@@ -40,23 +47,24 @@ export function MarketingNavMegaDropdown({ label, config, triggerClassName }: Ma
         }}
         onMouseLeave={scheduleClose}
       >
-        <PopoverTrigger asChild>
-          <button
-            type="button"
+        <PopoverAnchor asChild>
+          <Link
+            to={config.viewAllHref}
             className={cn(
               "inline-flex h-9 items-center gap-1 rounded-md px-3 text-sm font-medium outline-none transition-colors",
-              "data-[state=open]:bg-primary/5 data-[state=open]:text-primary",
+              open && "bg-primary/5 text-primary",
               triggerClassName
             )}
             aria-expanded={open}
+            onClick={() => setOpen(false)}
           >
             {label}
             <ChevronDown
               className={cn("h-3.5 w-3.5 transition-transform duration-200", open && "rotate-180")}
               aria-hidden
             />
-          </button>
-        </PopoverTrigger>
+          </Link>
+        </PopoverAnchor>
         <PopoverContent
           align="start"
           side="bottom"
@@ -65,6 +73,7 @@ export function MarketingNavMegaDropdown({ label, config, triggerClassName }: Ma
           collisionPadding={12}
           onMouseEnter={clearCloseTimer}
           onMouseLeave={scheduleClose}
+          onOpenAutoFocus={(event) => event.preventDefault()}
           className="z-[100] w-auto max-w-[calc(100vw-1.5rem)] border-0 bg-transparent p-0 shadow-none"
         >
           <MarketingNavMegaPanel config={config} />

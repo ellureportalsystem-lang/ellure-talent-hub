@@ -52,7 +52,7 @@ const AcceptInvitePage = () => {
       <Card className="w-full max-w-md">
         <CardHeader><CardTitle>Accept Team Invitation</CardTitle></CardHeader>
         <CardContent className="space-y-4">
-          <p className="text-sm text-muted-foreground">Join your company&apos;s Ellure NexHire workspace.</p>
+          <p className="text-sm text-muted-foreground">Join your company&apos;s Ellure TalentHub workspace.</p>
           {!user && (
             <div className="space-y-2">
               <Label>Create password (new users)</Label>

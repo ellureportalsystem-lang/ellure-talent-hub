@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -42,6 +42,8 @@ import { Switch } from "@/components/ui/switch";
 import { DashboardPageShell } from "@/components/dashboard/DashboardPageShell";
 import { PortalListRow, PortalPageHeader } from "@/components/portal/portal-ui";
 import { portalPanelClass } from "@/components/portal/portalStyles";
+import { createClientRecord } from "@/services/clientAdminService";
+import { createAdminUser } from "@/services/adminUserService";
 
 interface UserRow {
   id: string;
@@ -58,55 +60,69 @@ const UsersManagement = () => {
   const [users, setUsers] = useState<UserRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [createForm, setCreateForm] = useState({
+    name: "",
+    email: "",
+    company: "",
+    phone: "",
+    plan: "basic",
+    password: "",
+  });
+  const [creating, setCreating] = useState(false);
+
+  const loadUsers = useCallback(async () => {
+    setLoading(true);
+    const rows: UserRow[] = [];
+
+    const { data: admins } = await supabase
+      .from("admin_users")
+      .select("id, email, full_name, status, created_at")
+      .order("created_at", { ascending: false });
+
+    admins?.forEach((a) => {
+      rows.push({
+        id: a.id,
+        name: a.full_name || a.email,
+        email: a.email,
+        role: "Admin",
+        status: a.status === "approved" ? "Active" : a.status === "pending" ? "Pending" : "Inactive",
+        createdAt: a.created_at ? new Date(a.created_at).toLocaleDateString() : "—",
+      });
+    });
+
+    const { data: clients } = await supabase
+      .from("clients")
+      .select("id, company_name, email, is_active, subscription_status, created_at")
+      .order("created_at", { ascending: false });
+
+    clients?.forEach((c) => {
+      rows.push({
+        id: c.id,
+        name: c.company_name,
+        email: c.email,
+        role: "Client",
+        status: c.is_active ? (c.subscription_status ?? "Active") : "Inactive",
+        createdAt: c.created_at ? new Date(c.created_at).toLocaleDateString() : "—",
+      });
+    });
+
+    setUsers(rows);
+    setLoading(false);
+  }, []);
 
   useEffect(() => {
-    const load = async () => {
-      setLoading(true);
-      const rows: UserRow[] = [];
-
-      const { data: admins } = await supabase
-        .from("admin_users")
-        .select("id, email, full_name, status, created_at")
-        .order("created_at", { ascending: false });
-
-      admins?.forEach((a) => {
-        rows.push({
-          id: a.id,
-          name: a.full_name || a.email,
-          email: a.email,
-          role: "Admin",
-          status: a.status === "approved" ? "Active" : a.status === "pending" ? "Pending" : "Inactive",
-          createdAt: a.created_at ? new Date(a.created_at).toLocaleDateString() : "—",
-        });
-      });
-
-      const { data: clients } = await supabase
-        .from("clients")
-        .select("id, company_name, email, is_active, subscription_status, created_at")
-        .order("created_at", { ascending: false });
-
-      clients?.forEach((c) => {
-        rows.push({
-          id: c.id,
-          name: c.company_name,
-          email: c.email,
-          role: "Client",
-          status: c.is_active ? (c.subscription_status ?? "Active") : "Inactive",
-          createdAt: c.created_at ? new Date(c.created_at).toLocaleDateString() : "—",
-        });
-      });
-
-      setUsers(rows);
-      setLoading(false);
-    };
-    void load();
-  }, []);
+    void loadUsers();
+  }, [loadUsers]);
 
   const filtered = users.filter(
     (u) =>
       u.name.toLowerCase().includes(search.toLowerCase()) ||
       u.email.toLowerCase().includes(search.toLowerCase())
   );
+
+  const adminCount = users.filter((u) => u.role === "Admin").length;
+  const activeClientCount = users.filter((u) => u.role === "Client" && u.status !== "Inactive").length;
+  const inactiveCount = users.filter((u) => u.status === "Inactive" || u.status === "Pending").length;
 
   const approveClient = async (clientId: string) => {
     const { error } = await supabase
@@ -115,6 +131,59 @@ const UsersManagement = () => {
       .eq("id", clientId);
     if (error) toast.error(error.message);
     else toast.success("Client approved");
+  };
+
+  const handleCreateUser = async () => {
+    if (!createForm.name.trim() || !createForm.email.trim()) {
+      toast.error("Name and email are required");
+      return;
+    }
+    if (!createForm.password || createForm.password.length < 8) {
+      toast.error("Password must be at least 8 characters");
+      return;
+    }
+
+    if (userType === "admin") {
+      setCreating(true);
+      const { error } = await createAdminUser({
+        email: createForm.email.trim(),
+        password: createForm.password,
+        fullName: createForm.name.trim(),
+        phone: createForm.phone.trim() || undefined,
+      });
+      setCreating(false);
+      if (error) {
+        toast.error(error.message);
+        return;
+      }
+      toast.success("Admin account created and approved");
+      setIsCreateDialogOpen(false);
+      setCreateForm({ name: "", email: "", company: "", phone: "", plan: "basic", password: "" });
+      void loadUsers();
+      return;
+    }
+
+    if (!createForm.company.trim()) {
+      toast.error("Company name is required for client accounts");
+      return;
+    }
+    setCreating(true);
+    const { error } = await createClientRecord({
+      company_name: createForm.company.trim(),
+      contact_person_name: createForm.name.trim(),
+      contact_email: createForm.email.trim(),
+      contact_phone: createForm.phone.trim() || undefined,
+      subscription_plan: createForm.plan,
+    });
+    setCreating(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success("Recruiter client created");
+    setIsCreateDialogOpen(false);
+    setCreateForm({ name: "", email: "", company: "", phone: "", plan: "basic", password: "" });
+    void loadUsers();
   };
 
   return (
@@ -153,20 +222,24 @@ const UsersManagement = () => {
 
               <div className="space-y-2">
                 <Label htmlFor="user-name">Full Name</Label>
-                <Input 
-                  id="user-name" 
-                  placeholder="Enter full name" 
+                <Input
+                  id="user-name"
+                  placeholder="Enter full name"
+                  value={createForm.name}
+                  onChange={(e) => setCreateForm((f) => ({ ...f, name: e.target.value }))}
                 />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="user-email">Email</Label>
-                <Input 
-                  id="user-email" 
+                <Input
+                  id="user-email"
                   type="email"
+                  value={createForm.email}
+                  onChange={(e) => setCreateForm((f) => ({ ...f, email: e.target.value }))}
                   placeholder={
-                    userType === "admin" 
-                      ? "admin+name@ellureconsulting.com" 
+                    userType === "admin"
+                      ? "admin+name@ellureconsulting.com"
                       : "client+company@ellureconsulting.com"
                   }
                 />
@@ -175,22 +248,28 @@ const UsersManagement = () => {
               {userType === "client" && (
                 <div className="space-y-2">
                   <Label htmlFor="company-name">Company Name</Label>
-                  <Input 
-                    id="company-name" 
-                    placeholder="Enter company name" 
+                  <Input
+                    id="company-name"
+                    placeholder="Enter company name"
+                    value={createForm.company}
+                    onChange={(e) => setCreateForm((f) => ({ ...f, company: e.target.value }))}
                   />
                 </div>
               )}
 
               <div className="space-y-2">
                 <Label htmlFor="initial-password">Initial Password</Label>
-                <Input 
-                  id="initial-password" 
+                <Input
+                  id="initial-password"
                   type="password"
-                  placeholder={userType === "admin" ? "admin@123" : "client@123"}
+                  value={createForm.password}
+                  onChange={(e) => setCreateForm((f) => ({ ...f, password: e.target.value }))}
+                  placeholder={userType === "admin" ? "Min. 8 characters" : "Min. 8 characters"}
                 />
                 <p className="text-xs text-muted-foreground">
-                  User will be required to change password on first login
+                  {userType === "admin"
+                    ? "Admin can sign in immediately. OTP/email verification can be enabled later via external services."
+                    : "User will be required to change password on first login"}
                 </p>
               </div>
             </div>
@@ -198,8 +277,8 @@ const UsersManagement = () => {
               <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
                 Cancel
               </Button>
-              <Button onClick={() => setIsCreateDialogOpen(false)}>
-                Create User
+              <Button onClick={() => void handleCreateUser()} disabled={creating}>
+                {creating ? "Creating…" : "Create user"}
               </Button>
             </div>
           </DialogContent>
@@ -213,7 +292,7 @@ const UsersManagement = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Total Admins</p>
-                <p className="text-2xl font-bold mt-1">2</p>
+                <p className="text-2xl font-bold mt-1">{loading ? "—" : adminCount}</p>
               </div>
               <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
                 <Shield className="h-5 w-5 text-primary" />
@@ -227,7 +306,7 @@ const UsersManagement = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Active Clients</p>
-                <p className="text-2xl font-bold mt-1">2</p>
+                <p className="text-2xl font-bold mt-1">{loading ? "—" : activeClientCount}</p>
               </div>
               <div className="h-10 w-10 rounded-lg bg-info/10 flex items-center justify-center">
                 <Building2 className="h-5 w-5 text-info" />
@@ -240,8 +319,8 @@ const UsersManagement = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Inactive Users</p>
-                <p className="text-2xl font-bold mt-1">1</p>
+                <p className="text-sm text-muted-foreground">Inactive / Pending</p>
+                <p className="text-2xl font-bold mt-1">{loading ? "—" : inactiveCount}</p>
               </div>
               <div className="h-10 w-10 rounded-lg bg-warning/10 flex items-center justify-center">
                 <UserPlus className="h-5 w-5 text-warning" />

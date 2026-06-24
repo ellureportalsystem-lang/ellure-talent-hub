@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase';
+import { applicantProfileTouchFields } from '@/lib/applicantProfileTimestamps';
 import { uploadApplicantProfileImage, uploadApplicantResume } from '@/lib/applicantMediaUpload';
 
 export interface ApplicantFormData {
@@ -142,18 +143,32 @@ export const saveApplicantToDatabase = async (
 /** Update profile summary (stored in profiles.summary). */
 export const updateProfileSummary = async (
   userId: string,
-  summary: string
+  summary: string,
+  applicantId?: string | null
 ): Promise<{ success: boolean; error?: string }> => {
   try {
+    const touch = applicantProfileTouchFields();
     const { error } = await supabase
       .from('profiles')
-      .update({ summary: summary.trim() || null, updated_at: new Date().toISOString() })
+      .update({ summary: summary.trim() || null, updated_at: touch.updated_at })
       .eq('id', userId);
 
     if (error) {
       console.error('Error updating profile summary:', error);
       return { success: false, error: error.message };
     }
+
+    if (applicantId) {
+      const { error: applicantError } = await supabase
+        .from('applicants')
+        .update({ summary: summary.trim() || null, ...touch })
+        .eq('id', applicantId);
+      if (applicantError) {
+        console.error('Error updating applicant summary:', applicantError);
+        return { success: false, error: applicantError.message };
+      }
+    }
+
     return { success: true };
   } catch (error: any) {
     console.error('Error in updateProfileSummary:', error);
@@ -169,7 +184,7 @@ export const updateApplicantProfile = async (
   try {
     const { error } = await supabase
       .from('applicants')
-      .update({ ...updates, updated_at: new Date().toISOString() })
+      .update({ ...updates, ...applicantProfileTouchFields() })
       .eq('id', applicantId);
 
     if (error) {

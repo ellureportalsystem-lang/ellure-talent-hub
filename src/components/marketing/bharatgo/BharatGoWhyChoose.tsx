@@ -77,7 +77,7 @@ export function BharatGoWhyChoose() {
             <BharatGoSectionHeader
               align="left"
               eyebrow="Why choose us"
-              title="Why choose Ellure NexHire?"
+              title="Why choose Ellure TalentHub?"
               subtitle="Say goodbye to scattered spreadsheets and hello to one platform for applicants, clients, and your recruitment team."
             />
             <ul className="mt-8 space-y-5">

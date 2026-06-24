@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronUp, Edit, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
+import { applicantProfileCard } from "@/components/dashboard/applicant/applicantProfileStyles";
 
 interface ProfileSectionProps {
   id: string;
@@ -18,6 +19,7 @@ interface ProfileSectionProps {
   badge?: string;
   isEmpty?: boolean;
   emptyMessage?: string;
+  variant?: "default" | "applicant";
 }
 
 const ProfileSection = ({
@@ -33,23 +35,44 @@ const ProfileSection = ({
   badge,
   isEmpty = false,
   emptyMessage = "No information added yet",
+  variant = "default",
 }: ProfileSectionProps) => {
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
+  const isApplicant = variant === "applicant";
 
   return (
-    <Card id={id} className="overflow-hidden scroll-mt-6">
+    <Card
+      id={id}
+      className={cn(
+        "overflow-hidden scroll-mt-24",
+        isApplicant ? applicantProfileCard : undefined
+      )}
+    >
       <CardHeader
-        className="cursor-pointer hover:bg-muted/50 transition-colors py-3 px-4"
+        className={cn(
+          "cursor-pointer py-3 px-4 transition-colors",
+          isApplicant ? "hover:bg-[#f8fafc]" : "hover:bg-muted/50"
+        )}
         onClick={() => setIsExpanded(!isExpanded)}
       >
         <div className="flex items-center justify-between">
-          <CardTitle className="text-sm font-semibold flex items-center gap-2.5">
-            <span className="h-7 w-7 rounded-md bg-primary/10 flex items-center justify-center text-primary flex-shrink-0">
+          <CardTitle className="text-sm font-semibold flex items-center gap-2.5 text-[#333]">
+            <span
+              className={cn(
+                "h-7 w-7 rounded-md flex items-center justify-center flex-shrink-0",
+                isApplicant ? "bg-[#f0f7ff] text-[#0566CD]" : "bg-primary/10 text-primary"
+              )}
+            >
               {icon}
             </span>
             <span>{title}</span>
             {badge && (
-              <span className="text-[10px] px-1.5 py-0.5 bg-primary/10 text-primary rounded-full font-normal">
+              <span
+                className={cn(
+                  "text-[10px] px-1.5 py-0.5 rounded-full font-normal",
+                  isApplicant ? "bg-[#f0f7ff] text-[#0566CD]" : "bg-primary/10 text-primary"
+                )}
+              >
                 {badge}
               </span>
             )}

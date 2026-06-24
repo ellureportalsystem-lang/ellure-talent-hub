@@ -1,18 +1,8 @@
-import { Routes, Route, useLocation, useNavigate, Navigate } from "react-router-dom";
-import {
-  LayoutDashboard,
-  Briefcase,
-  FileText,
-  Bookmark,
-  Bell,
-  MessageSquare,
-  Eye,
-  Settings as SettingsIcon,
-} from "lucide-react";
+import { Routes, Route, useNavigate, Navigate } from "react-router-dom";
+import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
-import { PortalDashboardLayout } from "@/components/portal/PortalDashboardLayout";
-import { isDashboardNavActive } from "@/lib/dashboardNav";
-import ApplicantDashboard from "./ApplicantDashboard";
+import { ApplicantNaukriShell } from "@/components/dashboard/applicant/ApplicantNaukriShell";
+import { PORTAL_ROUTES } from "@/lib/portalRoutes";
 import ApplicantJobsPage from "./applicant/ApplicantJobsPage";
 import ApplicantJobDetail from "./applicant/ApplicantJobDetail";
 import ApplicantApplicationsPage from "./applicant/ApplicantApplicationsPage";
@@ -20,27 +10,17 @@ import ApplicantSavedJobsPage from "./applicant/ApplicantSavedJobsPage";
 import JobAlertsPage from "./applicant/JobAlertsPage";
 import ApplicantMessagesPage from "./applicant/ApplicantMessagesPage";
 import ApplicantProfileViewsPage from "./applicant/ApplicantProfileViewsPage";
+import ApplicantProfilePage from "./applicant/ApplicantProfilePage";
+import ApplicantProfileEditPage from "./applicant/ApplicantProfileEditPage";
 import ApplicantSettings from "./applicant/ApplicantSettings";
 import { useUnreadMessageCount } from "@/hooks/useUnreadMessageCount";
-
-const navItems = [
-  { path: "/dashboard/applicant", label: "Dashboard", icon: LayoutDashboard, exact: true },
-  { path: "/dashboard/applicant/applications", label: "Applications", icon: FileText },
-  { path: "/dashboard/applicant/jobs", label: "Browse Jobs", icon: Briefcase },
-  { path: "/dashboard/applicant/saved-jobs", label: "Saved Jobs", icon: Bookmark },
-  { path: "/dashboard/applicant/job-alerts", label: "Job Alerts", icon: Bell },
-  { path: "/dashboard/applicant/messages", label: "Messages", icon: MessageSquare },
-  { path: "/dashboard/applicant/profile-views", label: "Profile Views", icon: Eye },
-  { path: "/dashboard/applicant/settings", label: "Settings", icon: SettingsIcon },
-];
 
 const ApplicantPortal = () => {
   const { profile, signOut } = useAuth();
   const { data: unreadTotal = 0 } = useUnreadMessageCount();
-  const location = useLocation();
   const navigate = useNavigate();
 
-  const displayName = profile?.full_name || profile?.email?.split("@")[0] || "Applicant";
+  const displayName = profile?.full_name || profile?.email?.split("@")[0] || "Candidate";
   const initials = displayName
     .split(" ")
     .map((n: string) => n[0])
@@ -48,45 +28,27 @@ const ApplicantPortal = () => {
     .slice(0, 2)
     .toUpperCase();
 
-  const isHome = location.pathname === "/dashboard/applicant";
-  const pageTitle =
-    navItems.find((n) => isDashboardNavActive(location.pathname, n))?.label || "Applicant";
-  const headerShowBack = !isHome;
-
   const handleLogout = async () => {
     await signOut();
-    navigate("/auth/applicant");
+    navigate(PORTAL_ROUTES.candidate.login);
   };
 
-  const bottomNavItems = [
-    { path: "/dashboard/applicant", label: "Home", icon: LayoutDashboard, exact: true },
-    { path: "/dashboard/applicant/jobs", label: "Jobs", icon: Briefcase },
-    { path: "/dashboard/applicant/applications", label: "Apps", icon: FileText },
-    { path: "/dashboard/applicant/messages", label: "Messages", icon: MessageSquare },
-  ];
-
   return (
-    <PortalDashboardLayout
-      role="applicant"
-      shellMode="mobile-first"
-      portalSuffix="Applicant"
-      portalTagline="Your career workspace"
-      navItems={navItems}
-      bottomNavItems={bottomNavItems}
+    <ApplicantNaukriShell
       settingsPath="/dashboard/applicant/settings"
       onLogout={handleLogout}
       displayName={displayName}
-      email={profile?.email}
+      email={profile?.email ?? undefined}
       initials={initials}
-      profileImageUrl={profile?.profile_image}
-      headerShowBack={headerShowBack}
-      headerTitle={headerShowBack ? pageTitle : undefined}
-      showUserMenu={false}
-      animateMain
-      unreadTotal={unreadTotal}
+      headerBadge={
+        unreadTotal > 0 ? (
+          <Badge className="bg-[#0566CD] text-[10px]">{unreadTotal} new</Badge>
+        ) : undefined
+      }
     >
       <Routes>
-        <Route index element={<ApplicantDashboard embedded />} />
+        <Route index element={<ApplicantProfilePage />} />
+        <Route path="profile/edit" element={<ApplicantProfileEditPage />} />
         <Route path="profile" element={<Navigate to="/dashboard/applicant" replace />} />
         <Route path="jobs" element={<ApplicantJobsPage />} />
         <Route path="jobs/:id" element={<ApplicantJobDetail />} />
@@ -97,7 +59,7 @@ const ApplicantPortal = () => {
         <Route path="profile-views" element={<ApplicantProfileViewsPage />} />
         <Route path="settings" element={<ApplicantSettings />} />
       </Routes>
-    </PortalDashboardLayout>
+    </ApplicantNaukriShell>
   );
 };
 

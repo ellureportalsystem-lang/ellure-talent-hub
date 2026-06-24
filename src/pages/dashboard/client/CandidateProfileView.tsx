@@ -1,11 +1,6 @@
-import { useParams } from "react-router-dom";
-import EnterpriseApplicantProfile from "@/pages/dashboard/admin/EnterpriseApplicantProfile";
+import ResdexCandidateProfilePage from "@/pages/dashboard/recruiter/ResdexCandidateProfilePage";
 
-const CandidateProfileView = () => {
-  const { id } = useParams<{ id: string }>();
-  
-  // Use EnterpriseApplicantProfile with client view mode
-  return <EnterpriseApplicantProfile viewMode="client" applicantId={id} />;
-};
-
-export default CandidateProfileView;
+/** Recruiter ResDex candidate profile — Naukri-style detail view */
+export default function CandidateProfileView() {
+  return <ResdexCandidateProfilePage />;
+}

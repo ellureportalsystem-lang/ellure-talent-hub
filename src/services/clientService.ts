@@ -37,15 +37,34 @@ export async function fetchClientByProfile(userId: string) {
       .eq("user_id", userId)
       .maybeSingle();
     clientId = byUser?.id ?? null;
-    if (clientId && !profile.client_id) {
-      await supabase.from("profiles").update({ client_id: clientId }).eq("id", userId);
-    }
+  }
+
+  if (!clientId && profile.email) {
+    const { data: byEmail } = await supabase
+      .from("clients")
+      .select("id")
+      .eq("email", profile.email.trim().toLowerCase())
+      .maybeSingle();
+    clientId = byEmail?.id ?? null;
+  }
+
+  if (clientId && !profile.client_id) {
+    await supabase.from("profiles").update({ client_id: clientId }).eq("id", userId);
   }
 
   if (!clientId) return null;
 
   const client = await fetchClientRecord(clientId);
   return { profile, client };
+}
+
+export async function fetchResdexApplicantProfile(applicantId: string) {
+  const { data, error } = await supabase.rpc("get_resdex_applicant_profile", {
+    p_applicant_id: applicantId,
+  });
+  if (error) throw new Error(error.message);
+  if (!data) return null;
+  return data as Record<string, unknown>;
 }
 
 export async function checkAndLogCvDownload(clientId: string, applicantId: string, downloadedBy: string) {
@@ -62,6 +81,16 @@ export async function checkAndLogCvDownload(clientId: string, applicantId: strin
     downloaded_by: downloadedBy,
   });
 
+  await supabase.from("client_applicant_access").upsert(
+    {
+      client_id: clientId,
+      applicant_id: applicantId,
+      granted_by: downloadedBy,
+      created_at: new Date().toISOString(),
+    },
+    { onConflict: "client_id,applicant_id" }
+  );
+
   const client = await fetchClientRecord(clientId);
   const used = ((client.cv_downloads_used_this_month as number) || 0) + 1;
   await supabase.from("clients").update({ cv_downloads_used_this_month: used }).eq("id", clientId);
@@ -69,6 +98,15 @@ export async function checkAndLogCvDownload(clientId: string, applicantId: strin
   const limit = resolveCvDownloadLimit(client, client.subscription_plans);
 
   return { allowed: true as const, remaining: Math.max(0, limit - used) };
+}
+
+export async function fetchClientUnlockedApplicantIds(clientId: string): Promise<Set<string>> {
+  const { data, error } = await supabase
+    .from("client_applicant_access")
+    .select("applicant_id")
+    .eq("client_id", clientId);
+  if (error) throw new Error(error.message);
+  return new Set((data ?? []).map((r) => r.applicant_id));
 }
 
 export async function fetchSavedSearches(clientId: string) {
@@ -119,6 +157,36 @@ export async function saveClientSearch(
 export async function deleteSavedSearch(searchId: string) {
   const { error } = await supabase.from("saved_searches").delete().eq("id", searchId);
   if (error) throw new Error(error.message);
+}
+
+export async function updateSavedSearchLastRun(searchId: string) {
+  const { error } = await supabase
+    .from("saved_searches")
+    .update({ last_run_at: new Date().toISOString() })
+    .eq("id", searchId);
+  if (error) throw new Error(error.message);
+}
+
+export async function countNewProfilesSinceLastRun(
+  lastRunAt: string | null | undefined,
+  searchQuery?: string
+): Promise<number> {
+  const since = lastRunAt || new Date(0).toISOString();
+  let query = supabase
+    .from("applicants")
+    .select("*", { count: "exact", head: true })
+    .gt("registration_date", since)
+    .eq("status", "submitted");
+
+  if (searchQuery?.trim()) {
+    query = query.or(
+      `name.ilike.%${searchQuery}%,key_skills.ilike.%${searchQuery}%,current_designation.ilike.%${searchQuery}%`
+    );
+  }
+
+  const { count, error } = await query;
+  if (error) throw new Error(error.message);
+  return count ?? 0;
 }
 
 export async function fetchSubscriptionPlans() {
@@ -197,7 +265,7 @@ export async function inviteTeamMember(
   await supabase.functions.invoke("send-email", {
     body: {
       to: email,
-      subject: `Invitation to join ${client?.company_name || "Ellure NexHire"}`,
+      subject: `Invitation to join ${client?.company_name || "Ellure TalentHub"}`,
       html: `<p>You've been invited to join the team. <a href="${inviteUrl}">Accept invitation</a></p>`,
     },
   }).catch(() => {

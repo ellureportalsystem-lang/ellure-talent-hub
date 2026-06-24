@@ -16,7 +16,7 @@ export function BharatGoMarketStats() {
         <BharatGoSectionHeader
           eyebrow="India hiring landscape"
           title="Built for scale in a growing talent market"
-          subtitle="Ellure NexHire combines recruitment expertise with technology — so employers and candidates benefit from structure at every step."
+          subtitle="Ellure TalentHub combines recruitment expertise with technology — so employers and candidates benefit from structure at every step."
         />
         <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {stats.map((item) => (

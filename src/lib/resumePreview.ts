@@ -34,10 +34,26 @@ export function parseSupabasePublicObjectUrl(url: string): { bucket: string; obj
 
 /**
  * Returns a URL suitable for browser access.
- * Supabase: exchanges public-path URLs for time-limited signed URLs (needs Storage SELECT policy).
- * Cloudinary / other: returns the URL unchanged.
+ * Cloudinary: uses get-cloudinary-url edge function for signed delivery.
+ * Supabase legacy URLs: signed URL (deprecated — prefer Cloudinary).
  */
-export async function getResumeAccessibleUrl(rawUrl: string, expiresSec = 3600): Promise<string> {
+export async function getResumeAccessibleUrl(
+  rawUrl: string,
+  expiresSec = 3600,
+  options?: { clientId?: string; applicantId?: string }
+): Promise<string> {
+  if (rawUrl.includes("cloudinary.com") || rawUrl.startsWith("ellure/")) {
+    const { data, error } = await supabase.functions.invoke("get-cloudinary-url", {
+      body: {
+        resume_url: rawUrl,
+        client_id: options?.clientId,
+        applicant_id: options?.applicantId,
+      },
+    });
+    if (!error && data?.signed_url) return data.signed_url as string;
+    return rawUrl;
+  }
+
   const parsed = parseSupabasePublicObjectUrl(rawUrl);
   if (!parsed) return rawUrl;
 

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { X, Plus, Sparkles, Lightbulb } from "lucide-react";
+import { X, Plus, ListPlus, Lightbulb } from "lucide-react";
 import { toast } from "sonner";
 
 interface SkillsSectionProps {
@@ -52,11 +52,8 @@ const SkillsSection = ({ skills, viewMode, onUpdateSkills }: SkillsSectionProps)
     onUpdateSkills?.(newSkills);
   };
 
-  const handleAISuggest = () => {
-    toast.success("AI is analyzing your profile to suggest relevant skills...");
-    setTimeout(() => {
-      setShowSuggestions(true);
-    }, 1000);
+  const handleSuggestPopular = () => {
+    setShowSuggestions(true);
   };
 
   const availableSuggestions = suggestedSkills.filter(s => !currentSkills.includes(s));
@@ -120,9 +117,9 @@ const SkillsSection = ({ skills, viewMode, onUpdateSkills }: SkillsSectionProps)
             <Plus className="h-3.5 w-3.5 mr-1" />
             Add
           </Button>
-          <Button variant="outline" size="sm" className="h-8 text-xs" onClick={handleAISuggest}>
-            <Sparkles className="h-3.5 w-3.5 mr-1" />
-            AI Suggest
+          <Button variant="outline" size="sm" className="h-8 text-xs" onClick={handleSuggestPopular}>
+            <ListPlus className="h-3.5 w-3.5 mr-1" />
+            Popular
           </Button>
         </div>
       )}
@@ -131,7 +128,7 @@ const SkillsSection = ({ skills, viewMode, onUpdateSkills }: SkillsSectionProps)
         <div className="p-3 bg-primary/5 rounded-lg border border-primary/10">
           <div className="flex items-center gap-1.5 mb-2">
             <Lightbulb className="h-3.5 w-3.5 text-primary" />
-            <span className="text-xs font-medium">Suggested Skills</span>
+            <span className="text-xs font-medium">Popular skills</span>
           </div>
           <div className="flex flex-wrap gap-1.5">
             {availableSuggestions.slice(0, 8).map((skill, index) => (

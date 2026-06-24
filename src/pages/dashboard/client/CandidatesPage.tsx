@@ -10,7 +10,8 @@ import { Badge } from "@/components/ui/badge";
 import { LayoutGrid, List, Bookmark } from "lucide-react";
 import { useClientContext } from "@/hooks/useClientContext";
 import { useClientApplicantSearch } from "@/hooks/useClientApplicantSearch";
-import { checkAndLogCvDownload, fetchSavedSearches, saveClientSearch, deleteSavedSearch } from "@/services/clientService";
+import { checkAndLogCvDownload, fetchSavedSearches, saveClientSearch, deleteSavedSearch, fetchClientUnlockedApplicantIds } from "@/services/clientService";
+import { displayCandidateName } from "@/lib/clientMasking";
 import { defaultSearchFilters, type SearchFilters } from "@/types/searchFilters";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
@@ -41,6 +42,7 @@ const CandidatesPage = () => {
   const [saveSearchOpen, setSaveSearchOpen] = useState(false);
   const [searchName, setSearchName] = useState("");
   const [savedSearches, setSavedSearches] = useState<any[]>([]);
+  const [unlockedIds, setUnlockedIds] = useState<Set<string>>(new Set());
 
   const clientId = ctx?.client?.id;
   const plan = ctx?.client?.subscription_plans;
@@ -64,6 +66,13 @@ const CandidatesPage = () => {
 
   useEffect(() => { loadSaved(); }, [clientId]);
 
+  useEffect(() => {
+    if (!clientId) return;
+    fetchClientUnlockedApplicantIds(clientId)
+      .then(setUnlockedIds)
+      .catch(() => setUnlockedIds(new Set()));
+  }, [clientId]);
+
   const handleSearch = (q: string) => {
     setSearchQuery(q);
     setPage(1);
@@ -83,6 +92,7 @@ const CandidatesPage = () => {
       if (url) window.open(url, "_blank");
       toast.success(`Downloaded. ${result.remaining} downloads left this month.`);
       refetchClientCtx();
+      setUnlockedIds((prev) => new Set([...prev, applicantId]));
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Download failed");
     }
@@ -183,7 +193,9 @@ const CandidatesPage = () => {
                       className="border-t border-border/60 hover:bg-muted/30 h-[52px] cursor-pointer"
                       onClick={() => navigate(`/dashboard/client/candidates/${a.id}`)}
                     >
-                      <td className="p-3 font-medium">{a.name}</td>
+                      <td className="p-3 font-medium">
+                        {displayCandidateName(a.name, canSeeContact, unlockedIds.has(a.id))}
+                      </td>
                       <td className="p-3">{a.total_experience_years ?? "—"}y</td>
                       <td className="p-3">{a.city}</td>
                       <td className="p-3">{a.profile_complete_percent ?? 0}%</td>
@@ -195,7 +207,13 @@ const CandidatesPage = () => {
           ) : (
             <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
               {applicants.map((a) => (
-                <CandidateCard key={a.id} applicant={a} canSeeContact={canSeeContact} onDownloadCv={handleDownloadCv} />
+                <CandidateCard
+                  key={a.id}
+                  applicant={a}
+                  canSeeContact={canSeeContact}
+                  isUnlocked={unlockedIds.has(a.id)}
+                  onDownloadCv={handleDownloadCv}
+                />
               ))}
             </div>
           )}
@@ -204,7 +222,7 @@ const CandidatesPage = () => {
               {applicants.map((a, i) => (
                 <PortalListRow
                   key={a.id}
-                  title={a.name}
+                  title={displayCandidateName(a.name, canSeeContact, unlockedIds.has(a.id))}
                   subtitle={`${a.total_experience_years ?? "—"}y · ${a.city || "—"}`}
                   initials={a.name?.slice(0, 2).toUpperCase()}
                   alternate={i % 2 === 1}

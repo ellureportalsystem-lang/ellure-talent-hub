@@ -59,7 +59,7 @@ const Services = () => (
 
     <MarketingSaasSection
       title="What we do"
-      subtitle="We support hiring outcomes through structured coordination and relevance screening — powered by the Ellure NexHire platform."
+      subtitle="We support hiring outcomes through structured coordination and relevance screening — powered by the Ellure TalentHub platform."
     >
       <BharatGoFeatureGrid embedded variant="pastel" features={services} />
       <p className="mx-auto mt-8 max-w-2xl text-center text-sm text-muted-foreground">

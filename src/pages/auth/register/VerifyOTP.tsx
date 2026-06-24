@@ -5,12 +5,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Shield, ArrowLeft, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/lib/supabase";
 
 const VerifyOTP = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isResending, setIsResending] = useState(false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   const email = sessionStorage.getItem("signup_email");
@@ -18,18 +20,16 @@ const VerifyOTP = () => {
   const method = sessionStorage.getItem("signup_method");
 
   useEffect(() => {
-    // Focus first input on mount
     inputRefs.current[0]?.focus();
   }, []);
 
   const handleChange = (index: number, value: string) => {
-    if (value.length > 1) return; // Only allow single digit
-    
+    if (value.length > 1) return;
+
     const newOtp = [...otp];
-    newOtp[index] = value;
+    newOtp[index] = value.replace(/\D/g, "");
     setOtp(newOtp);
 
-    // Auto-focus next input
     if (value && index < 5) {
       inputRefs.current[index + 1]?.focus();
     }
@@ -51,21 +51,18 @@ const VerifyOTP = () => {
       }
     }
     setOtp(newOtp);
-    // Focus last filled input or last input
     const lastFilledIndex = Math.min(pastedData.length - 1, 5);
     inputRefs.current[lastFilledIndex]?.focus();
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const otpString = otp.join("");
-    
-    // For now, hardcoded OTP is "123456"
-    if (otpString !== "123456") {
+    if (otpString.length !== 6) {
       toast({
-        title: "Invalid OTP",
-        description: "Please enter the correct verification code",
+        title: "Invalid code",
+        description: "Enter the full 6-digit verification code.",
         variant: "destructive",
       });
       return;
@@ -73,12 +70,29 @@ const VerifyOTP = () => {
 
     setIsLoading(true);
     try {
-      // OTP verified, navigate to password setup
+      if (method === "email" && email) {
+        const { error } = await supabase.auth.verifyOtp({
+          email: email.trim().toLowerCase(),
+          token: otpString,
+          type: "email",
+        });
+        if (error) throw error;
+      } else if (method === "phone" && phone) {
+        const { error } = await supabase.auth.verifyOtp({
+          phone: `+91${phone}`,
+          token: otpString,
+          type: "sms",
+        });
+        if (error) throw error;
+      } else {
+        throw new Error("Missing signup contact information");
+      }
+
       navigate("/auth/register/set-password");
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
-        title: "Error",
-        description: error.message || "Failed to verify OTP",
+        title: "Verification failed",
+        description: error instanceof Error ? error.message : "Invalid or expired code",
         variant: "destructive",
       });
     } finally {
@@ -86,8 +100,41 @@ const VerifyOTP = () => {
     }
   };
 
+  const handleResend = async () => {
+    setIsResending(true);
+    try {
+      if (method === "email" && email) {
+        const { error } = await supabase.auth.signInWithOtp({
+          email: email.trim().toLowerCase(),
+          options: { shouldCreateUser: true },
+        });
+        if (error) throw error;
+      } else if (method === "phone" && phone) {
+        const { error } = await supabase.auth.signInWithOtp({
+          phone: `+91${phone}`,
+          options: { shouldCreateUser: true },
+        });
+        if (error) throw error;
+      } else {
+        throw new Error("Missing signup contact information");
+      }
+
+      toast({
+        title: "Code resent",
+        description: "A new verification code has been sent.",
+      });
+    } catch (error: unknown) {
+      toast({
+        title: "Resend failed",
+        description: error instanceof Error ? error.message : "Could not resend code",
+        variant: "destructive",
+      });
+    } finally {
+      setIsResending(false);
+    }
+  };
+
   if (!email && !phone) {
-    // If no email/phone in session, redirect back
     navigate("/auth/register");
     return null;
   }
@@ -103,13 +150,8 @@ const VerifyOTP = () => {
           </div>
           <CardTitle className="text-2xl">Verify Your {method === "email" ? "Email" : "Phone"}</CardTitle>
           <CardDescription>
-            Enter the 6-digit code sent to {method === "email" ? email : phone}
+            Enter the 6-digit code sent to {method === "email" ? email : `+91 ${phone}`}
           </CardDescription>
-          <div className="pt-2">
-            <p className="text-xs text-muted-foreground">
-              Use code: <span className="font-mono font-semibold text-primary">123456</span>
-            </p>
-          </div>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -144,28 +186,20 @@ const VerifyOTP = () => {
           </form>
 
           <div className="mt-6 space-y-4">
-            <Button
-              variant="ghost"
-              className="w-full"
-              onClick={() => navigate("/auth/register")}
-            >
+            <Button variant="ghost" className="w-full" onClick={() => navigate("/auth/register")}>
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back
             </Button>
 
             <div className="text-center text-sm text-muted-foreground">
-              Didn't receive the code?{" "}
+              Didn&apos;t receive the code?{" "}
               <button
-                onClick={() => {
-                  // Resend OTP logic here
-                  toast({
-                    title: "Code Resent",
-                    description: "Use code: 123456",
-                  });
-                }}
-                className="text-primary hover:underline font-semibold"
+                type="button"
+                disabled={isResending}
+                onClick={() => void handleResend()}
+                className="text-primary hover:underline font-semibold disabled:opacity-50"
               >
-                Resend
+                {isResending ? "Sending..." : "Resend"}
               </button>
             </div>
           </div>
@@ -176,21 +210,3 @@ const VerifyOTP = () => {
 };
 
 export default VerifyOTP;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

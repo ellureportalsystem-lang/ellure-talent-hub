@@ -14,18 +14,18 @@ import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { PortalBrand } from "@/components/portal/PortalBrand";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 import {
   portalMobileNavLinkClass,
   portalNavGroupClass,
   portalNavLinkActive,
   portalNavLinkBase,
 } from "@/components/portal/portalStyles";
-import { isDashboardNavActive, type DashboardNavItem } from "@/lib/dashboardNav";
+import { cn } from "@/lib/utils";
 import {
   flattenPortalNavItems,
   getPortalOverflowNavItems,
 } from "@/lib/portalMobileNav";
-import { cn } from "@/lib/utils";
 import type { LucideIcon } from "lucide-react";
 import {
   ArrowLeft,
@@ -188,8 +188,9 @@ export function PortalDashboardLayout({
           sidebarCollapsed && !mobile && !inSheet && "justify-center px-2"
         )}
       >
-        <img src="/ellure-logo.png" alt="" className="h-9 w-9 shrink-0 object-contain" />
-        {(!sidebarCollapsed || mobile || inSheet) && (
+        {sidebarCollapsed && !mobile && !inSheet ? (
+          <BrandLogo size="sm" markOnly />
+        ) : (
           <PortalBrand portalSuffix={portalSuffix} tagline={portalTagline} size="sm" />
         )}
       </div>

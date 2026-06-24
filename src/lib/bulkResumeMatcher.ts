@@ -2,6 +2,7 @@ export type ApplicantMatchRow = {
   id: string;
   name: string;
   email: string;
+  phone?: string;
 };
 
 export type MatchResult =
@@ -34,6 +35,17 @@ function firstName(name: string): string {
 
 function stemLooksLikeEmail(stem: string): boolean {
   return stem.includes('@');
+}
+
+function normalizePhone(s: string): string {
+  const digits = s.replace(/\D/g, "");
+  if (digits.length >= 10) return digits.slice(-10);
+  return digits;
+}
+
+function stemLooksLikePhone(stem: string): boolean {
+  const digits = stem.replace(/\D/g, "");
+  return digits.length === 10;
 }
 
 export function matchApplicantByFileName(
@@ -85,6 +97,15 @@ export function matchApplicantByFileName(
   if (byEmailLocal.length === 1) return { status: 'matched', applicant: byEmailLocal[0] };
   if (byEmailLocal.length > 1) {
     return { status: 'ambiguous', reason: 'Multiple applicants share the same email local-part', candidates: byEmailLocal };
+  }
+
+  if (mode === 'auto' && stemLooksLikePhone(stemRaw)) {
+    const phoneKey = normalizePhone(stemRaw);
+    const byPhone = applicants.filter((a) => normalizePhone(a.phone || '') === phoneKey);
+    if (byPhone.length === 1) return { status: 'matched', applicant: byPhone[0] };
+    if (byPhone.length > 1) {
+      return { status: 'ambiguous', reason: 'Multiple applicants share this phone number', candidates: byPhone };
+    }
   }
 
   const first = stem.split(' ')[0];

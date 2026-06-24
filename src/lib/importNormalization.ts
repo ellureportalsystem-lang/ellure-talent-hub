@@ -1,5 +1,15 @@
 /** Shared normalization for Excel/CSV applicant imports */
 
+import { APPLICANT_STATUS_VALUES } from "@/lib/importColumnMap";
+
+export type ValidationLevel = "valid" | "warning" | "error";
+
+export interface RowValidation {
+  level: ValidationLevel;
+  errors: string[];
+  warnings: string[];
+}
+
 export interface ImportRow {
   name: string;
   email: string;
@@ -24,6 +34,9 @@ export interface ImportRow {
   key_skills?: string;
   communication?: string;
   registration_date?: string;
+  gender?: string;
+  headline?: string;
+  status?: string;
 }
 
 const NOTICE_MAP: Record<string, { label: string; days: number }> = {
@@ -177,15 +190,76 @@ export function normalizeImportRow(raw: Record<string, unknown>): ImportRow {
     key_skills: col(raw, "key_skills", "Key Skills", "skills"),
     communication: normalizeCommunication(col(raw, "communication", "Communication")),
     registration_date: col(raw, "registration_date", "Registration Date", "date"),
+    gender: col(raw, "gender", "Gender"),
+    headline: col(raw, "headline", "Headline"),
+    status: col(raw, "status", "Status").toLowerCase().replace(/\s+/g, "_") || undefined,
   };
 }
 
-export function validateImportRow(row: ImportRow): string[] {
+function normalizePhone(raw: string): string {
+  return raw.replace(/\D/g, "").slice(-10);
+}
+
+export function validateImportRowDetailed(
+  row: ImportRow,
+  options?: { existingEmails?: Set<string>; fileDuplicateEmails?: Set<string> }
+): RowValidation {
   const errors: string[] = [];
-  if (!row.name) errors.push("Name is required");
-  if (!row.email) errors.push("Email is required");
+  const warnings: string[] = [];
+
+  if (!row.name?.trim()) errors.push("Name is required");
+
+  if (!row.email?.trim()) errors.push("Email is required");
   else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(row.email)) errors.push("Invalid email format");
-  if (!row.phone) errors.push("Phone is required");
-  if (!row.city) errors.push("City is required");
-  return errors;
+  else {
+    if (options?.fileDuplicateEmails?.has(row.email.toLowerCase())) {
+      errors.push("Duplicate email in file");
+    } else if (options?.existingEmails?.has(row.email.toLowerCase())) {
+      warnings.push("Email already exists in database");
+    }
+  }
+
+  if (!row.phone?.trim()) errors.push("Phone is required");
+  else {
+    const digits = normalizePhone(row.phone);
+    if (digits.length !== 10) errors.push("Phone must be 10 digits");
+    else row.phone = digits;
+  }
+
+  if (row.total_experience_years != null && Number.isNaN(row.total_experience_years)) {
+    errors.push("Total experience must be numeric");
+  } else if (
+    row.total_experience_years === undefined &&
+    row.experience_type &&
+    !/fresher/i.test(row.experience_type)
+  ) {
+    warnings.push("Experience years could not be parsed");
+  }
+
+  if (row.current_ctc) {
+    const c = parseCtcLpa(row.current_ctc);
+    if (c.numeric == null && row.current_ctc.trim()) warnings.push("Current CTC format unclear");
+  }
+  if (row.expected_ctc) {
+    const c = parseCtcLpa(row.expected_ctc);
+    if (c.numeric == null && row.expected_ctc.trim()) warnings.push("Expected CTC format unclear");
+  }
+
+  if (row.status) {
+    const normalized = row.status.toLowerCase().replace(/\s+/g, "_") as (typeof APPLICANT_STATUS_VALUES)[number];
+    if (!APPLICANT_STATUS_VALUES.includes(normalized)) {
+      errors.push(`Invalid status "${row.status}"`);
+    } else {
+      row.status = normalized;
+    }
+  }
+
+  if (!row.city?.trim()) warnings.push("City is empty");
+
+  const level: ValidationLevel = errors.length ? "error" : warnings.length ? "warning" : "valid";
+  return { level, errors, warnings };
+}
+
+export function validateImportRow(row: ImportRow): string[] {
+  return validateImportRowDetailed(row).errors;
 }

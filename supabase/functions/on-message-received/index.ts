@@ -34,12 +34,12 @@ Deno.serve(async (req) => {
 
   const html = emailLayout(`
     <p>Hi ${recipient.full_name || "there"},</p>
-    <p><strong>${senderName}</strong> sent you a message on Ellure NexHire:</p>
-    <blockquote style="border-left:3px solid #0566cd;padding-left:12px;color:#444">${preview}${String(msg.message || "").length > 100 ? "…" : ""}</blockquote>
-    <p><a href="${SITE}${messagesPath}" style="color:#0566cd">Open messages →</a></p>
+    <p><strong>${senderName}</strong> sent you a message on Ellure TalentHub:</p>
+    <blockquote style="border-left:3px solid #0566CD;padding-left:12px;color:#444">${preview}${String(msg.message || "").length > 100 ? "…" : ""}</blockquote>
+    <p><a href="${SITE}${messagesPath}" style="color:#0566CD">Open messages →</a></p>
   `);
 
-  const result = await sendEmail(recipient.email, "New message on Ellure NexHire", html);
+  const result = await sendEmail(recipient.email, "New message on Ellure TalentHub", html);
   if ("error" in result) return jsonResponse({ error: result.error }, 503);
   return jsonResponse({ success: true });
 });

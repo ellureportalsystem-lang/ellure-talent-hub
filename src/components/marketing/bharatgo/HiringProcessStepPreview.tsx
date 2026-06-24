@@ -2,7 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import type { HiringProcessStep } from "@/lib/hiringProcessSteps";
 import { motion } from "framer-motion";
-import { Briefcase, Calendar, FileText, MapPin, Sparkles, Users } from "lucide-react";
+import { Briefcase, Calendar, FileText, MapPin, Users } from "lucide-react";
 
 type HiringProcessStepPreviewProps = {
   step: HiringProcessStep;
@@ -122,8 +122,7 @@ function ScreenPreview() {
               <p className="text-[10px] text-muted-foreground">{row.skills}</p>
             </div>
           </div>
-          <Badge className="h-5 shrink-0 gap-0.5 bg-primary/10 px-1.5 text-[9px] text-primary hover:bg-primary/15">
-            <Sparkles className="h-2.5 w-2.5" />
+          <Badge className="h-5 shrink-0 bg-primary/10 px-1.5 text-[9px] text-primary hover:bg-primary/15">
             {row.score}%
           </Badge>
         </div>

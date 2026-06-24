@@ -83,7 +83,7 @@ const RegistrationSuccess = () => {
                   </>
                 ) : (
                   <>
-                    Thank you for registering with Ellure NexHire. Your application
+                    Thank you for registering with Ellure TalentHub. Your application
                     has been submitted successfully and your profile has been created.
                   </>
                 )}

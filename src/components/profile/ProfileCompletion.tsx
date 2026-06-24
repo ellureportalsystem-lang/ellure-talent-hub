@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { CheckCircle2, Circle, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { applicantProfileCard } from "@/components/dashboard/applicant/applicantProfileStyles";
 
 interface CompletionItem {
   id: string;
@@ -14,40 +15,65 @@ interface ProfileCompletionProps {
   percentage: number;
   items: CompletionItem[];
   onItemClick: (sectionId: string) => void;
+  variant?: "default" | "applicant";
+  showPendingOnly?: boolean;
 }
 
-const ProfileCompletion = ({ percentage, items, onItemClick }: ProfileCompletionProps) => {
+const ProfileCompletion = ({
+  percentage,
+  items,
+  onItemClick,
+  variant = "default",
+  showPendingOnly = false,
+}: ProfileCompletionProps) => {
   const completedCount = items.filter(i => i.completed).length;
+  const isApplicant = variant === "applicant";
+  const listItems = showPendingOnly ? items.filter((i) => !i.completed) : items;
 
   return (
-    <Card className="sticky top-6">
+    <Card className={cn("sticky top-24", isApplicant && applicantProfileCard)}>
       <CardHeader className="pb-2 px-4 pt-4">
-        <CardTitle className="text-sm flex items-center justify-between">
+        <CardTitle className="text-sm flex items-center justify-between text-[#333]">
           <span>Profile Completion</span>
-          <span className={cn(
-            "text-xl font-bold",
-            percentage >= 80 && "text-green-600",
-            percentage >= 50 && percentage < 80 && "text-yellow-600",
-            percentage < 50 && "text-red-600"
-          )}>
+          <span
+            className={cn(
+              "text-xl font-bold",
+              isApplicant
+                ? "text-[#0566CD]"
+                : percentage >= 80
+                  ? "text-green-600"
+                  : percentage >= 50
+                    ? "text-yellow-600"
+                    : "text-red-600"
+            )}
+          >
             {percentage}%
           </span>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3 px-4 pb-4">
         <div className="space-y-1.5">
-          <Progress value={percentage} className="h-2" />
+          <Progress
+            value={percentage}
+            className={cn("h-2", isApplicant && "bg-[#eef4fb] [&>div]:bg-[#0566CD]")}
+          />
           <p className="text-[11px] text-muted-foreground text-center">
             {completedCount} of {items.length} sections completed
           </p>
         </div>
 
-        <div className={cn(
-          "p-2 rounded-md text-xs",
-          percentage >= 80 && "bg-green-500/10 text-green-700",
-          percentage >= 50 && percentage < 80 && "bg-yellow-500/10 text-yellow-700",
-          percentage < 50 && "bg-red-500/10 text-red-700"
-        )}>
+        <div
+          className={cn(
+            "p-2 rounded-md text-xs",
+            isApplicant
+              ? "bg-[#f0f7ff] text-[#0566CD]"
+              : percentage >= 80
+                ? "bg-green-500/10 text-green-700"
+                : percentage >= 50
+                  ? "bg-yellow-500/10 text-yellow-700"
+                  : "bg-red-500/10 text-red-700"
+          )}
+        >
           {percentage >= 80 && (
             <p className="flex items-center gap-1.5">
               <CheckCircle2 className="h-3.5 w-3.5" />
@@ -69,9 +95,14 @@ const ProfileCompletion = ({ percentage, items, onItemClick }: ProfileCompletion
         </div>
 
         <div className="space-y-1.5">
-          <h4 className="font-medium text-xs">Pending Items</h4>
+          <h4 className="font-medium text-xs">
+            {showPendingOnly ? "Complete these next" : "Pending Items"}
+          </h4>
           <div className="space-y-0.5 max-h-[280px] overflow-y-auto">
-            {items.map((item) => (
+            {listItems.length === 0 ? (
+              <p className="text-xs text-muted-foreground py-2">All sections complete.</p>
+            ) : (
+            listItems.map((item) => (
               <button
                 key={item.id}
                 onClick={() => onItemClick(item.section)}
@@ -91,7 +122,8 @@ const ProfileCompletion = ({ percentage, items, onItemClick }: ProfileCompletion
                   {item.label}
                 </span>
               </button>
-            ))}
+            ))
+            )}
           </div>
         </div>
       </CardContent>

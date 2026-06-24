@@ -20,7 +20,7 @@ Deno.serve(async (req) => {
       await supabase.rpc("create_notification", {
         p_user_id: p.id,
         p_title: "CV downloads reset",
-        p_message: "Your CV download limit has been reset for this month.",
+        p_body: "Your CV download limit has been reset for this month.",
         p_type: "billing",
       }).catch(() => {});
     }

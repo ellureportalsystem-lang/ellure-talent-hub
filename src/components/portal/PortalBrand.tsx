@@ -1,4 +1,6 @@
 import { cn } from "@/lib/utils";
+import { brandColors } from "@/lib/brand";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 
 type PortalBrandProps = {
   portalSuffix: string;
@@ -17,24 +19,15 @@ export function PortalBrand({
   variant = "default",
 }: PortalBrandProps) {
   if (collapsed) {
-    return (
-      <img src="/ellure-logo.png" alt="Ellure NexHire" className="h-9 w-9 object-contain" />
-    );
+    return <BrandLogo size="sm" markOnly />;
   }
 
   if (variant === "compact") {
     return (
       <div className="flex min-w-0 items-center gap-2.5">
-        <img
-          src="/ellure-logo.png"
-          alt=""
-          className="h-9 w-9 shrink-0 object-contain"
-        />
+        <BrandLogo size="sm" />
         <div className="min-w-0 leading-tight">
-          <p className="font-brand truncate text-sm font-extrabold tracking-tight text-foreground">
-            Ellure <span className="text-primary">NexHire</span>
-          </p>
-          <p className="truncate text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+          <p className="truncate text-[10px] font-semibold uppercase tracking-wide text-[#94A3B8]">
             {portalSuffix}
           </p>
         </div>
@@ -43,18 +36,18 @@ export function PortalBrand({
   }
 
   return (
-    <div className="min-w-0 overflow-hidden">
-      <div
+    <div className="min-w-0 overflow-hidden space-y-1">
+      <BrandLogo size={size === "sm" ? "sm" : "md"} />
+      <p
         className={cn(
-          "font-brand font-semibold leading-tight tracking-[-0.03em] text-foreground",
-          size === "sm" ? "text-lg" : "text-xl"
+          "font-poppins font-medium leading-tight tracking-tight text-[#64748b]",
+          size === "sm" ? "text-xs" : "text-sm"
         )}
+        style={{ color: brandColors.muted }}
       >
-        Ellure <span className="portal-brand-accent font-medium">{portalSuffix}</span>
-      </div>
-      {tagline ? (
-        <p className="text-[10px] text-muted-foreground md:text-xs">{tagline}</p>
-      ) : null}
+        {portalSuffix}
+      </p>
+      {tagline ? <p className="text-[10px] text-[#64748b] md:text-xs">{tagline}</p> : null}
     </div>
   );
 }

@@ -14,7 +14,7 @@ type MarketingSaasPageHeroProps = {
   align?: "center" | "left";
   /** Photo banner (b1, s1, g1…) */
   imageSrc?: string;
-  /** NexHire product UI mockup */
+  /** TalentHub product UI mockup */
   productVisual?: ProductVisualVariant;
   /** 3D cartoon illustration */
   illustration?: ReactNode;

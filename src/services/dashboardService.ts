@@ -13,7 +13,9 @@ export interface DashboardStats {
   totalFolders: number;
   importedApplicants: number;
   jobsPosted: number;
-  resumesDownloaded: number;
+  resumesUploaded: number;
+  applicationsToday: number;
+  profileViews7Days: number;
   cvDownloadsThisMonth: number;
   pendingApprovals: number;
   verifiedProfiles: number;
@@ -175,33 +177,36 @@ export async function getAdminDashboardStats(dateRange: '7days' | '30days' | 'qu
       jobsPosted = 0;
     }
 
-    // Resumes downloaded (from applicant_files where file_type is resume)
-    // Skip if applicant_files table or file_type column doesn't exist
-    let resumesDownloaded = 0;
+    // Resumes uploaded (applicants with resume_file)
+    const { count: resumesUploaded } = await supabase
+      .from('applicants')
+      .select('*', { count: 'exact', head: true })
+      .eq('is_deleted', false)
+      .not('resume_file', 'is', null);
+
+    const todayIso = today.toISOString();
+    let applicationsToday = 0;
     try {
-      const { data, error } = await supabase
-        .from('applicant_files')
-        .select('id')
-        .eq('file_type', 'resume');
-      
-      if (error) {
-        // If column doesn't exist, skip this stat
-        if (error.code === '42703' || error.message?.includes('does not exist')) {
-          console.debug('Applicant_files table or file_type column does not exist, skipping resumes count');
-        } else {
-          console.warn('Error fetching resumes count:', error);
-        }
-        resumesDownloaded = 0;
-      } else {
-        resumesDownloaded = data?.length || 0;
-      }
-    } catch (error: any) {
-      if (error?.code === '42703' || error?.message?.includes('does not exist')) {
-        console.debug('Applicant_files table or file_type column does not exist, skipping resumes count');
-      } else {
-        console.warn('Exception fetching resumes count:', error);
-      }
-      resumesDownloaded = 0;
+      const { count } = await supabase
+        .from('job_applications')
+        .select('*', { count: 'exact', head: true })
+        .gte('applied_at', todayIso);
+      applicationsToday = count || 0;
+    } catch {
+      applicationsToday = 0;
+    }
+
+    const sevenDaysAgo = new Date(now);
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    let profileViews7Days = 0;
+    try {
+      const { count } = await supabase
+        .from('profile_views')
+        .select('*', { count: 'exact', head: true })
+        .gte('viewed_at', sevenDaysAgo.toISOString());
+      profileViews7Days = count || 0;
+    } catch {
+      profileViews7Days = 0;
     }
 
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
@@ -211,7 +216,7 @@ export async function getAdminDashboardStats(dateRange: '7days' | '30days' | 'qu
       const { count } = await supabase
         .from('cv_download_log')
         .select('*', { count: 'exact', head: true })
-        .gte('created_at', monthStart);
+        .gte('downloaded_at', monthStart);
       cvDownloadsThisMonth = count || 0;
     } catch {
       cvDownloadsThisMonth = 0;
@@ -220,7 +225,8 @@ export async function getAdminDashboardStats(dateRange: '7days' | '30days' | 'qu
     const { count: pendingApprovals } = await supabase
       .from('clients')
       .select('*', { count: 'exact', head: true })
-      .eq('is_active', false);
+      .is('approved_at', null)
+      .eq('is_active', true);
 
     const { count: verifiedByFlag } = await supabase
       .from('applicants')
@@ -256,7 +262,9 @@ export async function getAdminDashboardStats(dateRange: '7days' | '30days' | 'qu
       totalFolders: totalFolders || 0,
       importedApplicants: importedApplicants || 0,
       jobsPosted: jobsPosted || 0,
-      resumesDownloaded: resumesDownloaded || 0,
+      resumesUploaded: resumesUploaded || 0,
+      applicationsToday,
+      profileViews7Days,
       cvDownloadsThisMonth,
       pendingApprovals: pendingApprovals || 0,
       verifiedProfiles: verifiedProfiles || 0,
@@ -621,14 +629,14 @@ export async function getTopSkillsFromSearchIndex(limit = 10): Promise<SkillDist
   try {
     const { data, error } = await supabase
       .from('applicant_search_index')
-      .select('key_skills')
-      .not('key_skills', 'is', null);
+      .select('skills_text')
+      .not('skills_text', 'is', null);
 
     if (error) throw error;
 
     const skillCounts: Record<string, number> = {};
     data?.forEach((row) => {
-      const raw = row.key_skills;
+      const raw = row.skills_text;
       const skills: string[] = Array.isArray(raw)
         ? raw.map(String)
         : String(raw || '')
@@ -693,7 +701,8 @@ export async function getPendingClients(limit = 10): Promise<PendingClient[]> {
     const { data, error } = await supabase
       .from('clients')
       .select('id, company_name, contact_email, created_at')
-      .eq('is_active', false)
+      .is('approved_at', null)
+      .eq('is_active', true)
       .order('created_at', { ascending: false })
       .limit(limit);
 
@@ -705,12 +714,14 @@ export async function getPendingClients(limit = 10): Promise<PendingClient[]> {
   }
 }
 
-export async function approveClient(clientId: string): Promise<void> {
+export async function approveClient(clientId: string, approvedBy?: string): Promise<void> {
+  const { data: { user } } = await supabase.auth.getUser();
   const { error } = await supabase
     .from('clients')
     .update({
       is_active: true,
       approved_at: new Date().toISOString(),
+      approved_by: approvedBy ?? user?.id ?? null,
       subscription_status: 'trial',
     })
     .eq('id', clientId);
@@ -815,6 +826,22 @@ export async function getClientTopJobs(clientId: string, limit = 3) {
 }
 
 export async function fetchFilterCities(): Promise<string[]> {
+  const { data: appCities, error } = await supabase
+    .from('applicants')
+    .select('city, city_current_location')
+    .eq('is_deleted', false);
+
+  if (!error && appCities && appCities.length > 0) {
+    const unique = new Set<string>();
+    appCities.forEach((r) => {
+      const c1 = String(r.city || '').trim();
+      const c2 = String(r.city_current_location || '').trim();
+      if (c1) unique.add(c1);
+      if (c2) unique.add(c2);
+    });
+    if (unique.size > 0) return [...unique].sort();
+  }
+
   const { data: indexCities } = await supabase
     .from('applicant_search_index')
     .select('location_city')
@@ -822,17 +849,10 @@ export async function fetchFilterCities(): Promise<string[]> {
     .neq('location_city', '');
 
   if (indexCities && indexCities.length > 0) {
-    const unique = [...new Set(indexCities.map((r) => r.location_city).filter(Boolean))].sort();
-    return unique as string[];
+    return [...new Set(indexCities.map((r) => r.location_city).filter(Boolean))].sort() as string[];
   }
 
-  const { data: appCities } = await supabase
-    .from('applicants')
-    .select('city')
-    .not('city', 'is', null)
-    .eq('is_deleted', false);
-
-  return [...new Set(appCities?.map((r) => r.city).filter(Boolean) ?? [])].sort() as string[];
+  return [];
 }
 
 export async function fetchFilterSkills(): Promise<string[]> {

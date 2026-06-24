@@ -15,16 +15,69 @@ export function isResumeUrl(value: string | null | undefined): boolean {
   return v.startsWith("http") || v.includes("/");
 }
 
-export function formatExperience(row: ApplicantRow): string {
-  const years = row.total_experience_years;
-  if (years != null && years !== "") return `${years} yrs`;
-  const legacy = row.total_experience_numbers || row.total_experience;
-  if (legacy) {
-    const n = parseFloat(String(legacy));
-    if (!Number.isNaN(n) && n > 0 && n < 80) return `${n} yrs`;
-    if (String(legacy).trim()) return String(legacy).trim();
-  }
+export function formatExperience(row: ApplicantRow, experienceRows: ApplicantRow[] = []): string {
+  const years = resolveExperienceYears(row, experienceRows);
+  if (years > 0) return years === 1 ? "1 yr" : `${years} yrs`;
   return "—";
+}
+
+/** Numeric years of experience, capped for sane display (avoids bad imports like 35+). */
+export function resolveExperienceYears(
+  row: ApplicantRow,
+  experienceRows: ApplicantRow[] = []
+): number {
+  const cap = (n: number) => (n > 0 && n <= 50 ? Math.round(n * 10) / 10 : 0);
+
+  const direct = row.total_experience_years;
+  if (direct != null && direct !== "") {
+    const n = Number(direct);
+    if (!Number.isNaN(n)) return cap(n);
+  }
+
+  for (const raw of [row.total_experience_numbers, row.total_experience]) {
+    if (raw == null || raw === "") continue;
+    const str = String(raw).trim();
+    const match = str.match(/(\d+\.?\d*)/);
+    if (match) {
+      const n = parseFloat(match[1]);
+      if (!Number.isNaN(n)) return cap(n);
+    }
+  }
+
+  if (experienceRows.length > 0) {
+    let months = 0;
+    for (const exp of experienceRows) {
+      if (exp.total_experience_months) {
+        months += Number(exp.total_experience_months) || 0;
+        continue;
+      }
+      if (!exp.start_date) continue;
+      const start = new Date(String(exp.start_date));
+      const end = exp.end_date ? new Date(String(exp.end_date)) : new Date();
+      if (Number.isNaN(start.getTime())) continue;
+      months += Math.max(
+        0,
+        (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth())
+      );
+    }
+    if (months > 0) return cap(months / 12);
+  }
+
+  return 0;
+}
+
+export function formatApplicantStatusLabel(status: unknown): string | null {
+  const s = String(status || "").toLowerCase();
+  const map: Record<string, string> = {
+    submitted: "Active",
+    under_review: "Under review",
+    shortlisted: "Shortlisted",
+    rejected: "Rejected",
+    hired: "Hired",
+    on_hold: "On hold",
+    active: "Active",
+  };
+  return map[s] || null;
 }
 
 export function formatCtc(...values: unknown[]): string {

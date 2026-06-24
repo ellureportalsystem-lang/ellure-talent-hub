@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Phone, ArrowLeft, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/lib/supabase";
 
 const PhoneSignUp = () => {
   const navigate = useNavigate();
@@ -15,8 +16,7 @@ const PhoneSignUp = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Validate phone number (10 digits)
+
     const phoneRegex = /^[0-9]{10}$/;
     if (!phoneRegex.test(phone)) {
       toast({
@@ -29,30 +29,31 @@ const PhoneSignUp = () => {
 
     setIsLoading(true);
     try {
-      // For now, we'll use hardcoded OTP "123456"
-      // Store phone in sessionStorage for OTP verification page
-      sessionStorage.setItem("signup_phone", phone);
-      sessionStorage.setItem("signup_method", "phone");
-      
-      // In production, you would send OTP here:
-      // const { error } = await supabase.auth.signInWithOtp({
-      //   phone: `+91${phone}`, // Add country code
-      //   options: {
-      //     shouldCreateUser: true,
-      //   }
-      // });
-
-      toast({
-        title: "OTP Sent",
-        description: `OTP sent to ${phone}. Use code: 123456`,
+      const e164 = `+91${phone}`;
+      const { error } = await supabase.auth.signInWithOtp({
+        phone: e164,
+        options: {
+          shouldCreateUser: true,
+          data: { role: "applicant" },
+        },
       });
 
-      // Navigate to OTP verification
+      if (error) throw error;
+
+      sessionStorage.setItem("signup_phone", phone);
+      sessionStorage.setItem("signup_method", "phone");
+      sessionStorage.removeItem("signup_email");
+
+      toast({
+        title: "Verification code sent",
+        description: `Check SMS on +91 ${phone} for your code.`,
+      });
+
       navigate("/auth/register/verify-otp");
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Error",
-        description: error.message || "Failed to send OTP",
+        description: error instanceof Error ? error.message : "Failed to send verification code",
         variant: "destructive",
       });
     } finally {
@@ -71,7 +72,7 @@ const PhoneSignUp = () => {
           </div>
           <CardTitle className="text-2xl">Sign up with Phone</CardTitle>
           <CardDescription>
-            Enter your phone number to receive a verification code
+            Enter your phone number to receive a verification code via Supabase Auth
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -84,7 +85,6 @@ const PhoneSignUp = () => {
                 placeholder="9876543210"
                 value={phone}
                 onChange={(e) => {
-                  // Only allow digits
                   const value = e.target.value.replace(/\D/g, "").slice(0, 10);
                   setPhone(value);
                 }}
@@ -93,16 +93,14 @@ const PhoneSignUp = () => {
                 autoComplete="tel"
                 maxLength={10}
               />
-              <p className="text-xs text-muted-foreground">
-                Enter your 10-digit mobile number
-              </p>
+              <p className="text-xs text-muted-foreground">Enter your 10-digit mobile number</p>
             </div>
 
             <Button type="submit" className="w-full" disabled={isLoading || phone.length !== 10}>
               {isLoading ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Sending OTP...
+                  Sending code...
                 </>
               ) : (
                 "Send Verification Code"
@@ -111,11 +109,7 @@ const PhoneSignUp = () => {
           </form>
 
           <div className="mt-6 space-y-4">
-            <Button
-              variant="ghost"
-              className="w-full"
-              onClick={() => navigate("/auth/register")}
-            >
+            <Button variant="ghost" className="w-full" onClick={() => navigate("/auth/register")}>
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back
             </Button>
@@ -123,6 +117,7 @@ const PhoneSignUp = () => {
             <div className="text-center text-sm text-muted-foreground">
               Already have an account?{" "}
               <button
+                type="button"
                 onClick={() => navigate("/auth/login")}
                 className="text-primary hover:underline font-semibold"
               >
@@ -137,21 +132,3 @@ const PhoneSignUp = () => {
 };
 
 export default PhoneSignUp;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

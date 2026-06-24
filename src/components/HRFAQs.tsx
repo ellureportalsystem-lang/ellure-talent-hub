@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 const hrFAQs = [
   {
     question: "Will I receive bulk resumes?",
-    answer: "No. Ellure Nexhire prioritises relevant, mapped profiles over bulk resume submissions."
+    answer: "No. Ellure TalentHub prioritises relevant, mapped profiles over bulk resume submissions."
   },
   {
     question: "Is WhatsApp used for hiring communication?",

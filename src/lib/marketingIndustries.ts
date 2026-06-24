@@ -41,8 +41,8 @@ export const marketingIndustries: MarketingIndustry[] = [
     fullDesc:
       "Specialized hiring for customer support, technical support, data entry, back office operations, and process management roles in the ITES sector.",
     roles: ["Customer Support", "Technical Support", "Data Entry Operator", "Process Associate", "Team Leader"],
-    accentBg: "bg-violet-500/15 ring-violet-500/20",
-    accentIcon: "text-violet-600",
+    accentBg: "bg-sky-500/15 ring-sky-500/20",
+    accentIcon: "text-sky-600",
   },
   {
     id: "bfsi",

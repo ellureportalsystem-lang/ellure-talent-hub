@@ -7,6 +7,8 @@ export interface GlassPanelProps extends React.ComponentProps<"div"> {
   surfaceClassName?: string;
   /** Corner radius shared by panel + shadow (default: rounded-xl) */
   cornerClassName?: string;
+  /** Hero profile card — cobalt/teal tinted glass on dark sections */
+  variant?: "default" | "hero";
 }
 
 /**
@@ -16,14 +18,25 @@ function GlassPanel({
   className,
   surfaceClassName,
   cornerClassName = "rounded-xl",
+  variant = "default",
   children,
   ...props
 }: GlassPanelProps) {
+  const isHero = variant === "hero";
+
   return (
-    <div className={cn("glass-panel-wrap w-full", cornerClassName, className)}>
+    <div
+      className={cn(
+        isHero ? "hero-profile-glass-wrap" : "glass-panel-wrap",
+        "w-full",
+        cornerClassName,
+        className
+      )}
+    >
       <div
         className={cn(
-          "glass-panel relative z-[2] w-full overflow-hidden text-white",
+          isHero ? "hero-profile-glass" : "glass-panel",
+          "relative z-[2] w-full overflow-hidden text-white",
           cornerClassName,
           surfaceClassName
         )}
@@ -31,7 +44,10 @@ function GlassPanel({
       >
         {children}
       </div>
-      <div className={cn("glass-panel-shadow", cornerClassName)} aria-hidden />
+      <div
+        className={cn(isHero ? "hero-profile-glass-shadow" : "glass-panel-shadow", cornerClassName)}
+        aria-hidden
+      />
     </div>
   );
 }

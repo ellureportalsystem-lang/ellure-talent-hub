@@ -15,9 +15,11 @@ interface CareerProfile {
 interface CareerProfileSectionProps {
   career: CareerProfile;
   viewMode: 'applicant' | 'admin' | 'client';
+  onEdit?: () => void;
 }
 
-const CareerProfileSection = ({ career }: CareerProfileSectionProps) => {
+const CareerProfileSection = ({ career, viewMode, onEdit }: CareerProfileSectionProps) => {
+  const canEdit = viewMode !== 'client';
   const hasIndustryData = career.currentIndustry || career.preferredIndustry || career.functionalArea;
   const hasRoleData = career.preferredRole || (career.desiredJobType && career.desiredJobType.length > 0);
   const hasLocationData = (career.preferredLocations && career.preferredLocations.length > 0);
@@ -25,8 +27,13 @@ const CareerProfileSection = ({ career }: CareerProfileSectionProps) => {
 
   if (!hasIndustryData && !hasRoleData && !hasLocationData && !hasSalaryData) {
     return (
-      <div className="text-center py-4 text-sm text-muted-foreground">
-        No career preferences added yet. Complete this section to help us match you better.
+      <div className="text-center py-4 text-sm text-muted-foreground space-y-3">
+        <p>No career preferences added yet. Complete this section to help us match you better.</p>
+        {canEdit && onEdit && (
+          <button type="button" className="text-xs text-[#0566CD] hover:underline" onClick={onEdit}>
+            Add career preferences
+          </button>
+        )}
       </div>
     );
   }

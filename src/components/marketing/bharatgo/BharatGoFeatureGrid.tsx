@@ -36,7 +36,7 @@ export function BharatGoFeatureGrid({
   features,
   embedded = false,
   title = "Everything you need to hire smarter",
-  subtitle = "From applicant tracking to client collaboration, Ellure NexHire covers the full recruitment lifecycle.",
+  subtitle = "From applicant tracking to client collaboration, Ellure TalentHub covers the full recruitment lifecycle.",
   variant = "default",
 }: BharatGoFeatureGridProps) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);

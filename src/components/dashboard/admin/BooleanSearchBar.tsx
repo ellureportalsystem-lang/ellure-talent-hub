@@ -13,7 +13,6 @@ import {
   HelpCircle,
   X,
   History,
-  Sparkles,
 } from "lucide-react";
 import DOMPurify from "dompurify";
 
@@ -24,6 +23,8 @@ interface BooleanSearchBarProps {
   placeholder?: string;
 }
 
+const RECENT_SEARCHES_KEY = "admin_resdex_recent_searches";
+
 const searchExamples = [
   '"Java Developer" AND "Microservices"',
   '"React" OR "Angular" OR "Vue.js"',
@@ -32,11 +33,16 @@ const searchExamples = [
   '"Full Stack" AND ("Node.js" OR "Django")',
 ];
 
-const recentSearches = [
-  '"Senior Java Developer" AND "Spring Boot"',
-  '"DevOps Engineer" AND "AWS"',
-  '"Product Manager" AND "B2B"',
-];
+function loadRecentSearches(): string[] {
+  try {
+    const raw = localStorage.getItem(RECENT_SEARCHES_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw) as string[];
+    return Array.isArray(parsed) ? parsed.slice(0, 5) : [];
+  } catch {
+    return [];
+  }
+}
 
 const BooleanSearchBar = ({
   value,
@@ -46,9 +52,15 @@ const BooleanSearchBar = ({
 }: BooleanSearchBarProps) => {
   const [isFocused, setIsFocused] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [recentSearches, setRecentSearches] = useState<string[]>(() => loadRecentSearches());
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
+      if (value.trim()) {
+        const next = [value.trim(), ...recentSearches.filter((s) => s !== value.trim())].slice(0, 5);
+        setRecentSearches(next);
+        localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(next));
+      }
       onSearch();
       setShowSuggestions(false);
     }
@@ -85,7 +97,6 @@ const BooleanSearchBar = ({
       >
         <div className="flex items-center gap-2 pl-4">
           <Search className="h-5 w-5 text-muted-foreground" />
-          <Sparkles className="h-4 w-4 text-primary animate-pulse" />
         </div>
         <Input
           value={value}
@@ -226,7 +237,7 @@ const BooleanSearchBar = ({
             {/* Popular Searches */}
             <div className="p-4">
               <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground mb-3">
-                <Sparkles className="h-4 w-4" />
+                <Search className="h-4 w-4" />
                 Try These Searches
               </div>
               <div className="flex flex-wrap gap-2">

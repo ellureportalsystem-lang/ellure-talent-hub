@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { FolderKanban, ExternalLink, Github, Users, Calendar, Edit, Trash2 } from "lucide-react";
 
 interface Project {
-  id: number;
+  id: string | number;
   title: string;
   description: string;
   skills: string[];
@@ -16,12 +16,20 @@ interface Project {
 interface ProjectsSectionProps {
   projects: Project[];
   viewMode: 'applicant' | 'admin' | 'client';
-  onEdit?: (id: number) => void;
-  onDelete?: (id: number) => void;
+  onEdit?: (id: string | number) => void;
+  onDelete?: (id: string | number) => void;
 }
 
 const ProjectsSection = ({ projects, viewMode, onEdit, onDelete }: ProjectsSectionProps) => {
   const canEdit = viewMode !== 'client';
+
+  if (projects.length === 0) {
+    return (
+      <div className="text-center py-4 text-sm text-muted-foreground">
+        No projects added yet.
+      </div>
+    );
+  }
 
   return (
     <div className="grid md:grid-cols-2 gap-4">

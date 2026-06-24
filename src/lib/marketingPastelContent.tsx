@@ -61,7 +61,7 @@ export const aboutPastelCards: PastelFeatureCard[] = [
     tone: "lavender",
     title: "10+ years of recruitment expertise",
     description:
-      "Ellure Consulting Services brings industry knowledge; NexHire brings the technology to scale ethical hiring.",
+      "Ellure Consulting Services brings industry knowledge; TalentHub brings the technology to scale ethical hiring.",
     ctaLabel: "About Ellure",
     ctaHref: "/about",
     illustration: <MarketingCartoonArt variant="team" size="card" />,

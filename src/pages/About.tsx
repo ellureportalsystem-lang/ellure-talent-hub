@@ -29,7 +29,7 @@ const About = () => (
       }
       illustrationTone="lavender"
       title="Empowering ethical, structured hiring"
-      subtitle="We're on a mission to help employers and candidates succeed through transparent recruitment workflows — powered by Ellure NexHire."
+      subtitle="We're on a mission to help employers and candidates succeed through transparent recruitment workflows — powered by Ellure TalentHub."
     />
 
     <MarketingSaasSection eyebrow="About us" title="Simplifying recruitment" align="left">
@@ -40,7 +40,7 @@ const About = () => (
             for employers and candidates alike.
           </p>
           <p>
-            In a market where scattered spreadsheets and bulk resumes slow everyone down, we built Ellure NexHire
+            In a market where scattered spreadsheets and bulk resumes slow everyone down, we built Ellure TalentHub
             to bring role alignment, screening, and coordination into one platform. No chaos — just clear steps
             from intake to shortlist.
           </p>
@@ -61,7 +61,7 @@ const About = () => (
       </div>
     </MarketingSaasSection>
 
-    <MarketingBrandedBanner imageSrc={marketingBanners.about} alt="About Ellure NexHire" />
+    <MarketingBrandedBanner imageSrc={marketingBanners.about} alt="About Ellure TalentHub" />
 
     <BharatGoPastelFeatureCards cards={aboutPastelCards} columns={1} className="!py-10 sm:!py-12" />
 

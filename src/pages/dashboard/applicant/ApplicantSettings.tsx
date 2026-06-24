@@ -6,11 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
-import { Key, Loader2, Monitor, Moon, Sun, User } from "lucide-react";
+import { Key, Loader2, User } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
-import { applyPortalTheme, resolvePortalTheme, setStoredPortalTheme, type PortalTheme } from "@/lib/portalTheme";
 import { DashboardPageShell } from "@/components/dashboard/DashboardPageShell";
 import { PortalPageHeader } from "@/components/portal/portal-ui";
 import { portalPanelClass } from "@/components/portal/portalStyles";
@@ -24,10 +23,6 @@ const ApplicantSettings = () => {
   const [savingPw, setSavingPw] = useState(false);
   const [phone, setPhone] = useState("");
   const [fullName, setFullName] = useState("");
-  const [portalTheme, setPortalTheme] = useState<PortalTheme>(() =>
-    typeof window !== "undefined" ? resolvePortalTheme() : "light"
-  );
-
   useEffect(() => {
     if (!user?.id) {
       setLoading(false);
@@ -53,17 +48,6 @@ const ApplicantSettings = () => {
       alive = false;
     };
   }, [user?.id, profile?.full_name]);
-
-  useEffect(() => {
-    setPortalTheme(resolvePortalTheme());
-  }, []);
-
-  const setTheme = (next: PortalTheme) => {
-    setStoredPortalTheme(next);
-    applyPortalTheme(next);
-    setPortalTheme(next);
-    toast.success(`Theme set to ${next}`);
-  };
 
   const saveContact = async () => {
     if (!user?.id) return;
@@ -116,39 +100,7 @@ const ApplicantSettings = () => {
 
   return (
     <DashboardPageShell width="narrow" className="space-y-6">
-      <PortalPageHeader title="Settings" subtitle="Account details, appearance, and password" />
-
-      <Card className={portalPanelClass}>
-        <CardHeader>
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Monitor className="h-5 w-5" />
-            Appearance
-          </CardTitle>
-          <CardDescription>Theme is applied across your dashboard.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="grid grid-cols-2 gap-2">
-            <Button
-              type="button"
-              variant={portalTheme === "light" ? "default" : "outline"}
-              className="justify-start"
-              onClick={() => setTheme("light")}
-            >
-              <Sun className="mr-2 h-4 w-4" />
-              Light
-            </Button>
-            <Button
-              type="button"
-              variant={portalTheme === "dark" ? "default" : "outline"}
-              className="justify-start"
-              onClick={() => setTheme("dark")}
-            >
-              <Moon className="mr-2 h-4 w-4" />
-              Dark
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      <PortalPageHeader title="Settings" subtitle="Account details and password" />
 
       <Card className={portalPanelClass}>
         <CardHeader>

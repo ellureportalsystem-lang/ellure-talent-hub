@@ -15,13 +15,23 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { FolderPlus, Download, ChevronDown, FileSpreadsheet, X } from "lucide-react";
+import { FolderPlus, Download, ChevronDown, FileSpreadsheet, X, Trash2 } from "lucide-react";
 import type { Applicant } from "@/hooks/useApplicants";
 import type { FolderView } from "@/hooks/useShortlists";
 
@@ -35,6 +45,7 @@ interface BulkActionsBarProps {
   onExportExcel: (applicants: Applicant[]) => void;
   onExportCsv: (applicants: Applicant[]) => void;
   onStatusChange?: (status: string, applicantIds: string[]) => Promise<void>;
+  onDelete?: (applicantIds: string[]) => Promise<void>;
   isAdmin?: boolean;
 }
 
@@ -48,10 +59,13 @@ const BulkActionsBar = ({
   onExportExcel,
   onExportCsv,
   onStatusChange,
+  onDelete,
   isAdmin = true,
 }: BulkActionsBarProps) => {
   const [folderDialogOpen, setFolderDialogOpen] = useState(false);
   const [selectedFolderId, setSelectedFolderId] = useState("");
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const handleAddToFolder = async () => {
     if (!selectedFolderId || selectedIds.length === 0) return;
@@ -60,6 +74,18 @@ const BulkActionsBar = ({
       setFolderDialogOpen(false);
       setSelectedFolderId("");
       onClearSelection();
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!onDelete || !selectedIds.length) return;
+    setDeleting(true);
+    try {
+      await onDelete(selectedIds);
+      setDeleteOpen(false);
+      onClearSelection();
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -137,6 +163,17 @@ const BulkActionsBar = ({
                     </DropdownMenuContent>
                   </DropdownMenu>
                 )}
+                {isAdmin && onDelete && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-red-300 hover:bg-red-500/20 hover:text-red-200 gap-2"
+                    onClick={() => setDeleteOpen(true)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    Delete
+                  </Button>
+                )}
               </div>
             </div>
           </motion.div>
@@ -176,6 +213,31 @@ const BulkActionsBar = ({
           </div>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete {selectedCount} candidate(s)?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Candidates will be soft-deleted and hidden from ResDex search. This action is logged in the audit
+              trail. You can re-import them later if needed.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={deleting}
+              onClick={(e) => {
+                e.preventDefault();
+                void handleDelete();
+              }}
+            >
+              {deleting ? "Deleting…" : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };

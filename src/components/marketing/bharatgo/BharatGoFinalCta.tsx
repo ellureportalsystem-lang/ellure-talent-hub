@@ -34,7 +34,7 @@ export function BharatGoFinalCta() {
                 Create your free profile now
               </h2>
               <p className="mt-4 text-base text-white/95 drop-shadow-sm sm:text-lg">
-                Try Ellure NexHire risk-free. Build your profile or client workspace in minutes and see the
+                Try Ellure TalentHub risk-free. Build your profile or client workspace in minutes and see the
                 difference.
               </p>
               <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">

@@ -74,3 +74,63 @@ export async function searchApplicantsForFolder(query: string, limit = 20) {
   }
   return q;
 }
+
+export async function updateShortlist(
+  id: string,
+  updates: { name?: string; description?: string | null; color?: string | null }
+) {
+  return supabase.from("shortlists").update(updates).eq("id", id);
+}
+
+export async function shareShortlistWithClient(
+  shortlistId: string,
+  clientId: string,
+  sharedBy: string,
+  canEdit = false
+) {
+  const { error } = await supabase.from("shortlist_shares").upsert(
+    {
+      shortlist_id: shortlistId,
+      shared_with_client_id: clientId,
+      shared_by: sharedBy,
+      can_edit: canEdit,
+    },
+    { onConflict: "shortlist_id,shared_with_client_id" }
+  );
+  if (!error) {
+    await supabase.from("shortlists").update({ is_shared: true }).eq("id", shortlistId);
+  }
+  return { error };
+}
+
+export async function fetchShortlistShares(shortlistId: string) {
+  return supabase
+    .from("shortlist_shares")
+    .select("id, shared_with_client_id, can_edit, clients(company_name)")
+    .eq("shortlist_id", shortlistId);
+}
+
+export async function fetchClientsForShare(search = "", limit = 20) {
+  let q = supabase
+    .from("clients")
+    .select("id, company_name, contact_email")
+    .eq("is_active", true)
+    .order("company_name")
+    .limit(limit);
+  if (search.trim()) {
+    q = q.ilike("company_name", `%${search}%`);
+  }
+  return q;
+}
+
+export async function fetchShortlistApplicantsForExport(shortlistId: string) {
+  const { data, error } = await supabase
+    .from("shortlist_items")
+    .select(
+      "applicants(id, name, email, phone, city, job_role, current_designation, current_company, total_experience_years, current_ctc, expected_ctc, notice_period, key_skills, status)"
+    )
+    .eq("shortlist_id", shortlistId);
+
+  if (error) throw new Error(error.message);
+  return (data ?? []).map((i) => i.applicants).filter(Boolean);
+}

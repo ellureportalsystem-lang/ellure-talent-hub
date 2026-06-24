@@ -1,23 +1,22 @@
-/** Portal dashboards use separate theme storage from the marketing site. */
+/** Portal dashboards are light-only (Naukri-style recruiter UI). */
 
-export type PortalTheme = "light" | "dark";
+export type PortalTheme = "light";
 
 const PORTAL_THEME_KEY = "portal-theme";
 const MARKETING_THEME_KEY = "ellure-ui-theme";
 
 export function getStoredPortalTheme(): PortalTheme {
-  const stored = localStorage.getItem(PORTAL_THEME_KEY);
-  return stored === "dark" ? "dark" : "light";
+  return "light";
 }
 
-export function setStoredPortalTheme(theme: PortalTheme): void {
-  localStorage.setItem(PORTAL_THEME_KEY, theme);
+export function setStoredPortalTheme(_theme: PortalTheme = "light"): void {
+  localStorage.setItem(PORTAL_THEME_KEY, "light");
 }
 
-export function applyPortalTheme(theme: PortalTheme): void {
+export function applyPortalTheme(_theme: PortalTheme = "light"): void {
   const root = document.documentElement;
-  root.classList.remove("light", "dark");
-  root.classList.add(theme);
+  root.classList.remove("dark");
+  root.classList.add("light");
 }
 
 export function restoreMarketingTheme(): void {
@@ -40,12 +39,11 @@ export function isDashboardPath(pathname: string): boolean {
 }
 
 export function resolvePortalTheme(): PortalTheme {
-  const portalStored = localStorage.getItem(PORTAL_THEME_KEY);
-  if (portalStored === "dark" || portalStored === "light") return portalStored;
+  return "light";
+}
 
-  // If portal theme has never been set, mirror the user's main theme preference.
-  const marketingStored = localStorage.getItem(MARKETING_THEME_KEY);
-  if (marketingStored === "dark" || marketingStored === "light") return marketingStored;
-
-  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+/** Clears any legacy dark portal preference from localStorage. */
+export function ensurePortalLightTheme(): void {
+  localStorage.setItem(PORTAL_THEME_KEY, "light");
+  applyPortalTheme("light");
 }

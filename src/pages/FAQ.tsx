@@ -12,18 +12,18 @@ import { MarketingCartoonArt } from "@/components/marketing/MarketingCartoonArt"
 
 const mainFAQs = [
   {
-    question: "What is Ellure NexHire?",
+    question: "What is Ellure TalentHub?",
     answer:
-      "Ellure NexHire is a hiring platform that connects employers and candidates through structured, transparent hiring workflows.",
+      "Ellure TalentHub is a hiring platform that connects employers and candidates through structured, transparent hiring workflows.",
   },
   {
-    question: "How is Ellure NexHire different from Ellure Consulting Services?",
+    question: "How is Ellure TalentHub different from Ellure Consulting Services?",
     answer:
-      "Ellure Consulting Services is a recruitment company. Ellure NexHire is a technology platform developed to support scalable and ethical hiring.",
+      "Ellure Consulting Services is a recruitment company. Ellure TalentHub is a technology platform developed to support scalable and ethical hiring.",
   },
   {
-    question: "Is Ellure NexHire a recruitment consultancy?",
-    answer: "No. Ellure NexHire is a platform, not a consultancy.",
+    question: "Is Ellure TalentHub a recruitment consultancy?",
+    answer: "No. Ellure TalentHub is a platform, not a consultancy.",
   },
   {
     question: "Do you provide recruitment or executive search services?",
@@ -35,7 +35,7 @@ const mainFAQs = [
       "Yes. Both employers and candidates can track application progress clearly within the portal.",
   },
   {
-    question: "Is data secure on Ellure NexHire?",
+    question: "Is data secure on Ellure TalentHub?",
     answer: "Yes. The platform follows enterprise-grade security and controlled access practices.",
   },
 ];
@@ -52,7 +52,7 @@ const FAQ = () => (
       }
       illustrationTone="lavender"
       title="Frequently asked questions"
-      subtitle="Find answers to common questions about Ellure NexHire."
+      subtitle="Find answers to common questions about Ellure TalentHub."
     />
 
     <MarketingSaasSection>

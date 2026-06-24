@@ -29,13 +29,13 @@ Deno.serve(async (req) => {
   }
 
   const html = emailLayout(`
-    <p>A new client has signed up on Ellure NexHire.</p>
+    <p>A new client has signed up on Ellure TalentHub.</p>
     <ul>
       <li><strong>Company:</strong> ${company}</li>
       <li><strong>Contact:</strong> ${contactEmail}</li>
       <li><strong>Plan:</strong> ${planName}</li>
     </ul>
-    <p><a href="${SITE}/dashboard/admin/users" style="color:#0566cd">Review in admin →</a></p>
+    <p><a href="${SITE}/dashboard/admin/users" style="color:#0566CD">Review in admin →</a></p>
   `);
 
   const results: string[] = [];

@@ -13,16 +13,23 @@ interface PersonalDetails {
 interface PersonalDetailsSectionProps {
   details: PersonalDetails;
   viewMode: 'applicant' | 'admin' | 'client';
+  onEdit?: () => void;
 }
 
-const PersonalDetailsSection = ({ details }: PersonalDetailsSectionProps) => {
+const PersonalDetailsSection = ({ details, viewMode, onEdit }: PersonalDetailsSectionProps) => {
+  const canEdit = viewMode !== 'client';
   const hasAnyData = details.dateOfBirth || details.gender || details.maritalStatus ||
     (details.languages && details.languages.length > 0) || details.address || details.homeTown;
 
   if (!hasAnyData) {
     return (
-      <div className="text-center py-4 text-sm text-muted-foreground">
-        No personal details added yet.
+      <div className="text-center py-4 text-sm text-muted-foreground space-y-3">
+        <p>No personal details added yet.</p>
+        {canEdit && onEdit && (
+          <button type="button" className="text-xs text-[#0566CD] hover:underline" onClick={onEdit}>
+            Add personal details
+          </button>
+        )}
       </div>
     );
   }

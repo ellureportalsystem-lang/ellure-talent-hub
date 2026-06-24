@@ -10,10 +10,7 @@ interface ProtectedRouteProps {
 export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { user, loading } = useAuth();
 
-  // TEMPORARY TESTING MODE - REMOVE BEFORE PRODUCTION
-  const isTestingMode = sessionStorage.getItem('testing_mode') === 'true';
-
-  if (loading && !isTestingMode) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-gradient-subtle flex items-center justify-center">
         <div className="text-center space-y-4">
@@ -24,18 +21,9 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     );
   }
 
-  if (!user && !isTestingMode) {
+  if (!user) {
     return <Navigate to="/auth/applicant" replace />;
   }
 
   return <>{children}</>;
 };
-
-
-
-
-
-
-
-
-

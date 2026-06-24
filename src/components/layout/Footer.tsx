@@ -1,5 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { BrandWordmark } from "@/components/brand/BrandWordmark";
 import {
   Facebook,
   Linkedin,
@@ -61,25 +62,8 @@ const Footer = ({ variant = "dark" }: FooterProps) => {
       <div className="grid grid-cols-2 gap-10 sm:grid-cols-2 lg:grid-cols-12 lg:gap-8 xl:gap-10">
         {/* Brand */}
         <div className="col-span-2 space-y-5 lg:col-span-3">
-          <Link to="/" className="group flex w-fit items-center gap-2">
-            <img
-              src="/ellure-logo.png"
-              alt="Ellure NexHire"
-              className="h-11 w-auto object-contain transition-transform duration-300 group-hover:scale-105 sm:h-12"
-            />
-            <div className="flex flex-col leading-none">
-              <span className={cn("text-lg font-bold", isLight ? "text-foreground" : "text-white")}>
-                Ellure
-              </span>
-              <span
-                className={cn(
-                  "-mt-0.5 text-lg font-bold",
-                  isLight ? "text-primary" : "text-[#5eb8e8]"
-                )}
-              >
-                NexHire
-              </span>
-            </div>
+          <Link to="/" className="group flex w-fit items-center transition-opacity hover:opacity-95">
+            <BrandWordmark size="footer" onDark={!isLight} />
           </Link>
           <p
             className={cn(
@@ -108,7 +92,7 @@ const Footer = ({ variant = "dark" }: FooterProps) => {
                 href: "https://www.instagram.com/ellureconsulting",
                 icon: Instagram,
                 label: "Instagram",
-                className: "hover:bg-gradient-to-br hover:from-purple-600 hover:to-orange-500 hover:text-white",
+                className: "hover:bg-gradient-to-br hover:from-[#E1306C] hover:to-[#F77737] hover:text-white",
               },
               {
                 href: "https://wa.me/917517383196",
@@ -266,7 +250,7 @@ const Footer = ({ variant = "dark" }: FooterProps) => {
 
       <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 md:flex-row">
         <p className="marketing-footer-muted text-center text-xs sm:text-sm md:text-left">
-          © {new Date().getFullYear()} Ellure NexHire. All rights reserved.
+          © {new Date().getFullYear()} Ellure TalentHub. All rights reserved.
         </p>
         <div className="flex flex-wrap justify-center gap-5 text-xs text-white/60 sm:text-sm">
           <Link to="/privacy" className="transition-colors hover:text-secondary">

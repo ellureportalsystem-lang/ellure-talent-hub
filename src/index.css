@@ -17,16 +17,16 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 215 25% 15%;
 
-    --primary: 212 94% 38%;
+    --primary: 208 95% 41%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 183 72% 38%;
+    --secondary: 188 74% 39%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 220 17% 96%;
-    --muted-foreground: 215 12% 45%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
 
-    --accent: 212 94% 38%;
+    --accent: 199 89% 48%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84.2% 60.2%;
@@ -34,14 +34,14 @@ All colors MUST be HSL.
 
     --border: 216 15% 88%;
     --input: 216 14% 88%;
-    --ring: 212 94% 38%;
+    --ring: 208 95% 41%;
 
     --radius: 0.75rem;
 
-    /* Brand green — matches CTA / secondary teal (single source for icons & checks) */
-    --success: 183 72% 38%;
+    /* Brand teal — matches secondary (#1A9EB0) */
+    --success: 188 74% 39%;
     --success-foreground: 0 0% 100%;
-    --brand-green: 183 72% 38%;
+    --brand-green: 188 74% 39%;
 
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 100%;
@@ -49,9 +49,9 @@ All colors MUST be HSL.
     --info: 199 89% 48%;
     --info-foreground: 0 0% 100%;
 
-    --gold: 46 80% 52%;
+    --gold: 43 78% 54%;
 
-    --gradient-primary: linear-gradient(135deg, hsl(212 94% 38%), hsl(183 72% 38%));
+    --gradient-primary: linear-gradient(135deg, hsl(208 95% 41%), hsl(188 74% 39%));
     --gradient-subtle: linear-gradient(180deg, hsl(0 0% 100%), hsl(220 17% 98%));
 
     --shadow-sm: 0 2px 4px hsl(215 25% 15% / 0.05);
@@ -61,12 +61,12 @@ All colors MUST be HSL.
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 215 25% 15%;
-    --sidebar-primary: 212 94% 38%;
+    --sidebar-primary: 208 95% 41%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 220 17% 96%;
     --sidebar-accent-foreground: 215 25% 15%;
     --sidebar-border: 216 15% 88%;
-    --sidebar-ring: 212 94% 38%;
+    --sidebar-ring: 208 95% 41%;
 
     --surface-1: #ffffff;
     --surface-2: #f8fafc;
@@ -96,16 +96,16 @@ All colors MUST be HSL.
     --popover: 222 20% 12%;
     --popover-foreground: 210 20% 95%;
 
-    --primary: 212 90% 55%;
+    --primary: 208 90% 52%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 183 70% 48%;
+    --secondary: 188 70% 48%;
     --secondary-foreground: 0 0% 100%;
 
     --muted: 220 18% 16%;
     --muted-foreground: 215 15% 55%;
 
-    --accent: 212 90% 55%;
+    --accent: 199 89% 52%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 72% 55%;
@@ -113,7 +113,7 @@ All colors MUST be HSL.
 
     --border: 220 16% 16%;
     --input: 220 16% 16%;
-    --ring: 212 90% 55%;
+    --ring: 208 90% 52%;
 
     --success: 183 70% 48%;
     --success-foreground: 0 0% 100%;
@@ -182,6 +182,33 @@ All colors MUST be HSL.
     border: 1px solid var(--surface-border);
     border-radius: 12px;
     box-shadow: var(--card-shadow);
+  }
+
+  /* Naukri recruiter/admin/candidate portals — always light */
+  .naukri-portal {
+    font-family: Inter, system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #333;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .naukri-portal .bg-card,
+  .naukri-portal [class*="bg-card"] {
+    background-color: #fff;
+    color: #333;
+  }
+
+  .naukri-portal .text-muted-foreground {
+    color: #666;
+  }
+
+  .naukri-portal .border-border {
+    border-color: #e8e8e8;
+  }
+
+  .auth-cartoon-art {
+    display: block;
   }
 }
 
@@ -836,36 +863,6 @@ html:has(.portal-dashboard) {
   --card-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 0 0 1px hsl(221 55% 46% / 0.04);
 }
 
-html.dark:has(.portal-dashboard) {
-  --portal-accent: 214 65% 58%;
-  --portal-surface-2: 224 16% 16%;
-  --portal-border: 224 12% 22%;
-  --glass-shadow: 0 0 0 / 0.35;
-
-  --background: 224 20% 9%;
-  --foreground: 210 18% 96%;
-  --card: 224 18% 12.5%;
-  --card-foreground: 210 18% 96%;
-  --popover: 224 18% 12.5%;
-  --popover-foreground: 210 18% 96%;
-  --muted: 224 14% 16%;
-  --muted-foreground: 220 10% 62%;
-  --primary: 214 65% 58%;
-  --primary-foreground: 224 20% 9%;
-  --accent: 214 65% 58%;
-  --accent-foreground: 224 20% 9%;
-  --border: 224 12% 20%;
-  --input: 224 12% 20%;
-  --ring: 214 65% 58%;
-  --destructive: 0 62% 50%;
-
-  --surface-1: #1a1f28;
-  --surface-2: #12151c;
-  --surface-3: #252b36;
-  --surface-border: #2e3644;
-  --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
-}
-
 html:has(.portal-dashboard--client) {
   --portal-accent: 199 89% 48%;
   --primary: 199 89% 48%;
@@ -873,23 +870,10 @@ html:has(.portal-dashboard--client) {
   --accent: 199 89% 48%;
 }
 
-html.dark:has(.portal-dashboard--client) {
-  --portal-accent: 199 89% 55%;
-  --primary: 199 89% 55%;
-  --ring: 199 89% 55%;
-  --accent: 199 89% 55%;
-}
-
 html:has(.portal-dashboard--applicant) {
   --portal-accent: 212 94% 38%;
   --primary: 212 94% 38%;
   --ring: 212 94% 38%;
-}
-
-html.dark:has(.portal-dashboard--applicant) {
-  --portal-accent: 212 90% 55%;
-  --primary: 212 90% 55%;
-  --ring: 212 90% 55%;
 }
 
 .portal-dashboard {
@@ -949,13 +933,6 @@ html.dark:has(.portal-dashboard--applicant) {
     radial-gradient(ellipse 50% 40% at 50% 0%, hsl(199 80% 95% / 0.25), transparent 55%);
 }
 
-html.dark .portal-dashboard.portal-shell-bg {
-  background-image:
-    radial-gradient(ellipse 90% 55% at 100% -15%, hsl(221 55% 22% / 0.35), transparent 52%),
-    radial-gradient(ellipse 70% 45% at 0% 105%, hsl(262 45% 18% / 0.28), transparent 48%),
-    radial-gradient(ellipse 50% 40% at 50% 0%, hsl(199 50% 18% / 0.2), transparent 55%);
-}
-
 .portal-glass-header {
   position: relative;
   background: hsl(var(--card) / 0.86);
@@ -979,10 +956,6 @@ html.dark .portal-dashboard.portal-shell-bg {
     hsl(199 80% 55% / 0.35)
   );
   pointer-events: none;
-}
-
-html.dark .portal-glass-header {
-  background: hsl(var(--card) / 0.9);
 }
 
 .portal-glass-sidebar {
@@ -1010,10 +983,6 @@ html.dark .portal-glass-header {
   backdrop-filter: blur(16px) saturate(110%);
   -webkit-backdrop-filter: blur(16px) saturate(110%);
   box-shadow: 0 -4px 24px hsl(var(--glass-shadow));
-}
-
-html.dark .portal-bottom-nav-inner {
-  background: hsl(var(--card) / 0.9);
 }
 
 .portal-section-title {
@@ -1490,7 +1459,32 @@ html.dark .portal-bottom-nav-inner {
 
 /* BharatGo-inspired marketing layout (light SaaS landing) */
 
-/* Homepage hero — plasma shader bloom + ambient violet glow */
+/* Frosted light navbar over dark hero — keeps blue/red logo readable */
+.marketing-hero-navbar {
+  border-bottom: 1px solid rgba(5, 102, 205, 0.14);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.96) 0%,
+    rgba(246, 250, 255, 0.92) 100%
+  );
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.8) inset,
+    0 8px 32px rgba(1, 12, 125, 0.1);
+  -webkit-backdrop-filter: blur(20px) saturate(1.15);
+  backdrop-filter: blur(20px) saturate(1.15);
+}
+
+@supports (backdrop-filter: blur(1px)) {
+  .marketing-hero-navbar {
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.9) 0%,
+      rgba(246, 250, 255, 0.86) 100%
+    );
+  }
+}
+
+/* Homepage hero — plasma shader bloom + ambient cobalt / teal glow */
 .bharatgo-hero-shader::after {
   content: "";
   position: absolute;
@@ -1498,7 +1492,7 @@ html.dark .portal-bottom-nav-inner {
   pointer-events: none;
   background: radial-gradient(
     ellipse 85% 70% at 72% 42%,
-    hsl(270 95% 62% / 0.14),
+    hsl(199 89% 48% / 0.12),
     transparent 58%
   );
   mix-blend-mode: screen;
@@ -1515,10 +1509,10 @@ html.dark .portal-bottom-nav-inner {
 .bharatgo-hero-plasma-orb--1 {
   width: min(68vw, 500px);
   height: min(68vw, 500px);
-  top: 5%;
+  top: 8%;
   right: -12%;
-  background: radial-gradient(circle, hsl(270 90% 68% / 0.42) 0%, transparent 68%);
-  opacity: 0.52;
+  background: radial-gradient(circle, hsl(208 95% 45% / 0.38) 0%, transparent 68%);
+  opacity: 0.55;
   animation: bharatgo-hero-orb-drift-1 22s ease-in-out infinite;
 }
 
@@ -1527,8 +1521,8 @@ html.dark .portal-bottom-nav-inner {
   height: min(50vw, 380px);
   bottom: 0%;
   left: 20%;
-  background: radial-gradient(circle, hsl(258 85% 58% / 0.34) 0%, transparent 70%);
-  opacity: 0.38;
+  background: radial-gradient(circle, hsl(188 74% 42% / 0.32) 0%, transparent 70%);
+  opacity: 0.42;
   animation: bharatgo-hero-orb-drift-2 18s ease-in-out infinite;
 }
 
@@ -1538,7 +1532,7 @@ html.dark .portal-bottom-nav-inner {
   pointer-events: none;
   background: radial-gradient(
     ellipse 120% 80% at 50% 100%,
-    hsl(270 70% 45% / 0.1),
+    hsl(208 90% 35% / 0.12),
     transparent 55%
   );
   mix-blend-mode: screen;
@@ -1546,15 +1540,15 @@ html.dark .portal-bottom-nav-inner {
 
 .bharatgo-hero-headline {
   text-shadow:
-    0 0 32px hsl(270 90% 65% / 0.16),
-    0 0 64px hsl(270 85% 55% / 0.07);
+    0 0 32px hsl(199 89% 48% / 0.14),
+    0 0 64px hsl(208 95% 41% / 0.08);
 }
 
-.bharatgo-hero-headline .text-violet-200,
+.bharatgo-hero-headline .text-sky-200,
 .bharatgo-hero-headline .text-primary {
   text-shadow:
-    0 0 20px hsl(270 95% 72% / 0.38),
-    0 0 40px hsl(270 90% 60% / 0.18);
+    0 0 20px hsl(199 89% 62% / 0.35),
+    0 0 40px hsl(208 95% 45% / 0.16);
 }
 
 @keyframes bharatgo-hero-orb-drift-1 {
@@ -1656,8 +1650,8 @@ html.dark .portal-bottom-nav-inner {
 }
 
 .bharatgo-feature-card-pastel-lavender {
-  background: #f3effe;
-  border-color: #ddd0f5;
+  background: #e9f0ff;
+  border-color: #d4e2fc;
 }
 
 .bharatgo-hero-cartoon-wrap {
@@ -1921,4 +1915,63 @@ html.dark .portal-bottom-nav-inner {
   .glass-panel {
     background: rgba(22, 18, 42, 0.88);
   }
+
+  .hero-profile-glass {
+    background: rgba(1, 28, 100, 0.92);
+  }
+}
+
+/* Hero applicant card — cobalt / teal glass (brand-aligned, no purple) */
+.hero-profile-glass-wrap {
+  position: relative;
+  z-index: 1;
+  isolation: isolate;
+}
+
+.hero-profile-glass {
+  position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: linear-gradient(
+    152deg,
+    rgba(5, 102, 205, 0.42) 0%,
+    rgba(1, 18, 95, 0.72) 38%,
+    rgba(1, 12, 125, 0.78) 62%,
+    rgba(26, 158, 176, 0.32) 100%
+  );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -1px 0 rgba(1, 12, 125, 0.45),
+    0 18px 40px rgba(1, 12, 125, 0.35);
+  -webkit-backdrop-filter: blur(22px) saturate(1.4);
+  backdrop-filter: blur(22px) saturate(1.4);
+}
+
+.hero-profile-glass::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    125deg,
+    rgba(56, 189, 248, 0.18) 0%,
+    transparent 34%,
+    transparent 58%,
+    rgba(26, 158, 176, 0.14) 82%,
+    rgba(255, 255, 255, 0.06) 100%
+  );
+  pointer-events: none;
+}
+
+.hero-profile-glass::after {
+  display: none;
+}
+
+.hero-profile-glass > * {
+  position: relative;
+  z-index: 1;
+}
+
+.hero-profile-glass-shadow {
+  display: none;
 }

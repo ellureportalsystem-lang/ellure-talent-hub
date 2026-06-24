@@ -3,7 +3,7 @@ export const marketingPastel = {
   peach: { bg: "#FDF0E9", border: "#f5ddd0" },
   sky: { bg: "#E9F0FF", border: "#d4e2fc" },
   mint: { bg: "#E8F8F0", border: "#c5ead8" },
-  lavender: { bg: "#F3EFFE", border: "#ddd0f5" },
+  lavender: { bg: "#E9F0FF", border: "#d4e2fc" },
   cream: { bg: "#FFFBF7", border: "#f0e6dc" },
 } as const;
 

@@ -46,7 +46,7 @@ const showcases = [
     tag: "Operations",
     icon: Users,
     href: "/features",
-    tone: "bg-[#F3EFFE] border-[#ddd0f5]",
+    tone: "bg-[#E9F0FF] border-[#d4e2fc]",
   },
 ];
 
@@ -60,7 +60,7 @@ const Showcase = () => (
         </MarketingIllustrationFrame>
       }
       illustrationTone="sky"
-      title="Experience Ellure NexHire in action"
+      title="Experience Ellure TalentHub in action"
       subtitle="See how employers, candidates, and recruitment teams use the platform — structured hiring workflows built for India."
     />
 

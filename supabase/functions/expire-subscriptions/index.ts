@@ -1,5 +1,5 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
-import { sendEmail, emailLayout } from "../_shared/email.ts";
+import { sendEmail, emailLayout, emailButton } from "../_shared/email.ts";
 import { getServiceClient } from "../_shared/supabase-admin.ts";
 import { jsonResponse, handleOptions } from "../_shared/cors.ts";
 
@@ -22,7 +22,10 @@ Deno.serve(async (req) => {
 
   let expiredCount = 0;
   for (const c of expired || []) {
-    await supabase.from("clients").update({ subscription_status: "expired" }).eq("id", c.id);
+    await supabase
+      .from("clients")
+      .update({ subscription_status: "expired", is_active: false })
+      .eq("id", c.id);
 
     const { data: profiles } = await supabase.from("profiles").select("id, email").eq("client_id", c.id);
     for (const p of profiles || []) {
@@ -30,15 +33,19 @@ Deno.serve(async (req) => {
         await supabase.rpc("create_notification", {
           p_user_id: p.id,
           p_title: "Subscription expired",
-          p_message: "Your subscription has expired. Renew to continue accessing candidates.",
+          p_body: "Your subscription has expired. Renew to continue accessing candidates.",
           p_type: "billing",
         }).catch(() => {});
       }
       if (p.email) {
         await sendEmail(
           p.email,
-          "Your Ellure NexHire subscription has expired",
-          emailLayout(`<p>Your subscription has expired. <a href="${SITE}/dashboard/client/billing">Renew now</a> to continue accessing candidates.</p>`),
+          "Your Ellure TalentHub subscription has expired",
+          emailLayout(`
+            <p>Your Ellure TalentHub subscription has expired.</p>
+            ${emailButton(`${SITE}/dashboard/client/billing`, "Renew subscription")}
+            <p>Your account data is preserved — renew anytime to regain access.</p>
+          `, "Subscription expired"),
         );
       }
     }
@@ -61,8 +68,11 @@ Deno.serve(async (req) => {
       if (p.email) {
         await sendEmail(
           p.email,
-          `Your subscription expires in ${days} days`,
-          emailLayout(`<p>Your Ellure NexHire subscription expires in <strong>${days}</strong> days. <a href="${SITE}/dashboard/client/billing">Renew early</a>.</p>`),
+          `Your Ellure TalentHub subscription expires in ${days} days`,
+          emailLayout(`
+            <p>Your Ellure TalentHub subscription expires in <strong>${days}</strong> days.</p>
+            ${emailButton(`${SITE}/dashboard/client/billing`, "Renew early")}
+          `),
         );
         reminderCount++;
       }

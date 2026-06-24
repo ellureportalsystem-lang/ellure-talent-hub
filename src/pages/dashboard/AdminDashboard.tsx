@@ -1,41 +1,45 @@
-import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
-import {
-  LayoutDashboard,
-  FolderOpen,
-  Settings,
-  UserCog,
-  BarChart3,
-  Search,
-  Briefcase,
-  Bell,
-  Upload,
-  FileSpreadsheet,
-} from "lucide-react";
+import { Routes, Route, useNavigate, Navigate, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { PortalDashboardLayout } from "@/components/portal/PortalDashboardLayout";
+import { AdminPortalShell } from "@/components/dashboard/admin/AdminPortalShell";
 import AdminHome from "./admin/AdminHome";
-import ApplicantsManagement from "./admin/ApplicantsManagement";
-import FoldersManagement from "./admin/FoldersManagement";
-import ReportsPage from "./admin/ReportsPage";
-import UsersManagement from "./admin/UsersManagement";
+import ClientsManagement from "./admin/ClientsManagement";
 import AdminSettings from "./admin/AdminSettings";
-import EnterpriseApplicantProfile from "./admin/EnterpriseApplicantProfile";
-import BulkResumeUpload from "./admin/BulkResumeUpload";
 import ImportCandidatesPage from "./admin/ImportCandidatesPage";
-import AdminJobsPage from "./admin/AdminJobsPage";
+import BulkResumeUpload from "./admin/BulkResumeUpload";
+import AuditLogPage from "./admin/AuditLogPage";
+import ReportsPage from "./admin/ReportsPage";
+import SubscriptionsManagementPage from "./admin/SubscriptionsManagementPage";
+import RecruiterDetailPage from "./admin/RecruiterDetailPage";
+import PortalContentManagementPage from "./admin/PortalContentManagementPage";
+import EnterpriseApplicantProfile from "./admin/EnterpriseApplicantProfile";
+import ApplicantsManagement from "./admin/ApplicantsManagement";
 import AdminMessagesPage from "./admin/AdminMessagesPage";
-import { useUnreadMessageCount } from "@/hooks/useUnreadMessageCount";
-import { isDashboardNavActive } from "@/lib/dashboardNav";
+import UsersManagement from "./admin/UsersManagement";
+import { fetchRecruitersNearExpiry } from "@/services/adminManagementService";
+import { PORTAL_ROUTES } from "@/lib/portalRoutes";
+import { usePendingClients } from "@/hooks/useDashboardStats";
+
+function LegacyCandidateProfileRedirect() {
+  const { id } = useParams<{ id: string }>();
+  return <Navigate to={id ? `/dashboard/admin/applicants/${id}` : "/dashboard/admin/applicants"} replace />;
+}
 
 const AdminDashboard = () => {
   const { profile, signOut } = useAuth();
-  const { data: unreadTotal = 0 } = useUnreadMessageCount();
-  const location = useLocation();
   const navigate = useNavigate();
+  const { data: pendingClients } = usePendingClients(50);
+  const [expiringCount, setExpiringCount] = useState(0);
+
+  useEffect(() => {
+    fetchRecruitersNearExpiry(7)
+      .then((rows) => setExpiringCount(rows.length))
+      .catch(() => setExpiringCount(0));
+  }, []);
 
   const handleLogout = async () => {
     await signOut();
-    navigate("/auth/login");
+    navigate(PORTAL_ROUTES.admin.login);
   };
 
   const displayName = profile?.full_name || profile?.display_name || profile?.email?.split("@")[0] || "Admin";
@@ -46,78 +50,45 @@ const AdminDashboard = () => {
     .toUpperCase()
     .slice(0, 2);
 
-  const navSections = [
-    {
-      label: "Main menu",
-      items: [
-        { path: "/dashboard/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
-        { path: "/dashboard/admin/applicants", label: "Resume Search", icon: Search, badge: "AI" },
-        { path: "/dashboard/admin/applicants/bulk-resumes", label: "Bulk CV upload", icon: Upload },
-        { path: "/dashboard/admin/import", label: "Import Data", icon: FileSpreadsheet },
-        { path: "/dashboard/admin/folders", label: "Folders", icon: FolderOpen },
-      ],
-    },
-    {
-      label: "Management",
-      items: [
-        { path: "/dashboard/admin/jobs", label: "Jobs", icon: Briefcase },
-        { path: "/dashboard/admin/reports", label: "Reports", icon: BarChart3 },
-        { path: "/dashboard/admin/users", label: "Users", icon: UserCog },
-        { path: "/dashboard/admin/messages", label: "Emails", icon: Bell },
-      ],
-    },
-    {
-      label: "Settings",
-      items: [{ path: "/dashboard/admin/settings", label: "Settings", icon: Settings }],
-    },
-  ];
-
-  const bottomNavItems = [
-    { path: "/dashboard/admin", label: "Home", icon: LayoutDashboard, exact: true },
-    { path: "/dashboard/admin/applicants", label: "Search", icon: Search },
-    { path: "/dashboard/admin/applicants/bulk-resumes", label: "Upload", icon: Upload },
-    { path: "/dashboard/admin/messages", label: "Emails", icon: Bell },
-  ];
-
-  const isHome = location.pathname === "/dashboard/admin";
-  const flatNav = navSections.flatMap((s) => s.items);
-  const pageTitle =
-    flatNav.find((n) => isDashboardNavActive(location.pathname, n))?.label || "Admin";
+  const pendingApprovals = pendingClients?.length ?? 0;
 
   return (
-    <PortalDashboardLayout
-      role="admin"
-      portalSuffix="Admin"
-      portalTagline="Recruitment operations workspace"
-      navSections={navSections}
-      bottomNavItems={bottomNavItems}
+    <AdminPortalShell
       settingsPath="/dashboard/admin/settings"
       onLogout={handleLogout}
       displayName={displayName}
-      email={profile?.email || "admin@ellure.com"}
+      email={profile?.email ?? undefined}
       initials={initials}
-      headerMode="brand"
-      headerShowBack={!isHome}
-      headerTitle={!isHome ? pageTitle : undefined}
-      unreadTotal={unreadTotal}
+      pendingApprovals={pendingApprovals}
     >
       <Routes>
-        <Route index element={<AdminHome />} />
+        <Route index element={<AdminHome expiringCount={expiringCount} />} />
+        <Route path="data/import" element={<ImportCandidatesPage />} />
+        <Route path="data/bulk-resumes" element={<BulkResumeUpload />} />
         <Route path="applicants" element={<ApplicantsManagement />} />
-        <Route path="applicants/bulk-resumes" element={<BulkResumeUpload />} />
-        <Route path="import" element={<ImportCandidatesPage />} />
         <Route
           path="applicants/:id"
-          element={<EnterpriseApplicantProfile key={location.pathname} viewMode="admin" />}
+          element={<EnterpriseApplicantProfile viewMode="admin" applicantDisplayMode="view" />}
         />
-        <Route path="folders" element={<FoldersManagement />} />
-        <Route path="jobs/*" element={<AdminJobsPage />} />
-        <Route path="reports" element={<ReportsPage />} />
-        <Route path="users" element={<UsersManagement />} />
+        <Route path="candidates/:id" element={<LegacyCandidateProfileRedirect />} />
+        <Route path="recruiters" element={<ClientsManagement />} />
         <Route path="messages" element={<AdminMessagesPage />} />
+        <Route path="users" element={<UsersManagement />} />
+        <Route path="recruiters/:id" element={<RecruiterDetailPage />} />
+        <Route path="content" element={<PortalContentManagementPage />} />
+        <Route path="subscriptions" element={<SubscriptionsManagementPage />} />
+        <Route path="analytics" element={<ReportsPage />} />
+        <Route path="audit-log" element={<AuditLogPage />} />
         <Route path="settings" element={<AdminSettings />} />
+        {/* Legacy redirects — recruiter features moved to client dashboard */}
+        <Route path="import" element={<Navigate to="/dashboard/admin/data/import" replace />} />
+        <Route path="applicants/bulk-resumes" element={<Navigate to="/dashboard/admin/data/bulk-resumes" replace />} />
+        <Route path="clients" element={<Navigate to="/dashboard/admin/recruiters" replace />} />
+        <Route path="jobs/*" element={<Navigate to="/dashboard/client/jobs" replace />} />
+        <Route path="folders" element={<Navigate to="/dashboard/client/shortlists" replace />} />
+        <Route path="reports" element={<Navigate to="/dashboard/admin/analytics" replace />} />
       </Routes>
-    </PortalDashboardLayout>
+    </AdminPortalShell>
   );
 };
 

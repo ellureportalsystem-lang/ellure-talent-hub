@@ -8,13 +8,13 @@ const Privacy = () => (
     <MarketingSaasPageHero
       eyebrow="Legal"
       title="Privacy policy"
-      subtitle="How Ellure NexHire collects, uses, and protects your information."
+      subtitle="How Ellure TalentHub collects, uses, and protects your information."
       align="left"
     />
     <MarketingSaasSection>
       <Card className="mx-auto max-w-3xl space-y-6 rounded-2xl border border-border p-6 text-sm leading-relaxed text-muted-foreground shadow-sm sm:p-10 md:text-base">
         <p>
-          Ellure NexHire respects your privacy. This policy describes how we handle personal data when you use our
+          Ellure TalentHub respects your privacy. This policy describes how we handle personal data when you use our
           website and recruitment platform.
         </p>
         <div>

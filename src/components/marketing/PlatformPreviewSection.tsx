@@ -24,7 +24,7 @@ export function PlatformPreviewSection() {
             </h2>
             <p className="mt-3 text-base leading-relaxed text-muted-foreground">
               Rich profiles, skill tags, match scores, and pipeline status — the same structured view hiring teams
-              use inside Ellure NexHire.
+              use inside Ellure TalentHub.
             </p>
             <Button asChild variant="outline" className="btn-hover mt-6 h-12 min-h-[48px] w-full max-lg:mx-auto max-lg:max-w-sm active:scale-[0.98] lg:w-auto">
               <Link to="/features">

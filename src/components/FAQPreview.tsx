@@ -5,15 +5,15 @@ import { motion } from "framer-motion";
 
 const faqPreview = [
   {
-    question: "What is Ellure Nexhire?",
-    answer: "Ellure Nexhire is a hiring platform that connects employers and candidates through structured, transparent hiring workflows."
+    question: "What is Ellure TalentHub?",
+    answer: "Ellure TalentHub is a hiring platform that connects employers and candidates through structured, transparent hiring workflows."
   },
   {
-    question: "Is Ellure Nexhire a recruitment consultancy?",
-    answer: "No. Ellure Nexhire is a platform, not a consultancy."
+    question: "Is Ellure TalentHub a recruitment consultancy?",
+    answer: "No. Ellure TalentHub is a platform, not a consultancy."
   },
   {
-    question: "Is data secure on Ellure Nexhire?",
+    question: "Is data secure on Ellure TalentHub?",
     answer: "Yes. The platform follows enterprise-grade security and controlled access practices."
   },
   {

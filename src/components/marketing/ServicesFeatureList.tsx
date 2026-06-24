@@ -18,7 +18,7 @@ export type ServiceOffering = {
 const defaultAccents = [
   { accentBg: "bg-blue-500/12 ring-blue-500/15", accentIcon: "text-blue-600" },
   { accentBg: "bg-emerald-500/12 ring-emerald-500/15", accentIcon: "text-emerald-600" },
-  { accentBg: "bg-violet-500/12 ring-violet-500/15", accentIcon: "text-violet-600" },
+  { accentBg: "bg-sky-500/12 ring-sky-500/15", accentIcon: "text-sky-600" },
   { accentBg: "bg-cyan-500/12 ring-cyan-500/15", accentIcon: "text-cyan-600" },
   { accentBg: "bg-amber-500/12 ring-amber-500/15", accentIcon: "text-amber-700" },
   { accentBg: "bg-rose-500/12 ring-rose-500/15", accentIcon: "text-rose-600" },

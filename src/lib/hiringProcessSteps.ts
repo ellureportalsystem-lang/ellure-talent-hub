@@ -53,7 +53,7 @@ export const hiringProcessSteps: HiringProcessStep[] = [
     label: "Deliver",
     title: "Deliver shortlists & support",
     headline: "Step 4: Deliver",
-    description: "Shortlists, coordination, and hiring support through the Ellure NexHire platform.",
+    description: "Shortlists, coordination, and hiring support through the Ellure TalentHub platform.",
     previewSubtitle: "Client handoff & interview coordination",
     successMessage: "Hiring workflow delivered",
     icon: CheckCircle2,

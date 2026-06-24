@@ -72,7 +72,7 @@ type TestimonialsSectionProps = {
 export function TestimonialsSection({
   className,
   title = "Trusted by hiring teams & candidates",
-  subtitle = "Real feedback from organizations and professionals who partner with Ellure NexHire.",
+  subtitle = "Real feedback from organizations and professionals who partner with Ellure TalentHub.",
 }: TestimonialsSectionProps) {
   return (
     <FadeInSection className={cn("py-10 md:py-14 px-4 sm:px-6", className)}>

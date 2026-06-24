@@ -21,6 +21,50 @@ export async function getOrCreateApplicant(userId: string, email: string) {
 
   if (existing) return existing;
 
+  const normalizedEmail = email.trim().toLowerCase();
+
+  // Link self-registration to a legacy row imported via admin Excel (same email, no login yet)
+  const { data: imported } = await supabase
+    .from("applicants")
+    .select("*")
+    .eq("email", normalizedEmail)
+    .is("user_id", null)
+    .eq("is_deleted", false)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (imported) {
+    const { data: claimed, error: claimError } = await supabase
+      .from("applicants")
+      .update({
+        user_id: userId,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", imported.id)
+      .select("*")
+      .single();
+
+    if (claimError) throw new Error(claimError.message);
+
+    await supabase
+      .from("profiles")
+      .update({
+        applicant_id: imported.id,
+        role: "applicant",
+        full_name: imported.name ?? undefined,
+        phone: imported.phone ?? undefined,
+        email: normalizedEmail,
+      })
+      .eq("id", userId);
+
+    await supabase
+      .rpc("refresh_applicant_search_index", { p_applicant_id: imported.id })
+      .catch(() => {});
+
+    return claimed ?? { ...imported, user_id: userId };
+  }
+
   const { data: profile } = await supabase
     .from("profiles")
     .select("full_name, phone, email")
@@ -32,7 +76,7 @@ export async function getOrCreateApplicant(userId: string, email: string) {
     .insert({
       user_id: userId,
       name: profile?.full_name || email.split("@")[0],
-      email: email.toLowerCase(),
+      email: normalizedEmail,
       phone: profile?.phone || null,
       status: "draft",
     })
@@ -506,7 +550,7 @@ export async function submitRegistration(applicantId: string, userId: string, em
   );
   await sendEmailViaEdge(
     email,
-    "Welcome to Ellure NexHire",
+    "Welcome to Ellure TalentHub",
     "<p>Your profile has been submitted successfully. Thank you for registering!</p>"
   );
 }

@@ -8,14 +8,17 @@ import type { Applicant } from "@/hooks/useApplicants";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
+import { canViewClientContact, displayCandidateName } from "@/lib/clientMasking";
+
 interface CandidateCardProps {
   applicant: Applicant;
   canSeeContact: boolean;
+  isUnlocked?: boolean;
   onDownloadCv: (applicantId: string) => void;
   onSave?: (applicantId: string) => void;
 }
 
-export function CandidateCard({ applicant, canSeeContact, onDownloadCv, onSave }: CandidateCardProps) {
+export function CandidateCard({ applicant, canSeeContact, isUnlocked = false, onDownloadCv, onSave }: CandidateCardProps) {
   const skills = (applicant.key_skills
     ? (typeof applicant.key_skills === "string"
       ? applicant.key_skills.split(",").map((s) => s.trim())
@@ -24,7 +27,9 @@ export function CandidateCard({ applicant, canSeeContact, onDownloadCv, onSave }
   ).filter(Boolean);
   const displaySkills = skills.slice(0, 5);
   const extra = skills.length - 5;
-  const initials = (applicant.name || "A").split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase();
+  const contactVisible = canViewClientContact(canSeeContact, isUnlocked);
+  const displayName = displayCandidateName(applicant.name || "Candidate", canSeeContact, isUnlocked);
+  const initials = displayName.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase();
   const completion = applicant.profile_complete_percent ?? applicant.profileCompletion ?? 0;
 
   return (
@@ -36,7 +41,7 @@ export function CandidateCard({ applicant, canSeeContact, onDownloadCv, onSave }
         </Avatar>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <h3 className="font-semibold truncate">{applicant.name}</h3>
+            <h3 className="font-semibold truncate">{displayName}</h3>
             {applicant.is_actively_looking && (
               <span className="h-2 w-2 rounded-full bg-green-500 shrink-0" title="Actively looking" />
             )}
@@ -78,7 +83,7 @@ export function CandidateCard({ applicant, canSeeContact, onDownloadCv, onSave }
       </div>
 
       <div className="text-xs border-t pt-2 space-y-1">
-        {canSeeContact ? (
+        {contactVisible ? (
           <>
             <p>{applicant.phone || applicant.mobile_number || "—"}</p>
             <p className="truncate">{applicant.email || applicant.email_address}</p>
@@ -91,7 +96,7 @@ export function CandidateCard({ applicant, canSeeContact, onDownloadCv, onSave }
                 <span>••••••••••</span>
               </div>
             </TooltipTrigger>
-            <TooltipContent>Upgrade to view contact details</TooltipContent>
+            <TooltipContent>Download CV to unlock contact details</TooltipContent>
           </Tooltip>
         )}
       </div>

@@ -21,7 +21,12 @@
     "data:reset-password": "node scripts/resetUserPassword.js",
     "data:reset-all-passwords": "node scripts/resetAllPasswords.js",
     "data:check-user": "node scripts/checkUserExists.js",
-    "data:create-demo-accounts": "node scripts/createDemoAccounts.js"
+    "data:create-demo-accounts": "node scripts/createDemoAccounts.js",
+    "data:generate-template": "node scripts/generateImportTemplate.js",
+    "qa:admin-flow": "node scripts/verifyAdminDataFlow.mjs",
+    "agentation:server": "agentation-mcp server",
+    "agentation:doctor": "agentation-mcp doctor",
+    "agentation:server:vue": "agentation-vue-mcp server --port 4748"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
@@ -97,6 +102,9 @@
     "@types/react": "^18.3.23",
     "@types/react-dom": "^18.3.7",
     "@vitejs/plugin-react-swc": "^3.11.0",
+    "agentation": "^3.0.2",
+    "agentation-mcp": "^1.2.0",
+    "agentation-vue-mcp": "^0.0.14",
     "autoprefixer": "^10.4.21",
     "eslint": "^9.32.0",
     "eslint-plugin-react-hooks": "^5.2.0",

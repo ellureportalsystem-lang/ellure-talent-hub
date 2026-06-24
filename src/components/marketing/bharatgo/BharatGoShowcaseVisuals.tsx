@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import { Search, FolderKanban, Sparkles } from "lucide-react";
+import { Search, FolderKanban } from "lucide-react";
 
 export function ResumeSearchVisual() {
   return (
@@ -18,9 +18,8 @@ export function ResumeSearchVisual() {
               <p className="text-sm font-medium">{label}</p>
               <p className="text-xs text-muted-foreground">Match score {92 - i * 4}%</p>
             </div>
-            <Badge variant="secondary" className="shrink-0">
-              <Sparkles className="mr-1 h-3 w-3" />
-              AI
+            <Badge variant="secondary" className="shrink-0 text-[10px]">
+              Match
             </Badge>
           </div>
         ))}

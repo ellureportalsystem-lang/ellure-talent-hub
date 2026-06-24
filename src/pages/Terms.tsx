@@ -8,13 +8,13 @@ const Terms = () => (
     <MarketingSaasPageHero
       eyebrow="Legal"
       title="Terms of service"
-      subtitle="Rules for using the Ellure NexHire website and platform."
+      subtitle="Rules for using the Ellure TalentHub website and platform."
       align="left"
     />
     <MarketingSaasSection>
       <Card className="mx-auto max-w-3xl space-y-6 rounded-2xl border border-border p-6 text-sm leading-relaxed text-muted-foreground shadow-sm sm:p-10 md:text-base">
         <p>
-          By accessing Ellure NexHire, you agree to these terms. If you do not agree, please do not use our services.
+          By accessing Ellure TalentHub, you agree to these terms. If you do not agree, please do not use our services.
         </p>
         <div>
           <h2 className="mb-2 text-lg font-semibold text-foreground">Use of the platform</h2>

@@ -22,6 +22,8 @@ import { supabase } from "@/lib/supabase";
 import { openResumePreview } from "@/lib/resumePreview";
 import { toast } from "sonner";
 import { CandidateFAQs } from "@/components/CandidateFAQs";
+import { usePortalBanners } from "@/hooks/usePortalContent";
+import { PortalBannerStrip } from "@/components/portal/PortalBannerStrip";
 import {
   PortalQuickActionGrid,
   PortalStatLinkCard,
@@ -31,12 +33,23 @@ import {
   portalAlerts,
 } from "@/components/portal/portal-ui";
 import { portalPageCanvas, portalPageWidth, portalPanelClass } from "@/components/portal/portalStyles";
+import { EllureBrandLogo } from "@/components/auth/EllureBrandLogo";
 import { cn } from "@/lib/utils";
+import {
+  fetchApplicantProfileChecklist,
+  fetchApplicantRecentActivity,
+  type ProfileChecklistItem,
+  type ApplicantActivityItem,
+} from "@/services/applicantDashboardService";
+import { getApplicantLastUpdated } from "@/lib/applicantProfileTimestamps";
+import { formatDateIST } from "@/lib/dateFormat";
 
 const ApplicantDashboard = ({ embedded = false }: { embedded?: boolean }) => {
   const { profile, user, signOut } = useAuth();
   const [applicantData, setApplicantData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [checklist, setChecklist] = useState<ProfileChecklistItem[]>([]);
+  const [activity, setActivity] = useState<ApplicantActivityItem[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -129,6 +142,13 @@ const ApplicantDashboard = ({ embedded = false }: { embedded?: boolean }) => {
     fetchApplicantData();
   }, [profile, user]);
 
+  useEffect(() => {
+    const id = applicantData?.id as string | undefined;
+    if (!id) return;
+    void fetchApplicantProfileChecklist(id).then(setChecklist);
+    void fetchApplicantRecentActivity(id, 5).then(setActivity);
+  }, [applicantData?.id]);
+
   const handleLogout = async () => {
     await signOut();
     navigate("/auth/applicant");
@@ -199,12 +219,28 @@ const ApplicantDashboard = ({ embedded = false }: { embedded?: boolean }) => {
   };
 
   const profileCompletion = profile?.profile_complete_percent || applicantData?.profile_complete_percent || 0;
+  const profileLastUpdated = getApplicantLastUpdated(applicantData);
+  const profileSubtitle = [
+    getCurrentDesignation(),
+    getLocation(),
+    profileLastUpdated ? `Updated ${formatDateIST(profileLastUpdated)}` : null,
+  ]
+    .filter((part) => part && part !== "Not specified")
+    .join(" · ");
   const [applicationStats, setApplicationStats] = useState({
     total: 0,
     pending: 0,
     shortlisted: 0,
     interviews: 0,
   });
+
+  const applyGoal = 3;
+  const applyRemaining = Math.max(0, applyGoal - applicationStats.total);
+  const applyLabel =
+    applyRemaining > 0
+      ? `Apply to ${applyRemaining} more job${applyRemaining === 1 ? "" : "s"}`
+      : "Browse more jobs";
+  const { banners: applicantBanners } = usePortalBanners("applicant");
 
   useEffect(() => {
     const loadStats = async () => {
@@ -268,13 +304,7 @@ const ApplicantDashboard = ({ embedded = false }: { embedded?: boolean }) => {
       {!embedded && (
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur">
         <div className="container flex h-16 items-center justify-between">
-          <div className="flex items-center gap-1">
-            <img src="/ellure-logo.png" alt="Ellure NexHire" className="h-12 w-auto object-contain" />
-            <div className="flex flex-col leading-none items-start">
-              <span className="text-xl font-bold" style={{ color: '#3d4853' }}>Ellure</span>
-              <span className="text-xl font-bold -mt-2" style={{ color: '#0566cd' }}>NexHire</span>
-            </div>
-          </div>
+          <EllureBrandLogo to="/dashboard/applicant" size="md" portalLabel="Candidate" />
           <Button variant="ghost" size="sm" onClick={handleLogout}>
             <LogOut className="mr-2 h-4 w-4" />
             Logout
@@ -288,15 +318,14 @@ const ApplicantDashboard = ({ embedded = false }: { embedded?: boolean }) => {
           <div className="space-y-4 md:space-y-6 animate-fade-in-up">
             <PortalWelcomeHero
               name={getFullName() === "Not provided" ? "there" : getFullName().split(" ")[0]}
-              subtitle={`${getCurrentDesignation()} · ${getLocation()}`}
+              subtitle={profileSubtitle || `${getCurrentDesignation()} · ${getLocation()}`}
               initials={getInitials()}
               avatarUrl={profile?.profile_image}
-              dateLine={new Date().toLocaleDateString(undefined, {
-                weekday: "long",
-                month: "short",
-                day: "numeric",
-              })}
             />
+
+            {applicantBanners.length > 0 && (
+              <PortalBannerStrip banners={applicantBanners} className="border-muted" />
+            )}
 
             <PortalTodayPanel
               title="Today"
@@ -329,7 +358,7 @@ const ApplicantDashboard = ({ embedded = false }: { embedded?: boolean }) => {
                   type="button"
                   size="sm"
                   className="h-9 shrink-0"
-                  onClick={() => navigate("/dashboard/applicant/settings")}
+                  onClick={() => navigate("/dashboard/applicant#resume")}
                 >
                   Improve
                 </Button>
@@ -378,7 +407,7 @@ const ApplicantDashboard = ({ embedded = false }: { embedded?: boolean }) => {
                   size="sm"
                   variant="outline"
                   className="mt-3 h-9 w-full"
-                  onClick={() => navigate("/dashboard/applicant/settings")}
+                  onClick={() => navigate("/dashboard/applicant#resume")}
                 >
                   Update profile
                 </Button>
@@ -389,7 +418,7 @@ const ApplicantDashboard = ({ embedded = false }: { embedded?: boolean }) => {
               <div className={portalAlerts.info}>
                 <p className="text-sm font-medium">Upload your resume</p>
                 <p className="mt-0.5 text-xs text-muted-foreground">
-                  Required to apply to most jobs on NexHire.
+                  Required to apply to most jobs on TalentHub.
                 </p>
               </div>
             )}
@@ -420,7 +449,15 @@ const ApplicantDashboard = ({ embedded = false }: { embedded?: boolean }) => {
               <div className="flex-1 space-y-2">
                 <div className="flex items-center gap-2">
                   <h2 className="text-lg font-semibold tracking-tight sm:text-2xl">{getFullName()}</h2>
-                  <span className="px-2 py-1 text-xs rounded-full bg-success/10 text-success">Active</span>
+                  <span
+                    className={`px-2 py-1 text-xs rounded-full ${
+                      applicantData?.is_actively_looking
+                        ? "bg-success/10 text-success"
+                        : "bg-muted text-muted-foreground"
+                    }`}
+                  >
+                    {applicantData?.is_actively_looking ? "Actively looking" : applicantData?.status ?? "Profile"}
+                  </span>
                 </div>
                 <p className="text-sm text-muted-foreground">
                   {getCurrentDesignation()} | {getLocation()} | {getExperience()} experience
@@ -436,7 +473,7 @@ const ApplicantDashboard = ({ embedded = false }: { embedded?: boolean }) => {
                 )}
               </div>
               <div className="grid w-full gap-2 sm:w-auto sm:min-w-[220px]">
-                <Button size="sm" className="h-10" variant="default" onClick={() => navigate("/dashboard/applicant/settings")}>
+                <Button size="sm" className="h-10" variant="default" onClick={() => navigate("/dashboard/applicant#resume")}>
                   <Edit className="mr-2 h-4 w-4" />
                   Edit settings
                 </Button>
@@ -482,22 +519,24 @@ const ApplicantDashboard = ({ embedded = false }: { embedded?: boolean }) => {
               <Progress value={profileCompletion} className="h-2" />
             </div>
             <div className="grid gap-2">
-              <div className="flex items-center gap-2 text-sm">
-                <CheckCircle2 className="h-4 w-4 text-success" />
-                <span>Basic information added</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm">
-                <CheckCircle2 className="h-4 w-4 text-success" />
-                <span>Education details added</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm">
-                <CheckCircle2 className="h-4 w-4 text-success" />
-                <span>Resume uploaded</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Clock className="h-4 w-4" />
-                <span>Add certifications (optional)</span>
-              </div>
+              {checklist.length === 0 ? (
+                <p className="text-sm text-muted-foreground">Complete your profile to get started.</p>
+              ) : (
+                checklist.map((item) => (
+                  <Link
+                    key={item.key}
+                    to={item.href}
+                    className="flex items-center gap-2 text-sm hover:text-primary"
+                  >
+                    {item.done ? (
+                      <CheckCircle2 className="h-4 w-4 text-success shrink-0" />
+                    ) : (
+                      <Clock className="h-4 w-4 text-muted-foreground shrink-0" />
+                    )}
+                    <span className={item.done ? "" : "text-muted-foreground"}>{item.label}</span>
+                  </Link>
+                ))
+              )}
             </div>
           </CardContent>
         </Card>
@@ -621,7 +660,7 @@ const ApplicantDashboard = ({ embedded = false }: { embedded?: boolean }) => {
                     <Button
                       type="button"
                       className="mt-4 h-10"
-                      onClick={() => navigate("/dashboard/applicant/settings")}
+                      onClick={() => navigate("/dashboard/applicant#resume")}
                     >
                       <Edit className="mr-2 h-4 w-4" />
                       Go to settings
@@ -681,7 +720,7 @@ const ApplicantDashboard = ({ embedded = false }: { embedded?: boolean }) => {
                 ) : null}
 
                 <div className="flex flex-col gap-2 sm:flex-row">
-                  <Button type="button" className="h-10" onClick={() => navigate("/dashboard/applicant/settings")}>
+                  <Button type="button" className="h-10" onClick={() => navigate("/dashboard/applicant#resume")}>
                     <Edit className="mr-2 h-4 w-4" />
                     Update profile
                   </Button>
@@ -702,28 +741,27 @@ const ApplicantDashboard = ({ embedded = false }: { embedded?: boolean }) => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {[
-                    { action: "Profile viewed by recruiter", time: "2 hours ago", type: "info" },
-                    { action: "Shortlisted", time: "1 day ago", type: "success" },
-                    { action: "Application submitted", time: "2 days ago", type: "default" },
-                    { action: "Resume updated", time: "3 days ago", type: "default" },
-                  ].map((activity, index) => (
-                    <div key={index} className="flex items-start gap-3">
-                      <div
-                        className={`mt-2 h-2 w-2 rounded-full ${
-                          activity.type === "success"
-                            ? "bg-success"
-                            : activity.type === "info"
-                              ? "bg-info"
-                              : "bg-muted-foreground"
-                        }`}
-                      />
-                      <div className="min-w-0 flex-1">
-                        <p className="text-sm font-medium leading-snug">{activity.action}</p>
-                        <p className="mt-0.5 text-xs text-muted-foreground">{activity.time}</p>
+                  {activity.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">No recent activity yet.</p>
+                  ) : (
+                    activity.map((item) => (
+                      <div key={item.id} className="flex items-start gap-3">
+                        <div
+                          className={`mt-2 h-2 w-2 rounded-full ${
+                            item.type === "success"
+                              ? "bg-success"
+                              : item.type === "info"
+                                ? "bg-info"
+                                : "bg-muted-foreground"
+                          }`}
+                        />
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-medium leading-snug">{item.action}</p>
+                          <p className="mt-0.5 text-xs text-muted-foreground">{item.time}</p>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -738,7 +776,7 @@ const ApplicantDashboard = ({ embedded = false }: { embedded?: boolean }) => {
                   type="button"
                   variant="outline"
                   className="h-10 w-full justify-start"
-                  onClick={() => navigate("/dashboard/applicant/settings")}
+                  onClick={() => navigate("/dashboard/applicant#resume")}
                 >
                   <User className="mr-2 h-4 w-4" />
                   Complete profile
@@ -750,7 +788,7 @@ const ApplicantDashboard = ({ embedded = false }: { embedded?: boolean }) => {
                   onClick={() => navigate("/dashboard/applicant/jobs")}
                 >
                   <Briefcase className="mr-2 h-4 w-4" />
-                  Apply to 3 jobs
+                  {applyLabel}
                 </Button>
                 <Button
                   type="button"

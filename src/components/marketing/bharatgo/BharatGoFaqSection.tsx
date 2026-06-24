@@ -10,11 +10,11 @@ import { BharatGoSectionHeader } from "./BharatGoSectionHeader";
 
 const faqs = [
   {
-    q: "What is Ellure NexHire and how does it work?",
-    a: "Ellure NexHire is a recruitment platform that connects employers and candidates through structured hiring workflows — applicant profiles, resume search, client shortlists, jobs, and secure dashboards for every role.",
+    q: "What is Ellure TalentHub and how does it work?",
+    a: "Ellure TalentHub is a recruitment platform that connects employers and candidates through structured hiring workflows — applicant profiles, resume search, client shortlists, jobs, and secure dashboards for every role.",
   },
   {
-    q: "Is Ellure NexHire a recruitment consultancy?",
+    q: "Is Ellure TalentHub a recruitment consultancy?",
     a: "We combine recruitment expertise with a technology platform. Employers get tools to search and manage talent; candidates get a professional profile visible to hiring teams.",
   },
   {
@@ -38,7 +38,7 @@ export function BharatGoFaqSection() {
         <BharatGoSectionHeader
           eyebrow="FAQ"
           title="Frequently asked questions"
-          subtitle="Get answers about Ellure NexHire. Need more help? Our team is happy to assist."
+          subtitle="Get answers about Ellure TalentHub. Need more help? Our team is happy to assist."
         />
         <Accordion type="single" collapsible className="mx-auto mt-10 max-w-3xl">
           {faqs.map((faq, i) => (

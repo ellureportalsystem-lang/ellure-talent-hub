@@ -13,20 +13,21 @@ export const portalNavLinkBase =
 
 export const portalNavLinkActive = "portal-nav-link-active";
 
+/** Naukri-style light panel — always white, never theme-dark card */
 export const portalPanelClass =
-  "rounded-2xl border border-border/80 bg-card text-card-foreground shadow-sm";
+  "rounded border border-[#e8e8e8] bg-white text-[#333] shadow-[0_1px_4px_rgba(0,0,0,0.06)]";
 
 /** @deprecated use portalPanelClass */
 export const portalPanelCard = "portal-panel-card";
 
-/** Responsive page canvas (reference: dashboardPageClass) */
+/** Responsive page canvas — Naukri 1180px content width */
 export const portalPageCanvas =
-  "mx-auto w-full space-y-5 px-4 py-5 md:space-y-6 md:px-8 md:py-6 lg:px-10";
+  "mx-auto w-full space-y-4 px-4 py-5 md:space-y-5 md:py-6";
 
 export const portalPageWidth = {
-  standard: "max-w-lg md:max-w-3xl lg:max-w-5xl xl:max-w-6xl",
-  wide: "max-w-7xl xl:max-w-[1600px]",
-  narrow: "max-w-lg md:max-w-xl lg:max-w-2xl",
+  standard: "max-w-[1180px]",
+  wide: "max-w-[1180px]",
+  narrow: "max-w-[720px]",
   full: "w-full max-w-full",
 } as const;
 

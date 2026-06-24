@@ -7,25 +7,24 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight, Play } from "lucide-react";
 
-/** BharatGo-style split hero with animated shader backdrop */
+/** Split hero — deep blue / teal brand backdrop (shader clipped below navbar) */
 export function BharatGoHero() {
   return (
-    <section className="bharatgo-hero relative -mt-14 overflow-hidden bg-[#080818] pb-[calc(4.5rem+1.2cm)] pt-[calc(4.5rem+2rem+1.2cm)] sm:-mt-[4.25rem] sm:pb-[calc(5rem+1.2cm)] sm:pt-[calc(5rem+2.5rem+1.2cm)] lg:min-h-[calc(100vh-4.25rem)] lg:pb-[calc(6rem+1.2cm)] lg:pt-[calc(5.5rem+2.5rem+1.2cm)]">
-      <ShaderBackground variant="dark" className="pointer-events-none bharatgo-hero-shader" />
-      <div className="bharatgo-hero-plasma-orb bharatgo-hero-plasma-orb--1" aria-hidden />
-      <div className="bharatgo-hero-plasma-orb bharatgo-hero-plasma-orb--2" aria-hidden />
-      <div className="bharatgo-hero-plasma-vignette" aria-hidden />
-      <div
-        className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#060612]/86 via-[#0a0820]/42 to-[#12082a]/12"
-        aria-hidden
-      />
-      <div
-        className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[#060612]/28 via-transparent to-[#060612]/78"
-        aria-hidden
-      />
+    <section className="bharatgo-hero relative -mt-14 overflow-hidden bg-[#010c7d] sm:-mt-[4.25rem] lg:min-h-[680px]">
+      {/* Mesh lives below the fixed navbar only — no bleed into nav */}
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 top-0 overflow-hidden" aria-hidden>
+        <div className="absolute inset-x-0 bottom-0 top-14 sm:top-[4.25rem]">
+          <ShaderBackground variant="dark" className="absolute inset-0 bharatgo-hero-shader" />
+          <div className="bharatgo-hero-plasma-orb bharatgo-hero-plasma-orb--1" />
+          <div className="bharatgo-hero-plasma-orb bharatgo-hero-plasma-orb--2" />
+          <div className="bharatgo-hero-plasma-vignette" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#010c7d]/88 via-[#023d7a]/45 to-[#0566CD]/18" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#010c7d]/35 via-transparent to-[#010c7d]/82" />
+        </div>
+      </div>
 
-      <div className="container relative z-[1] px-4 sm:px-6">
-        <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16 xl:gap-20">
+      <div className="container relative z-[1] flex min-h-[500px] flex-col justify-center px-4 pb-11 pt-[calc(3.5rem+1.5rem)] sm:min-h-[540px] sm:px-6 sm:pb-12 sm:pt-[calc(4.25rem+1.75rem)] lg:min-h-[680px] lg:pb-14 lg:pt-[calc(4.25rem+2.5rem)]">
+        <div className="grid w-full translate-y-1 items-center gap-9 sm:gap-10 sm:translate-y-2 lg:grid-cols-2 lg:gap-14 lg:translate-y-3 xl:gap-16">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -35,7 +34,7 @@ export function BharatGoHero() {
             <h1 className="bharatgo-hero-headline font-poppins text-4xl font-bold leading-[1.12] tracking-tight text-white drop-shadow-[0_10px_22px_rgba(0,0,0,0.45)] sm:text-5xl lg:text-[3.25rem]">
               <span className="block">Hire exceptional talent in</span>
               <span className="mt-1 block min-h-[1.2em] sm:min-h-[1.15em]">
-                <HeroTypewriterHeadline className="text-violet-200" />
+                <HeroTypewriterHeadline className="text-sky-200" />
               </span>
             </h1>
             <p className="mt-4 text-base leading-relaxed text-slate-200/95 drop-shadow-[0_8px_18px_rgba(0,0,0,0.45)] sm:mt-5 sm:text-xl">
@@ -43,7 +42,7 @@ export function BharatGoHero() {
                 Structured hiring workflows for employers & candidates — register and hire with confidence.
               </span>
               <span className="hidden sm:inline">
-                Ellure NexHire connects employers and candidates through structured hiring workflows. No complex setups
+                Ellure TalentHub connects employers and candidates through structured hiring workflows. No complex setups
                 — register, search, and hire with confidence.
               </span>
             </p>
@@ -79,7 +78,7 @@ export function BharatGoHero() {
                     item === "No credit card for candidates" && "col-span-2 sm:col-span-1"
                   )}
                 >
-                  <span className="h-1.5 w-1.5 rounded-full bg-violet-400" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#1A9EB0]" />
                   <span className="leading-snug">{item}</span>
                 </li>
               ))}
@@ -90,17 +89,9 @@ export function BharatGoHero() {
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.55, delay: 0.1 }}
-            className="flex justify-center lg:justify-end"
+            className="flex items-center justify-center"
           >
-            <div className="relative w-full max-w-[22rem] sm:max-w-lg lg:max-w-xl">
-              <div
-                className="pointer-events-none absolute -inset-10 rounded-3xl bg-violet-500/28 blur-[48px]"
-                aria-hidden
-              />
-              <div
-                className="pointer-events-none absolute -inset-6 rounded-2xl bg-fuchsia-500/14 blur-[28px]"
-                aria-hidden
-              />
+            <div className="relative w-full max-w-[21rem] sm:max-w-[23rem] lg:max-w-[26rem]">
               <HeroCandidatePreview variant="hero" />
             </div>
           </motion.div>

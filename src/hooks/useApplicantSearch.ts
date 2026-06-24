@@ -4,13 +4,18 @@ import type { Applicant } from "@/hooks/useApplicants";
 
 export type { Applicant } from "@/hooks/useApplicants";
 
-export function useApplicantSearch(params: ApplicantSearchParams) {
+export function useApplicantSearch(params: ApplicantSearchParams & { enabled?: boolean }) {
   const [applicants, setApplicants] = useState<Applicant[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const enabled = params.enabled !== false;
 
   const fetchSearch = useCallback(async () => {
+    if (!enabled) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     setError(null);
     try {
@@ -25,7 +30,9 @@ export function useApplicantSearch(params: ApplicantSearchParams) {
       setLoading(false);
     }
   }, [
+    enabled,
     params.searchQuery,
+    params.searchMode,
     params.page,
     params.pageSize,
     params.sortField,

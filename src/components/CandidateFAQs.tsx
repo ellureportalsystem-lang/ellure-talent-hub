@@ -1,29 +1,47 @@
+import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
-import { useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { motion } from "framer-motion";
+import { usePortalFaqs } from "@/hooks/usePortalContent";
+import type { PortalAudience, PortalFaq } from "@/services/portalContentService";
 
-const candidateFAQs = [
+const DEFAULT_FAQS: Pick<PortalFaq, "question" | "answer">[] = [
   {
     question: "Will I get updates on my application?",
-    answer: "Yes. You will receive clear status updates at each hiring stage through the portal and notifications."
+    answer:
+      "Yes. You will receive clear status updates at each hiring stage through the portal and notifications.",
   },
   {
-    question: "Does Ellure Nexhire charge candidates?",
-    answer: "No. Ellure Nexhire does not charge candidates to apply for jobs."
-  }
+    question: "Does Ellure TalentHub charge candidates?",
+    answer: "No. Ellure TalentHub does not charge candidates to apply for jobs.",
+  },
 ];
 
-export const CandidateFAQs = () => {
+type CandidateFAQsProps = {
+  audience?: PortalAudience;
+};
+
+export const CandidateFAQs = ({ audience = "applicant" }: CandidateFAQsProps) => {
+  const { faqs, loading } = usePortalFaqs(audience);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
+  const [items, setItems] = useState(DEFAULT_FAQS);
+
+  useEffect(() => {
+    if (!loading && faqs.length > 0) {
+      setItems(faqs.map((f) => ({ question: f.question, answer: f.answer })));
+    } else if (!loading && faqs.length === 0) {
+      setItems(DEFAULT_FAQS);
+    }
+  }, [faqs, loading]);
 
   return (
     <div className="space-y-4">
       <h3 className="font-semibold text-lg mb-4">Frequently Asked Questions</h3>
-      {candidateFAQs.map((faq, index) => (
-        <Card key={index} className="overflow-hidden">
+      {items.map((faq, index) => (
+        <Card key={`${faq.question}-${index}`} className="overflow-hidden">
           <button
+            type="button"
             onClick={() => setExpandedIndex(expandedIndex === index ? null : index)}
             className="w-full p-4 flex items-center justify-between text-left hover:bg-muted/50 transition-colors"
           >
@@ -55,4 +73,3 @@ export const CandidateFAQs = () => {
     </div>
   );
 };
-

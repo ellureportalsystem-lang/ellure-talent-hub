@@ -1,25 +1,19 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import { jsonResponse, handleOptions } from "../_shared/cors.ts";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
-
+/** Payment gateway deferred — returns 501 until Razorpay is configured. */
 Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
-  }
+  const opt = handleOptions(req);
+  if (opt) return opt;
 
   const keyId = Deno.env.get("RAZORPAY_KEY_ID");
   const keySecret = Deno.env.get("RAZORPAY_KEY_SECRET");
 
   if (!keyId || !keySecret) {
-    return new Response(
-      JSON.stringify({
-        error: "Razorpay is not configured. Set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET in Supabase secrets.",
-      }),
-      { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return jsonResponse({
+      error: "Payment gateway not enabled. Contact admin to activate billing.",
+      enabled: false,
+    }, 501);
   }
 
   try {
@@ -43,25 +37,16 @@ Deno.serve(async (req) => {
 
     const order = await orderRes.json();
     if (!orderRes.ok) {
-      return new Response(JSON.stringify({ error: order }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return jsonResponse({ error: order }, 400);
     }
 
-    return new Response(
-      JSON.stringify({
-        order_id: order.id,
-        amount: order.amount,
-        currency: order.currency,
-        key_id: keyId,
-      }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
-  } catch (e) {
-    return new Response(JSON.stringify({ error: String(e) }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    return jsonResponse({
+      order_id: order.id,
+      amount: order.amount,
+      currency: order.currency,
+      key_id: keyId,
     });
+  } catch (e) {
+    return jsonResponse({ error: e instanceof Error ? e.message : String(e) }, 500);
   }
 });

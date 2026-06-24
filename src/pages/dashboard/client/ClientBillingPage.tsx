@@ -77,7 +77,7 @@ const ClientBillingPage = () => {
         amount: data.amount,
         currency: data.currency,
         order_id: data.order_id,
-        name: "Ellure NexHire",
+        name: "Ellure TalentHub",
         handler: async (response: Record<string, string>) => {
           await supabase.functions.invoke("verify-payment", {
             body: { ...response, plan_id: planId, client_id: client.id, billing_cycle: yearly ? "yearly" : "monthly", amount },

@@ -33,7 +33,7 @@ const toneBg: Record<string, string> = {
   peach: "bg-[#FDF0E9] border-[#f5ddd0]",
   sky: "bg-[#E9F0FF] border-[#d4e2fc]",
   mint: "bg-[#E8F8F0] border-[#c5ead8]",
-  lavender: "bg-[#F3EFFE] border-[#ddd0f5]",
+  lavender: "bg-[#E9F0FF] border-[#d4e2fc]",
 };
 
 export function BharatGoCoreValues() {
@@ -43,7 +43,7 @@ export function BharatGoCoreValues() {
         <BharatGoSectionHeader
           eyebrow="Our values"
           title="The core values that drive everything"
-          subtitle="These principles guide how we build Ellure NexHire and how we support every hire."
+          subtitle="These principles guide how we build Ellure TalentHub and how we support every hire."
         />
         <div className="mt-10 grid gap-5 sm:grid-cols-2">
           {values.map((item) => {

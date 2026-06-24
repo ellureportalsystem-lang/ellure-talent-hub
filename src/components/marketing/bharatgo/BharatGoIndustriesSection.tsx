@@ -17,7 +17,7 @@ export function BharatGoIndustriesSection() {
       <div className="container px-4 sm:px-6">
         <BharatGoSectionHeader
           title="Designed for every industry"
-          subtitle="Whether you're in IT, BFSI, pharma, telecom, or retail — Ellure NexHire helps you source, screen, and place the right talent faster."
+          subtitle="Whether you're in IT, BFSI, pharma, telecom, or retail — Ellure TalentHub helps you source, screen, and place the right talent faster."
         />
         <div className="mt-12 grid items-center gap-10 lg:grid-cols-2 lg:gap-14">
           <div>

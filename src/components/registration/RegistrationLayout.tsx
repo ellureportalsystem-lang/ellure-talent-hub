@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Home, AlertTriangle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { BRAND_NAME } from "@/lib/brand";
+import { BrandWordmark } from "@/components/brand/BrandWordmark";
 
 interface RegistrationLayoutProps {
   children: ReactNode;
@@ -40,12 +42,8 @@ const RegistrationLayout = ({
       {/* Header */}
       <header className="border-b bg-background/95 backdrop-blur sticky top-0 z-50">
         <div className="container flex h-16 items-center justify-between">
-          <Link to="/" className="flex items-center gap-1 hover:opacity-80 transition-opacity">
-            <img src="/ellure-logo.png" alt="Ellure NexHire" className="h-12 w-auto object-contain" />
-            <div className="flex flex-col leading-none items-start">
-              <span className="text-lg font-bold" style={{ color: '#3d4853' }}>Ellure</span>
-              <span className="text-lg font-bold -mt-2" style={{ color: '#0566cd' }}>NexHire</span>
-            </div>
+          <Link to="/" className="flex items-center hover:opacity-95 transition-opacity">
+            <BrandWordmark size="lg" />
           </Link>
           <Link to="/">
             <Button variant="ghost" size="sm">
@@ -124,7 +122,7 @@ const RegistrationLayout = ({
       {/* Footer */}
       <footer className="border-t py-6 mt-12">
         <div className="container text-center text-sm text-muted-foreground">
-          <p>© 2024 Ellure NexHire. All rights reserved.</p>
+          <p>© 2024 Ellure TalentHub. All rights reserved.</p>
         </div>
       </footer>
     </div>

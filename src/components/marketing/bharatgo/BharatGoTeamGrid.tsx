@@ -4,7 +4,7 @@ import { marketingBanners } from "@/lib/marketingPastelColors";
 const team = [
   { name: "Leadership", role: "Founder & strategy", focus: "Vision, partnerships, ethical hiring" },
   { name: "Recruitment", role: "Delivery team", focus: "Screening, coordination, client success" },
-  { name: "Product", role: "Platform team", focus: "NexHire portals, search, and workflows" },
+  { name: "Product", role: "Platform team", focus: "TalentHub portals, search, and workflows" },
   { name: "Operations", role: "Support & QA", focus: "Onboarding, data quality, compliance" },
 ];
 
@@ -17,7 +17,7 @@ export function BharatGoTeamGrid() {
             <BharatGoSectionHeader
               align="left"
               eyebrow="Our team"
-              title="The people behind Ellure NexHire"
+              title="The people behind Ellure TalentHub"
               subtitle="Innovators and recruitment specialists working together to simplify hiring for businesses and candidates across India."
             />
             <div className="mt-8 grid gap-3 sm:grid-cols-2 sm:gap-4">
@@ -40,7 +40,7 @@ export function BharatGoTeamGrid() {
             <div className="marketing-banner-bleed overflow-hidden rounded-2xl border border-[#f5ddd0] shadow-md">
               <img
                 src={marketingBanners.gallery[1]}
-                alt="Team at Ellure NexHire"
+                alt="Team at Ellure TalentHub"
                 className="marketing-photo-banner aspect-[16/10] w-full object-contain"
                 loading="lazy"
               />

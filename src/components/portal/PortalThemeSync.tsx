@@ -1,14 +1,13 @@
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import {
-  applyPortalTheme,
+  ensurePortalLightTheme,
   isDashboardPath,
-  resolvePortalTheme,
   restoreMarketingTheme,
 } from "@/lib/portalTheme";
 import { useTheme } from "@/components/ThemeProvider";
 
-/** Applies portal light/dark tokens on dashboard routes; restores marketing theme elsewhere. */
+/** Forces light theme on dashboard routes; restores marketing theme elsewhere. */
 export function PortalThemeSync() {
   const { pathname } = useLocation();
   const { forcedLight } = useTheme();
@@ -17,7 +16,7 @@ export function PortalThemeSync() {
     if (forcedLight) return;
 
     if (isDashboardPath(pathname)) {
-      applyPortalTheme(resolvePortalTheme());
+      ensurePortalLightTheme();
     } else {
       restoreMarketingTheme();
     }

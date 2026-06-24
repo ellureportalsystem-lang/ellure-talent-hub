@@ -1,18 +1,11 @@
-import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
-import {
-  LayoutDashboard,
-  Users,
-  Briefcase,
-  MessageSquare,
-  Settings,
-  FolderKanban,
-  Bell,
-} from "lucide-react";
+import { Routes, Route, useNavigate, Navigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { PortalDashboardLayout } from "@/components/portal/PortalDashboardLayout";
-import { cn } from "@/lib/utils";
-import ClientHome from "./client/ClientHome";
-import CandidatesPage from "./client/CandidatesPage";
+import { RecruiterShell } from "@/components/dashboard/recruiter/RecruiterShell";
+import RecruiterHomePage from "./recruiter/RecruiterHomePage";
+import ResdexSearchPage from "./recruiter/ResdexSearchPage";
+import ResdexResultsPage from "./recruiter/ResdexResultsPage";
+import NvitePage from "./recruiter/NvitePage";
+import NviteCampaignsPage from "./recruiter/NviteCampaignsPage";
 import CandidateProfileView from "./client/CandidateProfileView";
 import ClientFoldersManagement from "./client/ClientFoldersManagement";
 import JobsPage from "./client/JobsPage";
@@ -20,23 +13,19 @@ import ClientSettings from "./client/ClientSettings";
 import ClientBillingPage from "./client/ClientBillingPage";
 import ClientTeamPage from "./client/ClientTeamPage";
 import MessagesPage from "./client/MessagesPage";
-import { useClientContext } from "@/hooks/useClientContext";
-import { useUnreadMessageCount } from "@/hooks/useUnreadMessageCount";
-import { isDashboardNavActive } from "@/lib/dashboardNav";
+import { PORTAL_ROUTES } from "@/lib/portalRoutes";
+import RecruiterReportsPage from "./recruiter/RecruiterReportsPage";
 
 const ClientDashboard = () => {
   const { profile, signOut } = useAuth();
-  const { data: clientCtx } = useClientContext();
-  const { data: unreadTotal = 0 } = useUnreadMessageCount();
   const navigate = useNavigate();
-  const location = useLocation();
 
   const handleLogout = async () => {
     await signOut();
-    navigate("/auth/login");
+    navigate(PORTAL_ROUTES.recruiter.login);
   };
 
-  const displayName = profile?.full_name || profile?.display_name || profile?.email?.split("@")[0] || "Client";
+  const displayName = profile?.full_name || profile?.display_name || profile?.email?.split("@")[0] || "Recruiter";
   const initials = displayName
     .split(" ")
     .map((n: string) => n[0])
@@ -44,95 +33,35 @@ const ClientDashboard = () => {
     .toUpperCase()
     .slice(0, 2);
 
-  const navSections = [
-    {
-      label: "Main menu",
-      items: [
-        { path: "/dashboard/client", label: "Dashboard", icon: LayoutDashboard, exact: true },
-        { path: "/dashboard/client/candidates", label: "Candidates", icon: Users },
-        { path: "/dashboard/client/folders", label: "My Shortlists", icon: FolderKanban },
-        { path: "/dashboard/client/jobs", label: "Jobs", icon: Briefcase },
-        { path: "/dashboard/client/messages", label: "Emails", icon: MessageSquare },
-      ],
-    },
-    {
-      label: "Management",
-      items: [
-        { path: "/dashboard/client/billing", label: "Billing", icon: Settings },
-        { path: "/dashboard/client/team", label: "Team", icon: Users },
-      ],
-    },
-    {
-      label: "Settings",
-      items: [{ path: "/dashboard/client/settings", label: "Settings", icon: Settings }],
-    },
-  ];
-
-  const bottomNavItems = [
-    { path: "/dashboard/client", label: "Home", icon: LayoutDashboard, exact: true },
-    { path: "/dashboard/client/candidates", label: "Candidates", icon: Users },
-    { path: "/dashboard/client/folders", label: "Shortlists", icon: FolderKanban },
-    { path: "/dashboard/client/messages", label: "Emails", icon: MessageSquare },
-  ];
-
-  const cvUsed = clientCtx?.client?.cv_downloads_used_this_month ?? 0;
-  const cvLimit = clientCtx?.client?.subscription_plans?.cv_downloads_per_month ?? 100;
-  const cvAtLimit = cvUsed >= cvLimit;
-  const cvWarning = cvUsed > cvLimit * 0.75;
-
-  const isHome = location.pathname === "/dashboard/client";
-  const flatNav = navSections.flatMap((s) => s.items);
-  const pageTitle =
-    flatNav.find((n) => isDashboardNavActive(location.pathname, n))?.label || "Client";
-
-  const headerExtra =
-    !isHome && clientCtx?.client ? (
-      <span
-        className={cn(
-          "hidden rounded-full border px-2.5 py-1 text-xs font-medium sm:inline",
-          cvAtLimit
-            ? "border-red-200 bg-red-50 text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-300"
-            : cvWarning
-              ? "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-300"
-              : "border-green-200 bg-green-50 text-green-700 dark:border-green-900 dark:bg-green-950 dark:text-green-300"
-        )}
-      >
-        CVs: {cvUsed}/{cvLimit}
-      </span>
-    ) : null;
-
   return (
-    <PortalDashboardLayout
-      role="client"
-      shellMode="mobile-first"
-      portalSuffix="Client"
-      portalTagline="Hiring workspace"
-      navSections={navSections}
-      bottomNavItems={bottomNavItems}
+    <RecruiterShell
       settingsPath="/dashboard/client/settings"
       onLogout={handleLogout}
       displayName={displayName}
-      email={profile?.email || "client@company.com"}
+      email={profile?.email ?? undefined}
       initials={initials}
-      profileImageUrl={profile?.profile_image}
-      headerShowBack={!isHome}
-      headerTitle={!isHome ? pageTitle : undefined}
-      showUserMenu={false}
-      unreadTotal={unreadTotal}
-      headerExtra={isHome ? undefined : headerExtra}
     >
       <Routes>
-        <Route index element={<ClientHome />} />
-        <Route path="candidates" element={<CandidatesPage />} />
+        <Route index element={<RecruiterHomePage />} />
+        <Route path="resdex" element={<ResdexSearchPage />} />
+        <Route path="resdex/results" element={<ResdexResultsPage />} />
+        <Route path="nvite" element={<NvitePage />} />
+        <Route path="nvite/campaigns" element={<NviteCampaignsPage />} />
+        {/* Legacy paths → new structure */}
+        <Route path="candidates" element={<Navigate to="/dashboard/client/resdex/results" replace />} />
         <Route path="candidates/:id" element={<CandidateProfileView />} />
+        <Route path="resdex/candidates/:id" element={<CandidateProfileView />} />
         <Route path="folders" element={<ClientFoldersManagement />} />
+        <Route path="shortlists" element={<ClientFoldersManagement />} />
         <Route path="jobs/*" element={<JobsPage />} />
+        <Route path="reports" element={<RecruiterReportsPage />} />
         <Route path="billing" element={<ClientBillingPage />} />
         <Route path="team" element={<ClientTeamPage />} />
         <Route path="messages" element={<MessagesPage />} />
         <Route path="settings" element={<ClientSettings />} />
+        <Route path="*" element={<Navigate to="/dashboard/client" replace />} />
       </Routes>
-    </PortalDashboardLayout>
+    </RecruiterShell>
   );
 };
 

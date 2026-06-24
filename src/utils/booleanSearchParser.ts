@@ -150,6 +150,30 @@ class Parser {
   }
 }
 
+/** Normal mode: comma-separated terms → OR across fields (tsquery OR). */
+export function normalToTsquery(input: string): string | null {
+  const trimmed = input.trim();
+  if (!trimmed) return null;
+
+  const terms = trimmed
+    .split(",")
+    .map((t) => t.trim())
+    .filter(Boolean);
+
+  if (terms.length === 0) return null;
+
+  const parts = terms.map((term) => {
+    const words = term.split(/\s+/).map(escapeTsToken).filter(Boolean);
+    if (words.length === 0) return "";
+    if (words.length === 1) return words[0];
+    return `(${words.join(" & ")})`;
+  }).filter(Boolean);
+
+  if (parts.length === 0) return null;
+  if (parts.length === 1) return parts[0];
+  return parts.join(" | ");
+}
+
 /** Returns tsquery string for RPC, or null if empty. */
 export function booleanToTsquery(input: string): string | null {
   const trimmed = input.trim();
@@ -180,8 +204,15 @@ export function booleanToTsquery(input: string): string | null {
 }
 
 /** Terms to highlight in UI results */
-export function extractHighlightTerms(input: string): string[] {
+export function extractHighlightTerms(input: string, mode: "normal" | "boolean" = "boolean"): string[] {
   if (!input.trim()) return [];
+  if (mode === "normal") {
+    return input
+      .split(",")
+      .flatMap((t) => t.trim().split(/\s+/))
+      .map((w) => w.toLowerCase().replace(/\*$/, ""))
+      .filter((w) => w.length > 1);
+  }
   const tokens = tokenizeBooleanSearch(input);
   return tokens
     .filter((t) => t.type === "WORD" || t.type === "PHRASE")

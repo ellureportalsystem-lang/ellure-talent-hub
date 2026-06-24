@@ -27,8 +27,8 @@ const toneStyles: Record<
     button: "border-[#0d9488] text-[#0f766e] hover:bg-white/90 bg-white/80",
   },
   lavender: {
-    card: "bg-[#F3EFFE] border-[#ddd0f5] dark:bg-[#221e2e] dark:border-[#352d48]",
-    button: "border-[#7c3aed] text-[#6d28d9] hover:bg-white/90 bg-white/80",
+    card: "bg-[#E9F0FF] border-[#d4e2fc] dark:bg-[#1a2233] dark:border-[#2a3a55]",
+    button: "border-[#0566CD] text-[#0566CD] hover:bg-white/90 bg-white/80",
   },
 };
 
@@ -38,7 +38,7 @@ export type PastelFeatureCard = {
   description: string;
   ctaLabel?: string;
   ctaHref?: string;
-  /** NexHire product UI mockup (built for this site) */
+  /** TalentHub product UI mockup (built for this site) */
   productVisual?: ProductVisualVariant;
   /** 3D-style cartoon illustration */
   illustration?: ReactNode;

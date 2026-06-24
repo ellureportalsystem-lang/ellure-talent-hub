@@ -1,9 +1,10 @@
 import { lazy, Suspense } from "react";
+import { Agentation } from "agentation";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider, ForceLightTheme } from "@/components/ThemeProvider";
 import ScrollToTop from "./components/ScrollToTop";
@@ -43,10 +44,13 @@ import Step7Documents from "./pages/auth/applicant-register/Step7Documents";
 import Step8Review from "./pages/auth/applicant-register/Step8Review";
 import RegistrationSuccess from "./pages/auth/applicant-register/RegistrationSuccess";
 import AcceptInvitePage from "./pages/auth/AcceptInvitePage";
+import NviteRespondPage from "./pages/NviteRespondPage";
 import ForgotPassword from "./pages/auth/ForgotPassword";
 import GoogleCallback from "./pages/auth/GoogleCallback";
 import ForceChangePassword from "./pages/auth/ForceChangePassword";
 import NotFound from "./pages/NotFound";
+import PortalHub from "./pages/auth/PortalHub";
+import { PORTAL_ROUTES } from "@/lib/portalRoutes";
 import { DashboardRoute } from "@/components/DashboardRoute";
 
 const ApplicantPortal = lazy(() => import("./pages/dashboard/ApplicantPortal"));
@@ -75,6 +79,25 @@ const App = () => (
                 <ScrollToTop />
                 <PortalThemeSync />
                 <Routes>
+                  {/* Portal hub & canonical login paths */}
+                  <Route path="/login" element={<ForceLightTheme><PortalHub /></ForceLightTheme>} />
+                  <Route path={PORTAL_ROUTES.candidate.login} element={<ForceLightTheme><ApplicantLogin /></ForceLightTheme>} />
+                  <Route path={PORTAL_ROUTES.candidate.register} element={<Navigate to="/auth/register" replace />} />
+                  <Route path={PORTAL_ROUTES.recruiter.login} element={<ForceLightTheme><ClientLogin /></ForceLightTheme>} />
+                  <Route path={PORTAL_ROUTES.recruiter.signup} element={<ForceLightTheme><ClientSignup /></ForceLightTheme>} />
+                  <Route path={PORTAL_ROUTES.admin.login} element={<ForceLightTheme><AdminLogin /></ForceLightTheme>} />
+                  <Route path={PORTAL_ROUTES.admin.signup} element={<ForceLightTheme><AdminSignup /></ForceLightTheme>} />
+                  <Route path={PORTAL_ROUTES.recruiter.shortcut} element={<Navigate to={PORTAL_ROUTES.recruiter.login} replace />} />
+                  <Route path={PORTAL_ROUTES.admin.shortcut} element={<Navigate to={PORTAL_ROUTES.admin.login} replace />} />
+                  {/* Legacy aliases (still work) */}
+                  <Route path="/auth/login" element={<Navigate to={PORTAL_ROUTES.candidate.login} replace />} />
+                  <Route path="/auth/applicant" element={<Navigate to={PORTAL_ROUTES.candidate.login} replace />} />
+                  <Route path="/admin/auth/login" element={<Navigate to={PORTAL_ROUTES.admin.login} replace />} />
+                  <Route path="/admin/auth/signup" element={<Navigate to={PORTAL_ROUTES.admin.signup} replace />} />
+                  <Route path="/client/auth/login" element={<Navigate to={PORTAL_ROUTES.recruiter.login} replace />} />
+                  <Route path="/client/auth/signup" element={<Navigate to={PORTAL_ROUTES.recruiter.signup} replace />} />
+                  <Route path="/auth/admin" element={<Navigate to={PORTAL_ROUTES.admin.login} replace />} />
+                  <Route path="/auth/client" element={<Navigate to={PORTAL_ROUTES.recruiter.login} replace />} />
                   <Route path="/" element={<ForceLightTheme><Landing /></ForceLightTheme>} />
                   <Route path="/about" element={<ForceLightTheme><About /></ForceLightTheme>} />
                   <Route path="/showcase" element={<ForceLightTheme><Showcase /></ForceLightTheme>} />
@@ -85,17 +108,9 @@ const App = () => (
                   <Route path="/faq" element={<ForceLightTheme><FAQ /></ForceLightTheme>} />
                   <Route path="/privacy" element={<ForceLightTheme><Privacy /></ForceLightTheme>} />
                   <Route path="/terms" element={<ForceLightTheme><Terms /></ForceLightTheme>} />
-                  <Route path="/auth/login" element={<ForceLightTheme><ApplicantLogin /></ForceLightTheme>} />
                   <Route path="/auth/forgot-password" element={<ForceLightTheme><ForgotPassword /></ForceLightTheme>} />
                   <Route path="/auth/google/callback" element={<ForceLightTheme><GoogleCallback /></ForceLightTheme>} />
                   <Route path="/auth/force-change-password" element={<ForceLightTheme><ForceChangePassword /></ForceLightTheme>} />
-                  <Route path="/auth/applicant" element={<ForceLightTheme><ApplicantLogin /></ForceLightTheme>} />
-                  <Route path="/admin/auth/login" element={<ForceLightTheme><AdminLogin /></ForceLightTheme>} />
-                  <Route path="/admin/auth/signup" element={<ForceLightTheme><AdminSignup /></ForceLightTheme>} />
-                  <Route path="/client/auth/login" element={<ForceLightTheme><ClientLogin /></ForceLightTheme>} />
-                  <Route path="/client/auth/signup" element={<ForceLightTheme><ClientSignup /></ForceLightTheme>} />
-                  <Route path="/auth/admin" element={<ForceLightTheme><AdminLogin /></ForceLightTheme>} />
-                  <Route path="/auth/client" element={<ForceLightTheme><ClientLogin /></ForceLightTheme>} />
                   <Route path="/auth/register" element={<ForceLightTheme><AccountCreationMethod /></ForceLightTheme>} />
                   <Route path="/auth/register/email" element={<ForceLightTheme><EmailSignUp /></ForceLightTheme>} />
                   <Route path="/auth/register/phone" element={<ForceLightTheme><PhoneSignUp /></ForceLightTheme>} />
@@ -111,34 +126,42 @@ const App = () => (
                   <Route path="/auth/applicant-register/step-8" element={<ForceLightTheme><Step8Review /></ForceLightTheme>} />
                   <Route path="/auth/applicant-register/success" element={<ForceLightTheme><RegistrationSuccess /></ForceLightTheme>} />
                   <Route path="/client/accept-invite" element={<ForceLightTheme><AcceptInvitePage /></ForceLightTheme>} />
+                  <Route path="/respond" element={<ForceLightTheme><NviteRespondPage /></ForceLightTheme>} />
+                  <Route path="/unsubscribe" element={<ForceLightTheme><NviteRespondPage /></ForceLightTheme>} />
                   <Route
                     path="/dashboard/applicant/*"
                     element={
-                      <DashboardRoute allowedRoles={["applicant"]}>
-                        <Suspense fallback={<DashboardFallback />}>
-                          <ApplicantPortal />
-                        </Suspense>
-                      </DashboardRoute>
+                      <ForceLightTheme>
+                        <DashboardRoute allowedRoles={["applicant"]}>
+                          <Suspense fallback={<DashboardFallback />}>
+                            <ApplicantPortal />
+                          </Suspense>
+                        </DashboardRoute>
+                      </ForceLightTheme>
                     }
                   />
                   <Route
                     path="/dashboard/admin/*"
                     element={
-                      <DashboardRoute allowedRoles={["admin"]}>
-                        <Suspense fallback={<DashboardFallback />}>
-                          <AdminDashboard />
-                        </Suspense>
-                      </DashboardRoute>
+                      <ForceLightTheme>
+                        <DashboardRoute allowedRoles={["admin"]}>
+                          <Suspense fallback={<DashboardFallback />}>
+                            <AdminDashboard />
+                          </Suspense>
+                        </DashboardRoute>
+                      </ForceLightTheme>
                     }
                   />
                   <Route
                     path="/dashboard/client/*"
                     element={
-                      <DashboardRoute allowedRoles={["client", "admin"]}>
-                        <Suspense fallback={<DashboardFallback />}>
-                          <ClientDashboard />
-                        </Suspense>
-                      </DashboardRoute>
+                      <ForceLightTheme>
+                        <DashboardRoute allowedRoles={["client"]}>
+                          <Suspense fallback={<DashboardFallback />}>
+                            <ClientDashboard />
+                          </Suspense>
+                        </DashboardRoute>
+                      </ForceLightTheme>
                     }
                   />
                   <Route path="*" element={<ForceLightTheme><NotFound /></ForceLightTheme>} />
@@ -146,6 +169,9 @@ const App = () => (
               </ForcePasswordGuard>
             </SessionTimeoutGuard>
           </BrowserRouter>
+          {import.meta.env.DEV && (
+            <Agentation endpoint="http://localhost:4747" />
+          )}
         </AuthProvider>
       </TooltipProvider>
     </QueryClientProvider>

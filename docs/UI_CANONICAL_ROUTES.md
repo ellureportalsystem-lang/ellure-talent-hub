@@ -25,6 +25,9 @@
 | `/dashboard/admin` | `AdminHome` |
 | `/dashboard/admin/applicants` | `ApplicantsManagement` |
 | `/dashboard/admin/applicants/:id` | `EnterpriseApplicantProfile` (admin) |
+| `/dashboard/admin/candidates/:id` | Redirect → `/dashboard/admin/applicants/:id` |
+| `/dashboard/admin/messages` | `AdminMessagesPage` |
+| `/dashboard/admin/users` | `UsersManagement` |
 | Other admin nav paths | See `AdminDashboard.tsx` routes |
 
 ## Client (canonical)

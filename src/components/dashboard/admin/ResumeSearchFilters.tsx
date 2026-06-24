@@ -40,10 +40,13 @@ const APPLICANT_STATUS_OPTIONS = [
   "submitted",
 ] as const;
 
+export type ApplicantSourceFilter = "all" | "imported" | "registered" | "recent_7" | "recent_30";
+
 export interface SearchFilters {
   keywords: string;
   experienceRange: [number, number];
   salaryRange: [number, number];
+  expectedSalaryRange: [number, number];
   currentCity: string[];
   preferredCity: string[];
   skills: string[];
@@ -52,6 +55,9 @@ export interface SearchFilters {
   currentCompany: string[];
   pastCompanies: string[];
   gender: string[];
+  experienceTypes: string[];
+  jobRoles: string[];
+  degreeCourse: string;
   registeredDays: number | null;
   activeDays: number | null;
   resumeUpdatedDays: number | null;
@@ -59,8 +65,10 @@ export interface SearchFilters {
   isActivelyLooking: boolean | null;
   isVerified: boolean | null;
   hasResume: boolean | null;
+  openToRelocate: boolean | null;
   profileCompleteRange: [number, number];
   status: string[];
+  applicantSource: ApplicantSourceFilter;
 }
 
 interface ResumeSearchFiltersProps {

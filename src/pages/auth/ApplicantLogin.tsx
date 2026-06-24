@@ -2,18 +2,20 @@ import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Link, useNavigate } from "react-router-dom";
-import { Mail, Phone, ArrowLeft, Eye, EyeOff, Shield, Building2, UserPlus } from "lucide-react";
+import { Mail, Phone } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { validatePortalAccess } from "@/services/portalAuthService";
 import { normalizeLoginEmail } from "@/lib/resolveSignInEmail";
+import { NaukriAuthLayout } from "@/components/auth/NaukriAuthLayout";
+import { GuestAuthRoute } from "@/components/auth/GuestAuthRoute";
+import { PORTAL_ROUTES } from "@/lib/portalRoutes";
 
-const ApplicantLogin = () => {
+function ApplicantLoginForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
@@ -34,35 +36,30 @@ const ApplicantLogin = () => {
   useEffect(() => {
     if (authLoading) return;
     if (user && profile?.role === "applicant") {
-      navigate("/dashboard/applicant", { replace: true });
+      navigate(PORTAL_ROUTES.candidate.dashboard, { replace: true });
     }
   }, [authLoading, user, profile, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-
     try {
       if (activeTab === "email") {
         if (!email || !password) {
-          toast({ title: "Missing fields", description: "Please enter both email and password", variant: "destructive" });
-          setIsLoading(false);
+          toast({ title: "Missing fields", variant: "destructive" });
           return;
         }
-
         const loginEmail = normalizeLoginEmail(email);
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user?.email?.toLowerCase() === loginEmail) {
-          toast({ title: "Welcome back!", description: "Redirecting to your dashboard..." });
-          navigate("/dashboard/applicant", { replace: true });
+          navigate(PORTAL_ROUTES.candidate.dashboard, { replace: true });
           return;
         }
         if (session?.user && session.user.email?.toLowerCase() !== loginEmail) {
           await signOut();
         }
       } else if (!phone || !password) {
-        toast({ title: "Missing fields", description: "Please enter both phone and password", variant: "destructive" });
-        setIsLoading(false);
+        toast({ title: "Missing fields", variant: "destructive" });
         return;
       }
 
@@ -72,12 +69,7 @@ const ApplicantLogin = () => {
           : await signInWithPhone(phone, password);
 
       if (result.error) {
-        toast({
-          title: "Login failed",
-          description: result.error.message || "Invalid credentials",
-          variant: "destructive",
-        });
-        setIsLoading(false);
+        toast({ title: "Login failed", description: result.error.message, variant: "destructive" });
         return;
       }
 
@@ -86,203 +78,112 @@ const ApplicantLogin = () => {
         const access = await validatePortalAccess(updatedProfile, "applicant");
         if (!access.ok) {
           await signOut();
-          toast({
-            title: "Wrong portal",
-            description: access.message || "Use the correct login page for this account.",
-            variant: "destructive",
-          });
-          setIsLoading(false);
+          toast({ title: "Wrong portal", description: access.message, variant: "destructive" });
           return;
         }
       }
 
-      toast({ title: "Welcome back!", description: "Redirecting to your dashboard..." });
-      navigate("/dashboard/applicant", { replace: true });
-    } catch (error: any) {
-      toast({ title: "Error", description: error.message || "An error occurred", variant: "destructive" });
+      toast({ title: "Welcome back!" });
+      navigate(PORTAL_ROUTES.candidate.dashboard, { replace: true });
+    } catch (error: unknown) {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Login failed",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
   };
 
-  return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <div className="w-full max-w-[420px]">
-        <Button variant="ghost" size="sm" asChild className="mb-6 text-muted-foreground">
-          <Link to="/">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Home
-          </Link>
-        </Button>
-
-        <Card className="border shadow-lg">
-          <CardHeader className="space-y-4 text-center pb-2">
-            <div className="flex flex-col items-center gap-2">
-              <img src="/ellure-logo.png" alt="Ellure NexHire" className="h-14 w-auto object-contain" />
-              <div className="flex flex-col items-center leading-tight">
-                <span className="text-base font-bold text-foreground">Ellure</span>
-                <span className="text-base font-bold text-primary -mt-0.5">NexHire</span>
-              </div>
-            </div>
-            <div>
-              <CardTitle className="text-xl">Applicant Portal</CardTitle>
-              <CardDescription className="mt-1">
-                Sign in with your email or phone number
-              </CardDescription>
-            </div>
-          </CardHeader>
-          <CardContent className="pt-2">
-            <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "email" | "phone")} className="w-full">
-              <TabsList className="grid w-full grid-cols-2 mb-5 h-10">
-                <TabsTrigger value="email" className="text-sm">
-                  <Mail className="mr-2 h-3.5 w-3.5" />
-                  Email
-                </TabsTrigger>
-                <TabsTrigger value="phone" className="text-sm">
-                  <Phone className="mr-2 h-3.5 w-3.5" />
-                  Phone
-                </TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="email">
-                <form onSubmit={handleLogin} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="email" className="text-sm">Email Address</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="you@example.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="h-10"
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="password-email" className="text-sm">Password</Label>
-                      <Link to="/auth/forgot-password" className="text-xs text-primary hover:underline">
-                        Forgot password?
-                      </Link>
-                    </div>
-                    <div className="relative">
-                      <Input
-                        id="password-email"
-                        type={showPassword ? "text" : "password"}
-                        placeholder="Enter your password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="h-10 pr-10"
-                        required
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
-                        onClick={() => setShowPassword(!showPassword)}
-                      >
-                        {showPassword ? <EyeOff className="h-4 w-4 text-muted-foreground" /> : <Eye className="h-4 w-4 text-muted-foreground" />}
-                      </Button>
-                    </div>
-                    <p className="text-[11px] text-muted-foreground">
-                      Bulk-imported accounts may use <code className="bg-muted px-1 py-0.5 rounded text-foreground font-medium">applicant@123</code>.
-                      If you registered online, use the password you set.
-                    </p>
-                  </div>
-                  <Button type="submit" className="w-full h-10" disabled={isLoading}>
-                    {isLoading ? "Signing in..." : "Sign In"}
-                  </Button>
-                </form>
-              </TabsContent>
-
-              <TabsContent value="phone">
-                <form onSubmit={handleLogin} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="phone" className="text-sm">Phone Number</Label>
-                    <Input
-                      id="phone"
-                      type="tel"
-                      placeholder="+91 98765 43210"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      className="h-10"
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="password-phone" className="text-sm">Password</Label>
-                      <Link to="/auth/forgot-password" className="text-xs text-primary hover:underline">
-                        Forgot password?
-                      </Link>
-                    </div>
-                    <div className="relative">
-                      <Input
-                        id="password-phone"
-                        type={showPassword ? "text" : "password"}
-                        placeholder="Enter your password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="h-10 pr-10"
-                        required
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
-                        onClick={() => setShowPassword(!showPassword)}
-                      >
-                        {showPassword ? <EyeOff className="h-4 w-4 text-muted-foreground" /> : <Eye className="h-4 w-4 text-muted-foreground" />}
-                      </Button>
-                    </div>
-                    <p className="text-[11px] text-muted-foreground">
-                      Use the last 10 digits of your registered mobile number.
-                    </p>
-                  </div>
-                  <Button type="submit" className="w-full h-10" disabled={isLoading}>
-                    {isLoading ? "Signing in..." : "Sign In"}
-                  </Button>
-                </form>
-              </TabsContent>
-            </Tabs>
-
-            <div className="mt-5 pt-5 border-t text-center">
-              <span className="text-sm text-muted-foreground">New user? </span>
-              <Link to="/auth/applicant-register/step-1" className="text-sm text-primary hover:underline font-medium">
-                Register Now
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
-
-        <div className="mt-6 space-y-2">
-          <p className="text-center text-xs font-medium text-muted-foreground mb-3">Other Portals</p>
-          <div className="grid grid-cols-2 gap-2">
-            <Button variant="outline" size="sm" className="w-full justify-start h-9 text-xs" asChild>
-              <Link to="/admin/auth/login">
-                <Shield className="mr-2 h-3.5 w-3.5" />
-                Admin Login
-              </Link>
-            </Button>
-            <Button variant="outline" size="sm" className="w-full justify-start h-9 text-xs" asChild>
-              <Link to="/client/auth/login">
-                <Building2 className="mr-2 h-3.5 w-3.5" />
-                Client Login
-              </Link>
-            </Button>
-          </div>
-        </div>
-
-        <p className="mt-4 text-center text-[11px] text-muted-foreground">
-          By continuing, you agree to our{" "}
-          <Link to="/terms" className="underline hover:text-foreground">Terms</Link>{" "}and{" "}
-          <Link to="/privacy" className="underline hover:text-foreground">Privacy Policy</Link>
-        </p>
+  const passwordField = (id: string) => (
+    <div className="space-y-2">
+      <div className="flex justify-between">
+        <Label htmlFor={id} className="text-xs text-slate-500">Password</Label>
+        <Link to="/auth/forgot-password" className="text-xs text-[#0566CD] hover:underline">Forgot Password?</Link>
+      </div>
+      <div className="relative">
+        <Input
+          id={id}
+          type={showPassword ? "text" : "password"}
+          placeholder="Enter your password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="h-11 bg-blue-50/40 pr-16"
+          required
+        />
+        <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium text-[#0566CD]" onClick={() => setShowPassword(!showPassword)}>
+          {showPassword ? "Hide" : "Show"}
+        </button>
       </div>
     </div>
   );
-};
 
-export default ApplicantLogin;
+  return (
+    <NaukriAuthLayout
+      title="Candidate Login"
+      welcomeMessage="Welcome back! Great to see you again."
+      subtitle="Find your dream job on Ellure TalentHub"
+      cartoonVariant="candidate"
+      promoTitle="New to Ellure TalentHub?"
+      promoItems={[
+        "One-click apply using your TalentHub profile",
+        "Get relevant job recommendations",
+        "Showcase profile to top companies",
+        "Track application status on applied jobs",
+      ]}
+      promoCta={{ label: "Register for Free", to: PORTAL_ROUTES.candidate.register }}
+      footerLinks={[
+        { label: "Recruiter login", to: PORTAL_ROUTES.recruiter.login },
+        { label: "Admin login", to: PORTAL_ROUTES.admin.login },
+        { label: "All portals", to: PORTAL_ROUTES.hub },
+      ]}
+    >
+      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "email" | "phone")}>
+        <TabsList className="grid w-full grid-cols-2 mb-4 h-9">
+          <TabsTrigger value="email" className="text-xs"><Mail className="mr-1 h-3.5 w-3.5" />Email</TabsTrigger>
+          <TabsTrigger value="phone" className="text-xs"><Phone className="mr-1 h-3.5 w-3.5" />Phone</TabsTrigger>
+        </TabsList>
+        <TabsContent value="email">
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-xs text-slate-500">Email ID / Username</Label>
+              <Input id="email" type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} className="h-11 bg-blue-50/40" required />
+            </div>
+            {passwordField("password-email")}
+            <Button type="submit" className="w-full h-11 bg-[#0566CD] hover:bg-[#0066c0] font-semibold" disabled={isLoading}>
+              {isLoading ? "Signing in…" : "Login"}
+            </Button>
+            <p className="text-center text-sm text-[#0566CD] hover:underline cursor-pointer">Use OTP to Login</p>
+          </form>
+        </TabsContent>
+        <TabsContent value="phone">
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="phone" className="text-xs text-slate-500">Phone Number</Label>
+              <Input id="phone" type="tel" placeholder="+91 98765 43210" value={phone} onChange={(e) => setPhone(e.target.value)} className="h-11 bg-blue-50/40" required />
+            </div>
+            {passwordField("password-phone")}
+            <Button type="submit" className="w-full h-11 bg-[#0566CD] hover:bg-[#0066c0] font-semibold" disabled={isLoading}>
+              {isLoading ? "Signing in…" : "Login"}
+            </Button>
+          </form>
+        </TabsContent>
+      </Tabs>
+      <p className="mt-4 text-center text-sm text-slate-600">
+        New user?{" "}
+        <Link to={PORTAL_ROUTES.candidate.register} className="text-[#0566CD] font-medium hover:underline">
+          Register for free
+        </Link>
+      </p>
+    </NaukriAuthLayout>
+  );
+}
+
+export default function ApplicantLogin() {
+  return (
+    <GuestAuthRoute expectedRole="applicant">
+      <ApplicantLoginForm />
+    </GuestAuthRoute>
+  );
+}

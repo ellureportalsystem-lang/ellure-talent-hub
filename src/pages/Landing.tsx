@@ -22,8 +22,8 @@ import { renderProductVisual } from "@/lib/marketingProductVisuals";
 import {
   Building2,
   FileCheck,
+  Search,
   Shield,
-  Sparkles,
   TrendingUp,
   Users,
 } from "lucide-react";
@@ -60,7 +60,7 @@ const platformFeatures = [
       "Share shortlists, collect feedback, and manage employer–candidate communication in one place.",
   },
   {
-    icon: Sparkles,
+    icon: Search,
     title: "AI resume search",
     description:
       "Skill-based matching and intelligent search help recruiters shortlist the right profiles faster.",
@@ -70,7 +70,7 @@ const platformFeatures = [
 /** Analytics band — compact cartoon + dashboard mockup side by side */
 function HomePlatformAnalyticsBand() {
   return (
-    <section className="bharatgo-section border-y border-[#ddd0f5] bg-[#F3EFFE] py-10 sm:py-12 lg:py-14">
+    <section className="bharatgo-section border-y border-[#d4e2fc] bg-[#E9F0FF] py-10 sm:py-12 lg:py-14">
       <div className="container px-4 sm:px-6">
         <div className="grid items-center gap-8 lg:grid-cols-[1fr_auto] lg:gap-10">
           <div className="max-lg:text-center lg:text-left">
@@ -84,7 +84,7 @@ function HomePlatformAnalyticsBand() {
             </p>
           </div>
           <div className="flex flex-row items-stretch justify-center gap-3 sm:gap-4 lg:justify-end">
-            <MarketingIllustrationFrame tone="lavender" className="w-auto max-w-[200px] p-2 sm:max-w-[220px] sm:p-3">
+            <MarketingIllustrationFrame tone="sky" className="w-auto max-w-[200px] p-2 sm:max-w-[220px] sm:p-3">
               <MarketingCartoonArt variant="analytics" size="band" />
             </MarketingIllustrationFrame>
             {renderProductVisual("analytics", "compact")}

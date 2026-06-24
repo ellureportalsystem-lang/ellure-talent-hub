@@ -5,8 +5,6 @@ import {
   Briefcase,
   GraduationCap,
   MapPin,
-  Sparkles,
-  Star,
   Clock,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -92,7 +90,7 @@ export const heroCandidateProfiles: HeroCandidateProfile[] = [
   {
     id: "priya",
     initials: "PK",
-    avatarClass: "bg-[#7c3aed] text-white",
+    avatarClass: "bg-[#0566CD] text-white",
     name: "Priya Kulkarni",
     role: "DevOps Engineer",
     subtitle: "Cloud · CI/CD",
@@ -170,93 +168,80 @@ type CandidateBodyProps = {
 
 const HERO_SKILL_LIMIT = 3;
 
-function HeroCompactBody({
-  candidate,
-  reducedMotion,
-  statItems,
-}: {
-  candidate: HeroCandidateProfile;
-  reducedMotion: boolean;
-  statItems: { label: string; value: number }[];
-}) {
+function HeroCompactBody({ candidate }: { candidate: HeroCandidateProfile }) {
   const visibleSkills = candidate.skills.slice(0, HERO_SKILL_LIMIT);
   const extraSkills = candidate.skills.length - visibleSkills.length;
 
   return (
-    <div className="space-y-2.5">
-      <div className="flex items-center gap-2.5">
+    <div className="space-y-3.5 sm:space-y-4">
+      <div className="flex items-start gap-3.5 sm:gap-4">
         <div
           className={cn(
-            "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-[11px] font-bold ring-1 ring-white/25",
+            "flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-sm font-bold shadow-md ring-2 ring-white/30 sm:h-16 sm:w-16 sm:text-base",
             candidate.avatarClass
           )}
         >
           {candidate.initials}
         </div>
-        <div className="min-w-0 flex-1">
-          <p className="truncate text-[15px] font-semibold leading-tight text-white">{candidate.name}</p>
-          <p className="truncate text-xs font-medium text-violet-200/90">{candidate.role}</p>
+        <div className="min-w-0 flex-1 pt-0.5">
+          <p className="text-lg font-bold leading-tight tracking-tight text-white sm:text-xl">
+            {candidate.name}
+          </p>
+          <p className="mt-0.5 text-sm font-semibold text-sky-200 sm:text-base">{candidate.role}</p>
+          <p className="mt-1 text-xs text-white/60 sm:text-sm">{candidate.subtitle}</p>
         </div>
-        <span className="inline-flex shrink-0 items-center gap-0.5 rounded-md bg-emerald-400/20 px-2 py-0.5 text-[11px] font-semibold text-emerald-200 ring-1 ring-emerald-400/25">
-          <Star className="h-3 w-3 fill-current" />
+        <span className="shrink-0 rounded-full bg-emerald-400/20 px-2.5 py-1 text-xs font-bold text-emerald-200 ring-1 ring-emerald-400/30 sm:px-3 sm:py-1.5 sm:text-sm">
           {candidate.match}%
         </span>
       </div>
 
-      <p className="text-[11px] leading-snug text-white/60">
-        {candidate.location} · {candidate.experience} · {candidate.notice}
-      </p>
+      <div className="grid gap-1.5 rounded-xl bg-white/[0.08] px-3.5 py-3 text-xs leading-relaxed text-white/75 ring-1 ring-white/12 sm:gap-2 sm:px-4 sm:text-sm">
+        <p>
+          <span className="font-medium text-white/90">{candidate.location}</span>
+          <span className="text-white/35"> · </span>
+          {candidate.experience}
+          <span className="text-white/35"> · </span>
+          {candidate.notice} notice
+        </p>
+        <p className="text-white/65">{candidate.education}</p>
+      </div>
 
-      <div className="flex flex-wrap gap-1">
+      <div className="flex flex-wrap gap-1.5">
         {visibleSkills.map((skill) => (
           <span
             key={skill}
-            className="rounded px-2 py-0.5 text-[10px] font-medium text-white/90 ring-1 ring-white/18 bg-white/10"
+            className="rounded-md bg-white/12 px-2 py-0.5 text-[11px] font-medium text-white/90 ring-1 ring-white/18 sm:px-2.5 sm:py-1 sm:text-xs"
           >
             {skill}
           </span>
         ))}
         {extraSkills > 0 ? (
-          <span className="rounded px-1.5 py-px text-[9px] font-medium text-white/50 ring-1 ring-white/10 bg-white/5">
+          <span className="rounded-md bg-white/8 px-2 py-0.5 text-[11px] font-medium text-white/55 ring-1 ring-white/10 sm:text-xs">
             +{extraSkills}
           </span>
         ) : null}
       </div>
 
-      <div className="flex items-center gap-2.5 rounded-lg bg-white/10 px-2.5 py-2 ring-1 ring-white/18">
-        <div className="min-w-0 flex-1">
-          <div className="mb-1 flex items-center justify-between text-[10px] text-white/60">
-            <span>Profile</span>
-            <span className="font-semibold text-violet-200">{candidate.profileComplete}%</span>
-          </div>
-          <div className="h-1.5 overflow-hidden rounded-sm bg-white/15">
-            <motion.div
-              key={`${candidate.id}-progress`}
-              className="h-full rounded-sm bg-violet-400"
-              initial={reducedMotion ? false : { width: 0 }}
-              animate={{ width: `${candidate.profileComplete}%` }}
-              transition={{ duration: 0.5, ease: "easeOut" }}
-            />
-          </div>
-        </div>
-        <div className="flex shrink-0 gap-2 border-l border-white/18 pl-2.5 text-center">
-          {statItems.map((stat) => (
-            <div key={stat.label} className="min-w-[2rem]">
-              <p className="text-sm font-bold leading-none text-white">{stat.value}</p>
-              <p className="mt-0.5 text-[9px] font-medium uppercase tracking-wide text-white/50">
-                {stat.label === "Shortlist" ? "Short" : stat.label === "Interviews" ? "Intv" : stat.label}
-              </p>
-            </div>
-          ))}
-        </div>
+      <div className="rounded-xl bg-white/[0.08] px-3.5 py-3 ring-1 ring-white/12 sm:px-4 sm:py-3.5">
+        <p className="text-[10px] font-semibold uppercase tracking-wide text-white/45 sm:text-xs">
+          Hiring insight
+        </p>
+        <p className="mt-1 text-sm font-semibold leading-snug text-sky-100 sm:text-base">
+          {candidate.smartMatch}
+        </p>
+        <p className="mt-1.5 text-xs text-white/60 sm:text-sm">{candidate.pipeline}</p>
       </div>
 
-      <div className="flex items-center justify-between gap-2">
-        <span className="inline-flex min-w-0 items-center gap-1 truncate rounded-md bg-violet-500/22 px-2 py-1 text-[10px] font-medium text-violet-100 ring-1 ring-violet-400/22">
-          <Sparkles className="h-3 w-3 shrink-0" />
-          <span className="truncate">{candidate.smartMatch}</span>
+      <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-white/[0.08] px-3.5 py-2.5 ring-1 ring-white/12 sm:gap-3 sm:px-4 sm:py-3">
+        <span className="text-xs text-white/55 sm:text-sm">
+          {candidate.lastActive} · {candidate.notice} notice
         </span>
-        <span className="shrink-0 text-[10px] text-white/50">{candidate.status}</span>
+        <Badge
+          variant={candidate.statusVariant}
+          className="h-5 border-white/20 bg-white/10 px-2 text-[10px] font-medium text-white hover:bg-white/15 sm:h-6 sm:px-2.5 sm:text-xs"
+        >
+          {candidate.status}
+        </Badge>
       </div>
     </div>
   );
@@ -264,9 +249,7 @@ function HeroCompactBody({
 
 function CandidateBody({ candidate, reducedMotion, isHero, statItems }: CandidateBodyProps) {
   if (isHero) {
-    return (
-      <HeroCompactBody candidate={candidate} reducedMotion={reducedMotion} statItems={statItems} />
-    );
+    return <HeroCompactBody candidate={candidate} />;
   }
 
   return (
@@ -295,7 +278,7 @@ function CandidateBody({ candidate, reducedMotion, isHero, statItems }: Candidat
               <p
                 className={cn(
                   "truncate text-xs font-semibold",
-                  isHero ? "text-violet-200" : "font-medium text-primary"
+                  isHero ? "text-sky-200" : "font-medium text-primary"
                 )}
               >
                 {candidate.role}
@@ -312,13 +295,12 @@ function CandidateBody({ candidate, reducedMotion, isHero, statItems }: Candidat
             <div className="flex shrink-0 flex-col items-end gap-1">
               <span
                 className={cn(
-                  "inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-[11px] font-semibold",
+                  "inline-flex rounded-full px-2 py-0.5 text-[11px] font-semibold",
                   isHero
                     ? "bg-emerald-400/20 text-emerald-200 ring-1 ring-emerald-400/30"
                     : "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
                 )}
               >
-                <Star className="h-3 w-3 fill-current" />
                 {candidate.match}%
               </span>
               <Badge
@@ -342,23 +324,23 @@ function CandidateBody({ candidate, reducedMotion, isHero, statItems }: Candidat
         )}
       >
         <span className="inline-flex items-center gap-1">
-          <MapPin className={cn("h-3 w-3 shrink-0", isHero ? "text-violet-300" : "text-primary/70")} />
+          <MapPin className={cn("h-3 w-3 shrink-0", isHero ? "text-sky-300" : "text-primary/70")} />
           {candidate.location}
         </span>
         <span className={isHero ? "text-white/25" : "text-border"}>·</span>
         <span className="inline-flex items-center gap-1">
-          <Briefcase className={cn("h-3 w-3 shrink-0", isHero ? "text-violet-300" : "text-primary/70")} />
+          <Briefcase className={cn("h-3 w-3 shrink-0", isHero ? "text-sky-300" : "text-primary/70")} />
           {candidate.experience}
         </span>
         <span className={isHero ? "text-white/25" : "text-border"}>·</span>
         <span className="inline-flex items-center gap-1">
-          <Clock className={cn("h-3 w-3 shrink-0", isHero ? "text-violet-300" : "text-primary/70")} />
+          <Clock className={cn("h-3 w-3 shrink-0", isHero ? "text-sky-300" : "text-primary/70")} />
           {candidate.notice}
         </span>
         <span className={isHero ? "text-white/25" : "text-border"}>·</span>
         <span className="inline-flex items-center gap-1 truncate">
           <GraduationCap
-            className={cn("h-3 w-3 shrink-0", isHero ? "text-violet-300" : "text-primary/70")}
+            className={cn("h-3 w-3 shrink-0", isHero ? "text-sky-300" : "text-primary/70")}
           />
           {candidate.education}
         </span>
@@ -391,7 +373,7 @@ function CandidateBody({ candidate, reducedMotion, isHero, statItems }: Candidat
             <span className={isHero ? "font-medium text-white/60" : "text-muted-foreground"}>
               Profile
             </span>
-            <span className={cn("font-semibold", isHero ? "text-violet-200" : "text-primary")}>
+            <span className={cn("font-semibold", isHero ? "text-sky-200" : "text-primary")}>
               {candidate.profileComplete}%
             </span>
           </div>
@@ -403,7 +385,7 @@ function CandidateBody({ candidate, reducedMotion, isHero, statItems }: Candidat
           >
             <motion.div
               key={`${candidate.id}-progress`}
-              className={cn("h-full rounded-full", isHero ? "bg-violet-400" : "bg-primary")}
+              className={cn("h-full rounded-full", isHero ? "bg-sky-400" : "bg-primary")}
               initial={reducedMotion ? false : { width: 0 }}
               animate={{ width: `${candidate.profileComplete}%` }}
               transition={{ duration: 0.5, ease: "easeOut" }}
@@ -442,11 +424,10 @@ function CandidateBody({ candidate, reducedMotion, isHero, statItems }: Candidat
       <div className="flex flex-wrap gap-1.5">
         <span
           className={cn(
-            "inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-medium",
-            isHero ? "bg-violet-500/25 text-violet-100 ring-1 ring-violet-400/25" : "bg-primary/5 text-primary"
+            "inline-flex items-center rounded-lg px-2 py-1 text-[10px] font-medium",
+            isHero ? "bg-sky-500/25 text-sky-100 ring-1 ring-sky-400/25" : "bg-primary/5 text-primary"
           )}
         >
-          <Sparkles className="h-3 w-3" />
           {candidate.smartMatch}
         </span>
         <span
@@ -492,8 +473,8 @@ function ProfileDots({
           className={cn(
             "h-1 rounded-full transition-all duration-300",
             i === index
-              ? cn("w-5", isHero ? "bg-violet-300" : "bg-primary")
-              : cn("w-1", isHero ? "bg-white/30 hover:bg-violet-300/70" : "bg-border hover:bg-primary/50")
+              ? cn("w-6", isHero ? "bg-sky-300" : "bg-primary")
+              : cn("w-1.5", isHero ? "bg-white/30 hover:bg-sky-300/70" : "bg-border hover:bg-primary/50")
           )}
         />
       ))}
@@ -529,7 +510,7 @@ export function HeroCandidatePreview({
     <motion.div
       className={cn(
         "relative mx-auto w-full",
-        isHero ? "max-w-md sm:max-w-lg lg:max-w-xl" : "max-w-md lg:max-w-none",
+        isHero ? "max-w-[21rem] sm:max-w-[23rem] lg:max-w-[26rem]" : "max-w-md lg:max-w-none",
         className
       )}
       initial={{ opacity: 0, y: 20 }}
@@ -542,15 +523,15 @@ export function HeroCandidatePreview({
         className="relative"
       >
         {isHero ? (
-          <GlassPanel cornerClassName="rounded-2xl">
-            <div className="px-3 py-3 sm:px-4 sm:py-3.5">
-              <div className="mb-2.5 flex items-center justify-between gap-2">
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-white/55">
-                  Applicant
-                </span>
-                <span className="font-mono text-[10px] text-white/45">{candidate.applicantNo}</span>
-              </div>
+          <GlassPanel variant="hero" cornerClassName="rounded-2xl" surfaceClassName="relative overflow-hidden">
+            <div className="border-b border-white/10 px-4 py-3 sm:px-5 sm:py-3.5">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-white/55 sm:text-xs">
+                Candidate profile
+              </p>
+              <p className="mt-0.5 text-[11px] text-white/45 sm:text-xs">Verified snapshot</p>
+            </div>
 
+            <div className="px-4 py-4 sm:px-5 sm:py-4.5">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={candidate.id}
@@ -568,7 +549,7 @@ export function HeroCandidatePreview({
                 </motion.div>
               </AnimatePresence>
 
-              <div className="mt-2.5 border-t border-white/12 pt-2.5">
+              <div className="mt-4 border-t border-white/10 pt-3.5 sm:mt-4.5 sm:pt-4">
                 <ProfileDots profiles={profiles} index={index} setIndex={setIndex} isHero />
               </div>
             </div>

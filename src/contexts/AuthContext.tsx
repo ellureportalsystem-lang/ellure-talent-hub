@@ -1,13 +1,15 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import { getSignInErrorMessage } from '@/lib/authErrorMessages';
 import { resolveEmailFromPhone, resolveSignInEmail } from '@/lib/resolveSignInEmail';
-import { Profile } from '@/types/database.types';
+import { Profile, UserRole } from '@/types/database.types';
+import { clearSupabaseAuthStorage, isInvalidSessionError } from '@/lib/authSessionUtils';
 
 interface AuthContextType {
   user: User | null;
   profile: Profile | null;
+  role: UserRole | null;
   session: Session | null;
   loading: boolean;
   signIn: (email: string, password: string, portal?: 'applicant' | 'admin' | 'client') => Promise<{ error: any }>;
@@ -25,16 +27,31 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Fetch profile from database with proper timeout and error handling
-  const fetchProfile = async (userId: string): Promise<Profile | null> => {
+  const resetAuthState = useCallback(() => {
+    setUser(null);
+    setProfile(null);
+    setSession(null);
+  }, []);
+
+  const clearStaleSession = useCallback(async () => {
     try {
-      console.log('🔍 Fetching profile for user:', userId);
-      
-      // Use getUser() to ensure we have the latest user data
+      await supabase.auth.signOut({ scope: "local" });
+    } catch {
+      // Server may reject invalid refresh tokens — still clear local storage.
+    }
+    clearSupabaseAuthStorage();
+    resetAuthState();
+  }, [resetAuthState]);
+
+  // Fetch profile from database with proper timeout and error handling
+  const fetchProfile = useCallback(async (userId: string): Promise<Profile | null> => {
+    try {
       const { data: { user: authUser }, error: getUserError } = await supabase.auth.getUser();
-      
+
       if (getUserError) {
-        console.error('❌ Error getting auth user:', getUserError);
+        if (isInvalidSessionError(getUserError)) {
+          await clearStaleSession();
+        }
         return null;
       }
       
@@ -129,80 +146,82 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
       return data as Profile;
     } catch (error: any) {
-      // Handle timeout
       if (error.message?.includes('timeout')) {
-        console.error('⏱️ Profile fetch timeout/aborted for user:', userId);
         return null;
       }
-      
-      // If profile not found, return null (not an error)
       if (error.code === 'PGRST116' || error.message?.includes('No rows') || error.message?.includes('not found')) {
-        console.warn('⚠️ Profile not found for user:', userId);
-        console.warn('This might mean the profile was not created by the trigger');
         return null;
       }
-      
-      // For RLS/permission errors
-      if (error.code === '42501' || error.code === 'PGRST301' || error.message?.includes('permission') || error.message?.includes('policy')) {
-        console.error('🔒 RLS Policy Error - Cannot access profile:', error);
-        console.error('User ID:', userId);
-        console.error('This might be an RLS policy issue');
-        return null;
-      }
-      
-      // For other errors, log and return null
-      console.error('❌ Exception fetching profile:', error);
-      console.error('Exception details:', {
-        code: error.code,
-        message: error.message,
-        details: error.details,
-        hint: error.hint,
-        stack: error.stack
-      });
       return null;
     }
-  };
+  }, [clearStaleSession]);
 
   // Initialize auth state
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        fetchProfile(session.user.id).then(setProfile);
-      }
-      setLoading(false);
-    });
+    let mounted = true;
 
-    // Listen for auth changes
+    const initSession = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+
+        if (error && isInvalidSessionError(error)) {
+          await clearStaleSession();
+          if (mounted) setLoading(false);
+          return;
+        }
+
+        if (!mounted) return;
+
+        setSession(session);
+        setUser(session?.user ?? null);
+
+        if (session?.user) {
+          fetchProfile(session.user.id).then((profileData) => {
+            if (mounted && profileData) setProfile(profileData);
+          });
+        }
+      } catch (error) {
+        console.warn("Auth session init failed, clearing stale session:", error);
+        await clearStaleSession();
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+
+    void initSession();
+
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === "TOKEN_REFRESHED" && !session) {
+        await clearStaleSession();
+        setLoading(false);
+        return;
+      }
+
       setSession(session);
       setUser(session?.user ?? null);
-      
-      // Don't block on profile fetch - fetch in background
+
       if (session?.user) {
-        // Fetch profile in background, don't await
         fetchProfile(session.user.id)
-          .then(profileData => {
-            if (profileData) {
-              setProfile(profileData);
-            }
+          .then((profileData) => {
+            if (profileData) setProfile(profileData);
           })
-          .catch(err => {
-            console.error('Profile fetch error in auth state change (non-blocking):', err);
+          .catch((err) => {
+            console.error("Profile fetch error in auth state change:", err);
           });
       } else {
         setProfile(null);
       }
-      
+
       setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
-  }, []);
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
+  }, [clearStaleSession, fetchProfile]);
 
   const signIn = async (
     email: string,
@@ -317,25 +336,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const signOut = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
-    setProfile(null);
-    setSession(null);
-  };
-
-  const refreshProfile = async () => {
-    if (user) {
-      const profileData = await fetchProfile(user.id);
-      setProfile(profileData);
-      return profileData;
+  const signOut = useCallback(async () => {
+    try {
+      await supabase.auth.signOut();
+    } catch {
+      await supabase.auth.signOut({ scope: "local" });
     }
-    return null;
-  };
+    clearSupabaseAuthStorage();
+    resetAuthState();
+  }, [resetAuthState]);
+
+  const refreshProfile = useCallback(async () => {
+    if (!user) return null;
+    const profileData = await fetchProfile(user.id);
+    if (profileData) setProfile(profileData);
+    return profileData;
+  }, [user, fetchProfile]);
 
   const value = {
     user,
     profile,
+    role: (profile?.role as UserRole) ?? null,
     session,
     loading,
     signIn,

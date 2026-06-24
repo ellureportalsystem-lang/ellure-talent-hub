@@ -42,6 +42,8 @@ import {
   FileText,
 } from "lucide-react";
 import { Applicant } from "@/hooks/useApplicants";
+import { openApplicantResume } from "@/services/adminApplicantService";
+import { toast } from "sonner";
 
 interface ApplicantTableProps {
   applicants: Applicant[];
@@ -51,26 +53,29 @@ interface ApplicantTableProps {
   sortDirection: "asc" | "desc";
   onSort: (field: string) => void;
   isAdmin?: boolean;
+  onDelete?: (id: string) => void;
+  onAddToFolder?: (id: string) => void;
+  profileBasePath?: string;
 }
 
 const statusColors: Record<string, string> = {
-  submitted: "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950 dark:text-blue-300 dark:border-blue-800",
-  Active: "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-800",
-  Shortlisted: "bg-violet-50 text-violet-700 border-violet-200 dark:bg-violet-950 dark:text-violet-300 dark:border-violet-800",
-  Interview: "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950 dark:text-amber-300 dark:border-amber-800",
-  Hired: "bg-sky-50 text-sky-700 border-sky-200 dark:bg-sky-950 dark:text-sky-300 dark:border-sky-800",
-  Rejected: "bg-red-50 text-red-700 border-red-200 dark:bg-red-950 dark:text-red-300 dark:border-red-800",
-  "On Hold": "bg-gray-50 text-gray-600 border-gray-200 dark:bg-gray-900 dark:text-gray-400 dark:border-gray-700",
+  submitted: "bg-blue-50 text-blue-700 border-blue-200",
+  Active: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  Shortlisted: "bg-violet-50 text-violet-700 border-violet-200",
+  Interview: "bg-amber-50 text-amber-700 border-amber-200",
+  Hired: "bg-sky-50 text-sky-700 border-sky-200",
+  Rejected: "bg-red-50 text-red-700 border-red-200",
+  "On Hold": "bg-gray-50 text-gray-600 border-gray-200",
 };
 
 const avatarColors = [
-  "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300",
-  "bg-violet-100 text-violet-700 dark:bg-violet-900 dark:text-violet-300",
-  "bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300",
-  "bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300",
-  "bg-rose-100 text-rose-700 dark:bg-rose-900 dark:text-rose-300",
-  "bg-sky-100 text-sky-700 dark:bg-sky-900 dark:text-sky-300",
-  "bg-teal-100 text-teal-700 dark:bg-teal-900 dark:text-teal-300",
+  "bg-blue-100 text-blue-700",
+  "bg-violet-100 text-violet-700",
+  "bg-emerald-100 text-emerald-700",
+  "bg-amber-100 text-amber-700",
+  "bg-rose-100 text-rose-700",
+  "bg-sky-100 text-sky-700",
+  "bg-teal-100 text-teal-700",
 ];
 
 const ApplicantTable = ({
@@ -81,6 +86,9 @@ const ApplicantTable = ({
   sortDirection,
   onSort,
   isAdmin = true,
+  onDelete,
+  onAddToFolder,
+  profileBasePath = "/dashboard/admin/applicants",
 }: ApplicantTableProps) => {
   const navigate = useNavigate();
 
@@ -93,7 +101,16 @@ const ApplicantTable = ({
   };
 
   const handleViewProfile = (applicantId: string) => {
-    navigate(`/dashboard/admin/applicants/${applicantId}`);
+    navigate(`${profileBasePath}/${applicantId}`);
+  };
+
+  const handleDownloadResume = (applicant: Applicant) => {
+    const url =
+      (applicant as Applicant & { resume_file?: string; upload_cv_any_format?: string }).resume_file ||
+      (applicant as Applicant & { upload_cv_any_format?: string }).upload_cv_any_format;
+    if (!openApplicantResume(url, `${applicant.name || "resume"}.pdf`)) {
+      toast.error("No resume file on this profile");
+    }
   };
 
   const SortableHeader = ({ field, children }: { field: string; children: React.ReactNode }) => (
@@ -253,7 +270,7 @@ const ApplicantTable = ({
                         variant="outline"
                         className={`text-[10px] font-normal ${
                           applicant.notice_period === "Immediate"
-                            ? "border-emerald-300 text-emerald-700 dark:border-emerald-700 dark:text-emerald-400"
+                            ? "border-emerald-300 text-emerald-700"
                             : "border-border"
                         }`}
                       >
@@ -287,7 +304,12 @@ const ApplicantTable = ({
                         </Tooltip>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-7 w-7">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7"
+                              onClick={() => handleDownloadResume(applicant)}
+                            >
                               <Download className="h-3.5 w-3.5" />
                             </Button>
                           </TooltipTrigger>
@@ -300,36 +322,25 @@ const ApplicantTable = ({
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" className="w-44">
-                            <DropdownMenuItem className="text-xs">
+                            <DropdownMenuItem className="text-xs" onClick={() => handleViewProfile(applicant.id)}>
                               <Eye className="mr-2 h-3.5 w-3.5" /> View Full Profile
                             </DropdownMenuItem>
-                            <DropdownMenuItem className="text-xs">
+                            <DropdownMenuItem className="text-xs" onClick={() => handleDownloadResume(applicant)}>
                               <FileText className="mr-2 h-3.5 w-3.5" /> Download Resume
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem className="text-xs">
-                              <Star className="mr-2 h-3.5 w-3.5" /> Add to Shortlist
-                            </DropdownMenuItem>
-                            <DropdownMenuItem className="text-xs">
-                              <FolderPlus className="mr-2 h-3.5 w-3.5" /> Add to Folder
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem className="text-xs">
-                              <Phone className="mr-2 h-3.5 w-3.5" /> Call
-                            </DropdownMenuItem>
-                            <DropdownMenuItem className="text-xs">
-                              <Mail className="mr-2 h-3.5 w-3.5" /> Email
-                            </DropdownMenuItem>
-                            <DropdownMenuItem className="text-xs">
-                              <MessageSquare className="mr-2 h-3.5 w-3.5" /> Add Note
-                            </DropdownMenuItem>
-                            {isAdmin && (
+                            {onAddToFolder && (
+                              <DropdownMenuItem className="text-xs" onClick={() => onAddToFolder(applicant.id)}>
+                                <FolderPlus className="mr-2 h-3.5 w-3.5" /> Add to Folder
+                              </DropdownMenuItem>
+                            )}
+                            {isAdmin && onDelete && (
                               <>
                                 <DropdownMenuSeparator />
-                                <DropdownMenuItem className="text-xs">
-                                  <UserPlus className="mr-2 h-3.5 w-3.5" /> Assign to Client
-                                </DropdownMenuItem>
-                                <DropdownMenuItem className="text-xs text-destructive focus:text-destructive">
+                                <DropdownMenuItem
+                                  className="text-xs text-destructive focus:text-destructive"
+                                  onClick={() => onDelete(applicant.id)}
+                                >
                                   <Trash2 className="mr-2 h-3.5 w-3.5" /> Delete
                                 </DropdownMenuItem>
                               </>

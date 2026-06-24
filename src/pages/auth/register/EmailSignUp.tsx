@@ -16,8 +16,9 @@ const EmailSignUp = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!email.trim()) {
+
+    const normalized = email.trim().toLowerCase();
+    if (!normalized) {
       toast({
         title: "Error",
         description: "Please enter your email address",
@@ -28,30 +29,30 @@ const EmailSignUp = () => {
 
     setIsLoading(true);
     try {
-      // For now, we'll use hardcoded OTP "123456"
-      // Store email in sessionStorage for OTP verification page
-      sessionStorage.setItem("signup_email", email.trim().toLowerCase());
-      sessionStorage.setItem("signup_method", "email");
-      
-      // In production, you would send OTP here:
-      // const { error } = await supabase.auth.signInWithOtp({
-      //   email: email.trim(),
-      //   options: {
-      //     shouldCreateUser: true,
-      //   }
-      // });
-
-      toast({
-        title: "OTP Sent",
-        description: `OTP sent to ${email}. Use code: 123456`,
+      const { error } = await supabase.auth.signInWithOtp({
+        email: normalized,
+        options: {
+          shouldCreateUser: true,
+          data: { role: "applicant" },
+        },
       });
 
-      // Navigate to OTP verification
+      if (error) throw error;
+
+      sessionStorage.setItem("signup_email", normalized);
+      sessionStorage.setItem("signup_method", "email");
+      sessionStorage.removeItem("signup_phone");
+
+      toast({
+        title: "Verification code sent",
+        description: `Check your inbox at ${normalized} for the 6-digit code.`,
+      });
+
       navigate("/auth/register/verify-otp");
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Error",
-        description: error.message || "Failed to send OTP",
+        description: error instanceof Error ? error.message : "Failed to send verification code",
         variant: "destructive",
       });
     } finally {
@@ -70,7 +71,7 @@ const EmailSignUp = () => {
           </div>
           <CardTitle className="text-2xl">Sign up with Email</CardTitle>
           <CardDescription>
-            Enter your email address to receive a verification code
+            Enter your email address to receive a verification code via Supabase Auth
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -93,7 +94,7 @@ const EmailSignUp = () => {
               {isLoading ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Sending OTP...
+                  Sending code...
                 </>
               ) : (
                 "Send Verification Code"
@@ -102,11 +103,7 @@ const EmailSignUp = () => {
           </form>
 
           <div className="mt-6 space-y-4">
-            <Button
-              variant="ghost"
-              className="w-full"
-              onClick={() => navigate("/auth/register")}
-            >
+            <Button variant="ghost" className="w-full" onClick={() => navigate("/auth/register")}>
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back
             </Button>
@@ -114,6 +111,7 @@ const EmailSignUp = () => {
             <div className="text-center text-sm text-muted-foreground">
               Already have an account?{" "}
               <button
+                type="button"
                 onClick={() => navigate("/auth/login")}
                 className="text-primary hover:underline font-semibold"
               >
@@ -128,21 +126,3 @@ const EmailSignUp = () => {
 };
 
 export default EmailSignUp;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

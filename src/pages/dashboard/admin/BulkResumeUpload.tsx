@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { DashboardPageShell } from "@/components/dashboard/DashboardPageShell";
 import { PortalPageHeader } from "@/components/portal/portal-ui";
 import { portalPanelClass } from "@/components/portal/portalStyles";
+import { UploadProgressBar } from "@/components/dashboard/admin/UploadProgressBar";
 
 type RowStatus = "pending" | "uploading" | "ok" | "error";
 
@@ -55,18 +56,19 @@ async function fetchAllApplicantsForMatch(): Promise<ApplicantMatchRow[]> {
   for (;;) {
     const { data, error } = await supabase
       .from("applicants")
-      .select("id,name,email")
+      .select("id,name,email,phone")
       .eq("is_deleted", false)
       .order("created_at", { ascending: false })
       .range(from, from + pageSize - 1);
 
     if (error) throw new Error(error.message);
-    const rows = (data || []) as { id: string; name: string | null; email: string | null }[];
+    const rows = (data || []) as { id: string; name: string | null; email: string | null; phone: string | null }[];
     for (const r of rows) {
       all.push({
         id: r.id,
         name: (r.name || "").trim() || "Unknown",
         email: (r.email || "").trim() || "",
+        phone: (r.phone || "").trim() || "",
       });
     }
     if (rows.length < pageSize) break;
@@ -88,6 +90,7 @@ const BulkResumeUpload = () => {
     fail: number;
     skippedPresetError: number;
   } | null>(null);
+  const [progress, setProgress] = useState(0);
 
   const hint = useMemo(
     () =>
@@ -95,7 +98,7 @@ const BulkResumeUpload = () => {
         ? "Name each file like the applicant email, e.g. trisha@gmail.com.pdf"
         : matchMode === "name"
           ? "Name each file like the applicant full name, e.g. Trisha Kumar.pdf"
-          : "Use full name (Trisha Kumar.pdf), email as file name (user@domain.com.pdf), or unique first name if only one match exists.",
+          : "Use full name (Trisha Kumar.pdf), email as file name (user@domain.com.pdf), 10-digit phone (9876543210.pdf), or unique first name if only one match exists.",
     [matchMode]
   );
 
@@ -148,15 +151,20 @@ const BulkResumeUpload = () => {
     }
 
     setRunning(true);
+    setProgress(0);
     let ok = 0;
     let fail = 0;
     let skippedPresetError = 0;
+    const total = rows.length;
+    let done = 0;
 
     for (let i = 0; i < rows.length; i++) {
       const fr = rows[i];
       if (fr.status === "error") {
         skippedPresetError++;
         fail++;
+        done++;
+        setProgress(Math.round((done / total) * 100));
         continue;
       }
 
@@ -178,13 +186,14 @@ const BulkResumeUpload = () => {
           return copy;
         });
         fail++;
+        done++;
+        setProgress(Math.round((done / total) * 100));
         continue;
       }
 
       try {
         const url = await uploadApplicantResume(fr.file, {
           applicantId: match.applicant.id,
-          preferSupabase: true,
         });
         const { error } = await supabase
           .from("applicants")
@@ -196,6 +205,12 @@ const BulkResumeUpload = () => {
           .eq("id", match.applicant.id);
 
         if (error) throw new Error(error.message);
+
+        await supabase
+          .rpc("refresh_applicant_search_index", { p_applicant_id: match.applicant.id })
+          .then(({ error: idxErr }) => {
+            if (idxErr) console.warn("refresh_applicant_search_index:", idxErr.message);
+          });
 
         const { data: row } = await supabase
           .from("applicants")
@@ -226,6 +241,9 @@ const BulkResumeUpload = () => {
         });
         fail++;
       }
+
+      done++;
+      setProgress(Math.round((done / total) * 100));
     }
 
     setRunning(false);
@@ -242,9 +260,9 @@ const BulkResumeUpload = () => {
         subtitle="Match CVs to applicants by file name and upload to storage"
         action={
           <Button variant="outline" size="sm" asChild className="gap-1">
-            <Link to="/dashboard/admin/applicants">
+            <Link to="/dashboard/admin/data/import?step=6">
               <ArrowLeft className="h-4 w-4" />
-              Resume search
+              Import wizard
             </Link>
           </Button>
         }
@@ -425,6 +443,15 @@ const BulkResumeUpload = () => {
                 ))}
               </div>
             </ScrollArea>
+          )}
+
+          {(running || progress > 0) && (
+            <UploadProgressBar
+              value={progress}
+              active={running}
+              label="Uploading resumes"
+              detail={running ? `Processing files… ${progress}%` : `Finished — ${progress}%`}
+            />
           )}
 
           <Button onClick={runBulk} disabled={running || !rows.length || !applicantIndex?.length}>

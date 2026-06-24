@@ -20,6 +20,7 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 
 import { Link, useLocation } from "react-router-dom";
+import { BrandWordmark } from "@/components/brand/BrandWordmark";
 
 
 
@@ -47,7 +48,8 @@ const Navbar = ({ variant = "default", heroOverlay = false }: NavbarProps) => {
   const isSaas = variant === "saas";
   const forceSolidNav = isSaas && location.pathname === "/contact";
   const isSolidNav = scrolled || mobileMenuOpen || forceSolidNav;
-  const useLightText = heroOverlay ? !isSolidNav : !isSaas && !isSolidNav;
+  /** Dark text on light chrome (hero frosted bar + scrolled white bar) */
+  const useLightText = heroOverlay ? false : !isSaas && !isSolidNav;
   const useHeroNavChrome = heroOverlay && !isSolidNav;
 
   const servicesActive = location.pathname.startsWith("/services");
@@ -150,32 +152,19 @@ const Navbar = ({ variant = "default", heroOverlay = false }: NavbarProps) => {
           isSolidNav
             ? "border-b border-border/80 bg-white/95 shadow-sm backdrop-blur-xl supports-[backdrop-filter]:bg-white/90"
             : useHeroNavChrome
-              ? "border-b border-white/10 bg-[#060612]/50 shadow-[0_4px_24px_rgba(0,0,0,0.2)] backdrop-blur-md"
+              ? "marketing-hero-navbar"
               : "border-b border-transparent bg-transparent"
         )}
         initial={false}
         animate={{ y: mobileMenuOpen || !navHidden ? 0 : -100 }}
         transition={{ duration: 0.28, ease: [0.4, 0, 0.2, 1] }}
       >
-        <div className="container flex h-14 items-center justify-between gap-4 px-4 sm:h-[4.25rem] sm:px-6">
+        <div className="container flex h-14 items-center justify-between gap-3 px-4 sm:h-[4.25rem] sm:gap-4 sm:px-6">
           <Link
             to="/"
-            className="group flex min-w-0 shrink-0 items-center gap-2 sm:gap-2.5"
+            className="group flex min-w-0 max-w-[58%] shrink-0 items-center sm:max-w-[min(42vw,320px)] md:max-w-none"
           >
-            <img
-              src="/ellure-logo.png"
-              alt="Ellure NexHire"
-              className="h-10 w-10 shrink-0 object-contain transition-transform duration-300 group-hover:scale-105 sm:h-12 sm:w-12"
-            />
-            <span
-              className={cn(
-                "font-poppins whitespace-nowrap text-lg font-bold leading-none tracking-tight transition-colors sm:text-xl",
-                useLightText ? "text-white drop-shadow-sm" : "text-foreground"
-              )}
-            >
-              <span className={useLightText ? "text-white" : "text-[#3d4853]"}>Ellure </span>
-              <span className={useLightText ? "text-white" : "text-primary"}>NexHire</span>
-            </span>
+            <BrandWordmark size="nav" onDark={false} />
           </Link>
 
           {/* Desktop */}

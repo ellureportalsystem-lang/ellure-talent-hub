@@ -29,10 +29,19 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 import { useShortlists, type FolderView } from "@/hooks/useShortlists";
-import { searchApplicantsForFolder, type ApplicantSummary } from "@/services/shortlistService";
+import {
+  searchApplicantsForFolder,
+  updateShortlist,
+  shareShortlistWithClient,
+  fetchShortlistShares,
+  fetchClientsForShare,
+  fetchShortlistApplicantsForExport,
+  type ApplicantSummary,
+} from "@/services/shortlistService";
 import { exportApplicantsToExcel } from "@/utils/applicantExport";
 import type { Applicant } from "@/hooks/useApplicants";
 import { Loader2 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 import { DashboardPageShell } from "@/components/dashboard/DashboardPageShell";
 import { PortalPageHeader } from "@/components/portal/portal-ui";
 import { portalPanelClass } from "@/components/portal/portalStyles";
@@ -64,6 +73,7 @@ function folderFromView(f: FolderView): Folder {
 }
 
 const FoldersManagement = () => {
+  const { user } = useAuth();
   const { folders: folderViews, loading, createFolder, removeFolder, addToFolder, removeFromFolder, reload } =
     useShortlists("admin");
   const folders: Folder[] = folderViews.map(folderFromView);
@@ -78,6 +88,16 @@ const FoldersManagement = () => {
   const [isAddApplicantsDialogOpen, setIsAddApplicantsDialogOpen] = useState(false);
   const [addSearchQuery, setAddSearchQuery] = useState("");
   const [addSearchResults, setAddSearchResults] = useState<ApplicantSummary[]>([]);
+  const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [shareSearch, setShareSearch] = useState("");
+  const [shareClients, setShareClients] = useState<{ id: string; company_name: string; contact_email: string | null }[]>([]);
+  const [selectedShareClientId, setSelectedShareClientId] = useState("");
+  const [folderShares, setFolderShares] = useState<{ id: string; clients: { company_name: string } | null }[]>([]);
+  const [editName, setEditName] = useState("");
+  const [editDescription, setEditDescription] = useState("");
+  const [editColor, setEditColor] = useState("blue");
+  const [exporting, setExporting] = useState(false);
 
   const colorOptions = [
     { value: "blue", label: "Blue", class: "bg-blue-500" },
@@ -139,6 +159,83 @@ const FoldersManagement = () => {
     setAddSearchResults(data ?? []);
   };
 
+  const openShareDialog = async (folder: Folder) => {
+    setSelectedFolder(folder);
+    setIsShareDialogOpen(true);
+    const [{ data: clients }, { data: shares }] = await Promise.all([
+      fetchClientsForShare(shareSearch),
+      fetchShortlistShares(folder.id),
+    ]);
+    setShareClients(clients ?? []);
+    setFolderShares((shares ?? []) as typeof folderShares);
+  };
+
+  const searchShareClients = async () => {
+    const { data } = await fetchClientsForShare(shareSearch);
+    setShareClients(data ?? []);
+  };
+
+  const handleShareFolder = async () => {
+    if (!selectedFolder || !selectedShareClientId || !user?.id) return;
+    const { error } = await shareShortlistWithClient(selectedFolder.id, selectedShareClientId, user.id);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success("Folder shared with client");
+    setSelectedShareClientId("");
+    await reload();
+    const { data: shares } = await fetchShortlistShares(selectedFolder.id);
+    setFolderShares((shares ?? []) as typeof folderShares);
+  };
+
+  const openEditDialog = (folder: Folder) => {
+    setSelectedFolder(folder);
+    setEditName(folder.name);
+    setEditDescription(folder.description);
+    setEditColor(folder.color);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!selectedFolder || !editName.trim()) return;
+    const { error } = await updateShortlist(selectedFolder.id, {
+      name: editName.trim(),
+      description: editDescription.trim() || null,
+      color: editColor,
+    });
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success("Folder updated");
+    setIsEditDialogOpen(false);
+    await reload();
+    setSelectedFolder({
+      ...selectedFolder,
+      name: editName.trim(),
+      description: editDescription.trim(),
+      color: editColor,
+    });
+  };
+
+  const handleExportFolder = async (folder: Folder) => {
+    setExporting(true);
+    try {
+      const rows = await fetchShortlistApplicantsForExport(folder.id);
+      if (!rows.length) {
+        toast.error("No applicants to export");
+        return;
+      }
+      exportApplicantsToExcel(rows as Applicant[], `${folder.name.replace(/\s+/g, "-")}-export`);
+      toast.success("Export started");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Export failed");
+    } finally {
+      setExporting(false);
+    }
+  };
+
   const filteredFolders = folders.filter(f => 
     f.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     f.description.toLowerCase().includes(searchQuery.toLowerCase())
@@ -183,11 +280,11 @@ const FoldersManagement = () => {
               <UserPlus className="h-4 w-4 mr-2" />
               Add Applicants
             </Button>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={() => selectedFolder && void openShareDialog(selectedFolder)}>
               <Share2 className="h-4 w-4 mr-2" />
               Share
             </Button>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" disabled={exporting} onClick={() => selectedFolder && void handleExportFolder(selectedFolder)}>
               <Download className="h-4 w-4 mr-2" />
               Export All
             </Button>
@@ -205,12 +302,12 @@ const FoldersManagement = () => {
                   {selectedFolder.isShared && (
                     <Badge variant="outline" className="gap-1">
                       <Share2 className="h-3 w-3" />
-                      Shared with {selectedFolder.sharedWith.length} people
+                      Shared with {folderShares.length || selectedFolder.sharedWith.length} clients
                     </Badge>
                   )}
                 </div>
               </div>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" onClick={() => openEditDialog(selectedFolder)}>
                 <Edit className="h-4 w-4 mr-2" />
                 Edit Folder
               </Button>
@@ -374,6 +471,60 @@ const FoldersManagement = () => {
                   </Button>
                 </div>
               </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={isShareDialogOpen} onOpenChange={setIsShareDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Share {selectedFolder?.name}</DialogTitle>
+              <DialogDescription>Share this folder with a client account</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-3">
+              <div className="flex gap-2">
+                <Input placeholder="Search clients..." value={shareSearch} onChange={(e) => setShareSearch(e.target.value)} />
+                <Button variant="secondary" onClick={() => void searchShareClients()}>Search</Button>
+              </div>
+              <div className="max-h-40 overflow-y-auto space-y-1">
+                {shareClients.map((c) => (
+                  <button
+                    key={c.id}
+                    type="button"
+                    className={`w-full text-left p-2 rounded border text-sm ${selectedShareClientId === c.id ? "border-primary bg-primary/5" : ""}`}
+                    onClick={() => setSelectedShareClientId(c.id)}
+                  >
+                    {c.company_name}
+                  </button>
+                ))}
+              </div>
+              {folderShares.length > 0 && (
+                <div className="text-xs text-muted-foreground">
+                  Already shared with: {folderShares.map((s) => s.clients?.company_name).filter(Boolean).join(", ")}
+                </div>
+              )}
+              <Button onClick={() => void handleShareFolder()} disabled={!selectedShareClientId}>Share folder</Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+          <DialogContent>
+            <DialogHeader><DialogTitle>Edit folder</DialogTitle></DialogHeader>
+            <div className="space-y-3">
+              <div><Label>Name</Label><Input value={editName} onChange={(e) => setEditName(e.target.value)} /></div>
+              <div><Label>Description</Label><Textarea value={editDescription} onChange={(e) => setEditDescription(e.target.value)} /></div>
+              <div className="flex gap-2">
+                {colorOptions.map((color) => (
+                  <button
+                    key={color.value}
+                    type="button"
+                    className={`h-8 w-8 rounded-full ${color.class} ${editColor === color.value ? "ring-2 ring-primary" : ""}`}
+                    onClick={() => setEditColor(color.value)}
+                  />
+                ))}
+              </div>
+              <Button onClick={() => void handleSaveEdit()}>Save changes</Button>
             </div>
           </DialogContent>
         </Dialog>
@@ -552,15 +703,15 @@ const FoldersManagement = () => {
                       <Eye className="mr-2 h-4 w-4" />
                       View Folder
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={(e) => e.stopPropagation()}>
+                    <DropdownMenuItem onClick={(e) => { e.stopPropagation(); openEditDialog(folder); }}>
                       <Edit className="mr-2 h-4 w-4" />
                       Edit Folder
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={(e) => e.stopPropagation()}>
+                    <DropdownMenuItem onClick={(e) => { e.stopPropagation(); void openShareDialog(folder); }}>
                       <Share2 className="mr-2 h-4 w-4" />
                       Share Folder
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={(e) => e.stopPropagation()}>
+                    <DropdownMenuItem onClick={(e) => { e.stopPropagation(); void handleExportFolder(folder); }}>
                       <Download className="mr-2 h-4 w-4" />
                       Export Folder
                     </DropdownMenuItem>
@@ -615,11 +766,11 @@ const FoldersManagement = () => {
               </div>
 
               <div className="flex gap-2">
-                <Button variant="outline" size="sm" className="flex-1">
+                <Button variant="outline" size="sm" className="flex-1" onClick={(e) => { e.stopPropagation(); setSelectedFolder(folder); }}>
                   <Eye className="h-4 w-4 mr-2" />
                   View
                 </Button>
-                <Button variant="outline" size="sm" onClick={(e) => e.stopPropagation()}>
+                <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); void handleExportFolder(folder); }}>
                   <Download className="h-4 w-4" />
                 </Button>
               </div>
