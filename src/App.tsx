@@ -50,6 +50,7 @@ import GoogleCallback from "./pages/auth/GoogleCallback";
 import ForceChangePassword from "./pages/auth/ForceChangePassword";
 import NotFound from "./pages/NotFound";
 import PortalHub from "./pages/auth/PortalHub";
+import { AuthMaintenanceLayout } from "@/components/auth/AuthMaintenanceLayout";
 import { PORTAL_ROUTES } from "@/lib/portalRoutes";
 import { DashboardRoute } from "@/components/DashboardRoute";
 
@@ -79,25 +80,48 @@ const App = () => (
                 <ScrollToTop />
                 <PortalThemeSync />
                 <Routes>
-                  {/* Portal hub & canonical login paths */}
-                  <Route path="/login" element={<ForceLightTheme><PortalHub /></ForceLightTheme>} />
-                  <Route path={PORTAL_ROUTES.candidate.login} element={<ForceLightTheme><ApplicantLogin /></ForceLightTheme>} />
-                  <Route path={PORTAL_ROUTES.candidate.register} element={<Navigate to="/auth/register" replace />} />
-                  <Route path={PORTAL_ROUTES.recruiter.login} element={<ForceLightTheme><ClientLogin /></ForceLightTheme>} />
-                  <Route path={PORTAL_ROUTES.recruiter.signup} element={<ForceLightTheme><ClientSignup /></ForceLightTheme>} />
-                  <Route path={PORTAL_ROUTES.admin.login} element={<ForceLightTheme><AdminLogin /></ForceLightTheme>} />
-                  <Route path={PORTAL_ROUTES.admin.signup} element={<ForceLightTheme><AdminSignup /></ForceLightTheme>} />
-                  <Route path={PORTAL_ROUTES.recruiter.shortcut} element={<Navigate to={PORTAL_ROUTES.recruiter.login} replace />} />
-                  <Route path={PORTAL_ROUTES.admin.shortcut} element={<Navigate to={PORTAL_ROUTES.admin.login} replace />} />
-                  {/* Legacy aliases (still work) */}
-                  <Route path="/auth/login" element={<Navigate to={PORTAL_ROUTES.candidate.login} replace />} />
-                  <Route path="/auth/applicant" element={<Navigate to={PORTAL_ROUTES.candidate.login} replace />} />
-                  <Route path="/admin/auth/login" element={<Navigate to={PORTAL_ROUTES.admin.login} replace />} />
-                  <Route path="/admin/auth/signup" element={<Navigate to={PORTAL_ROUTES.admin.signup} replace />} />
-                  <Route path="/client/auth/login" element={<Navigate to={PORTAL_ROUTES.recruiter.login} replace />} />
-                  <Route path="/client/auth/signup" element={<Navigate to={PORTAL_ROUTES.recruiter.signup} replace />} />
-                  <Route path="/auth/admin" element={<Navigate to={PORTAL_ROUTES.admin.login} replace />} />
-                  <Route path="/auth/client" element={<Navigate to={PORTAL_ROUTES.recruiter.login} replace />} />
+                  <Route element={<AuthMaintenanceLayout />}>
+                    {/* Portal hub & canonical login paths */}
+                    <Route path="/login" element={<ForceLightTheme><PortalHub /></ForceLightTheme>} />
+                    <Route path={PORTAL_ROUTES.candidate.login} element={<ForceLightTheme><ApplicantLogin /></ForceLightTheme>} />
+                    <Route path={PORTAL_ROUTES.candidate.register} element={<Navigate to="/auth/register" replace />} />
+                    <Route path={PORTAL_ROUTES.recruiter.login} element={<ForceLightTheme><ClientLogin /></ForceLightTheme>} />
+                    <Route path={PORTAL_ROUTES.recruiter.signup} element={<ForceLightTheme><ClientSignup /></ForceLightTheme>} />
+                    <Route path={PORTAL_ROUTES.admin.login} element={<ForceLightTheme><AdminLogin /></ForceLightTheme>} />
+                    <Route path={PORTAL_ROUTES.admin.signup} element={<ForceLightTheme><AdminSignup /></ForceLightTheme>} />
+                    <Route path={PORTAL_ROUTES.recruiter.shortcut} element={<Navigate to={PORTAL_ROUTES.recruiter.login} replace />} />
+                    <Route path={PORTAL_ROUTES.admin.shortcut} element={<Navigate to={PORTAL_ROUTES.admin.login} replace />} />
+                    {/* Legacy aliases (still work) */}
+                    <Route path="/auth/login" element={<Navigate to={PORTAL_ROUTES.candidate.login} replace />} />
+                    <Route path="/auth/applicant" element={<Navigate to={PORTAL_ROUTES.candidate.login} replace />} />
+                    <Route path="/admin/auth/login" element={<Navigate to={PORTAL_ROUTES.admin.login} replace />} />
+                    <Route path="/admin/auth/signup" element={<Navigate to={PORTAL_ROUTES.admin.signup} replace />} />
+                    <Route path="/client/auth/login" element={<Navigate to={PORTAL_ROUTES.recruiter.login} replace />} />
+                    <Route path="/client/auth/signup" element={<Navigate to={PORTAL_ROUTES.recruiter.signup} replace />} />
+                    <Route path="/auth/admin" element={<Navigate to={PORTAL_ROUTES.admin.login} replace />} />
+                    <Route path="/auth/client" element={<Navigate to={PORTAL_ROUTES.recruiter.login} replace />} />
+                    <Route path="/auth/forgot-password" element={<ForceLightTheme><ForgotPassword /></ForceLightTheme>} />
+                    <Route path="/auth/google/callback" element={<ForceLightTheme><GoogleCallback /></ForceLightTheme>} />
+                    <Route path="/auth/force-change-password" element={<ForceLightTheme><ForceChangePassword /></ForceLightTheme>} />
+                    <Route path="/auth/register" element={<ForceLightTheme><AccountCreationMethod /></ForceLightTheme>} />
+                    <Route path="/auth/register/email" element={<ForceLightTheme><EmailSignUp /></ForceLightTheme>} />
+                    <Route path="/auth/register/phone" element={<ForceLightTheme><PhoneSignUp /></ForceLightTheme>} />
+                    <Route path="/auth/register/verify-otp" element={<ForceLightTheme><VerifyOTP /></ForceLightTheme>} />
+                    <Route path="/auth/register/set-password" element={<ForceLightTheme><SetPassword /></ForceLightTheme>} />
+                    <Route path="/auth/applicant-register/step-1" element={<ForceLightTheme><Step1BasicInfo /></ForceLightTheme>} />
+                    <Route path="/auth/applicant-register/step-2" element={<ForceLightTheme><Step2Address /></ForceLightTheme>} />
+                    <Route path="/auth/applicant-register/step-3" element={<ForceLightTheme><Step3Education /></ForceLightTheme>} />
+                    <Route path="/auth/applicant-register/step-4" element={<ForceLightTheme><Step4Experience /></ForceLightTheme>} />
+                    <Route path="/auth/applicant-register/step-5" element={<ForceLightTheme><Step5Skills /></ForceLightTheme>} />
+                    <Route path="/auth/applicant-register/step-6" element={<ForceLightTheme><Step6CareerPreferences /></ForceLightTheme>} />
+                    <Route path="/auth/applicant-register/step-7" element={<ForceLightTheme><Step7Documents /></ForceLightTheme>} />
+                    <Route path="/auth/applicant-register/step-8" element={<ForceLightTheme><Step8Review /></ForceLightTheme>} />
+                    <Route path="/auth/applicant-register/success" element={<ForceLightTheme><RegistrationSuccess /></ForceLightTheme>} />
+                    <Route path="/client/accept-invite" element={<ForceLightTheme><AcceptInvitePage /></ForceLightTheme>} />
+                    <Route path="/respond" element={<ForceLightTheme><NviteRespondPage /></ForceLightTheme>} />
+                    <Route path="/unsubscribe" element={<ForceLightTheme><NviteRespondPage /></ForceLightTheme>} />
+                  </Route>
+
                   <Route path="/" element={<ForceLightTheme><Landing /></ForceLightTheme>} />
                   <Route path="/about" element={<ForceLightTheme><About /></ForceLightTheme>} />
                   <Route path="/showcase" element={<ForceLightTheme><Showcase /></ForceLightTheme>} />
@@ -108,26 +132,6 @@ const App = () => (
                   <Route path="/faq" element={<ForceLightTheme><FAQ /></ForceLightTheme>} />
                   <Route path="/privacy" element={<ForceLightTheme><Privacy /></ForceLightTheme>} />
                   <Route path="/terms" element={<ForceLightTheme><Terms /></ForceLightTheme>} />
-                  <Route path="/auth/forgot-password" element={<ForceLightTheme><ForgotPassword /></ForceLightTheme>} />
-                  <Route path="/auth/google/callback" element={<ForceLightTheme><GoogleCallback /></ForceLightTheme>} />
-                  <Route path="/auth/force-change-password" element={<ForceLightTheme><ForceChangePassword /></ForceLightTheme>} />
-                  <Route path="/auth/register" element={<ForceLightTheme><AccountCreationMethod /></ForceLightTheme>} />
-                  <Route path="/auth/register/email" element={<ForceLightTheme><EmailSignUp /></ForceLightTheme>} />
-                  <Route path="/auth/register/phone" element={<ForceLightTheme><PhoneSignUp /></ForceLightTheme>} />
-                  <Route path="/auth/register/verify-otp" element={<ForceLightTheme><VerifyOTP /></ForceLightTheme>} />
-                  <Route path="/auth/register/set-password" element={<ForceLightTheme><SetPassword /></ForceLightTheme>} />
-                  <Route path="/auth/applicant-register/step-1" element={<ForceLightTheme><Step1BasicInfo /></ForceLightTheme>} />
-                  <Route path="/auth/applicant-register/step-2" element={<ForceLightTheme><Step2Address /></ForceLightTheme>} />
-                  <Route path="/auth/applicant-register/step-3" element={<ForceLightTheme><Step3Education /></ForceLightTheme>} />
-                  <Route path="/auth/applicant-register/step-4" element={<ForceLightTheme><Step4Experience /></ForceLightTheme>} />
-                  <Route path="/auth/applicant-register/step-5" element={<ForceLightTheme><Step5Skills /></ForceLightTheme>} />
-                  <Route path="/auth/applicant-register/step-6" element={<ForceLightTheme><Step6CareerPreferences /></ForceLightTheme>} />
-                  <Route path="/auth/applicant-register/step-7" element={<ForceLightTheme><Step7Documents /></ForceLightTheme>} />
-                  <Route path="/auth/applicant-register/step-8" element={<ForceLightTheme><Step8Review /></ForceLightTheme>} />
-                  <Route path="/auth/applicant-register/success" element={<ForceLightTheme><RegistrationSuccess /></ForceLightTheme>} />
-                  <Route path="/client/accept-invite" element={<ForceLightTheme><AcceptInvitePage /></ForceLightTheme>} />
-                  <Route path="/respond" element={<ForceLightTheme><NviteRespondPage /></ForceLightTheme>} />
-                  <Route path="/unsubscribe" element={<ForceLightTheme><NviteRespondPage /></ForceLightTheme>} />
                   <Route
                     path="/dashboard/applicant/*"
                     element={

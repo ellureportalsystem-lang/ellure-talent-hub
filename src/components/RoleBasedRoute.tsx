@@ -7,6 +7,8 @@ import { Shield, Loader2, LogOut } from "lucide-react";
 import type { UserRole } from "@/types/database.types";
 
 import { LOGIN_BY_ROLE, DASHBOARD_BY_ROLE, loginPathForDashboard } from "@/lib/portalRoutes";
+import { isAuthMaintenanceMode } from "@/lib/authMaintenance";
+import AuthMaintenancePage from "@/pages/auth/AuthMaintenancePage";
 
 interface RoleBasedRouteProps {
   children: ReactNode;
@@ -19,6 +21,10 @@ export const RoleBasedRoute = ({ children, allowedRoles }: RoleBasedRouteProps) 
   const location = useLocation();
   const [verifiedProfile, setVerifiedProfile] = useState<typeof profile>(null);
   const [profileLoading, setProfileLoading] = useState(true);
+
+  if (isAuthMaintenanceMode) {
+    return <AuthMaintenancePage />;
+  }
 
   useEffect(() => {
     let alive = true;
